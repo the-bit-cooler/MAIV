@@ -14,75 +14,10 @@
     "shortname": "ASV (1901)",
     "supported": true
   },
-  "CEV": {
-    "fullname": "Contemporary English Version",
-    "shortname": "CEV",
-    "supported": false
-  },
-  "COVERDALE": {
-    "fullname": "Coverdale Bible",
-    "shortname": "COVERDALE",
-    "supported": false
-  },
-  "ESV": {
-    "fullname": "English Standard Version",
-    "shortname": "ESV",
-    "supported": false
-  },
-  "GEN": {
-    "fullname": "Geneva Bible",
-    "shortname": "GENEVA",
-    "supported": false
-  },
-  "GNT": {
-    "fullname": "Good News Translation",
-    "shortname": "GNT",
-    "supported": false
-  },
   "KJV": {
     "fullname": "King James Version (1769)",
     "shortname": "KJV (1769)",
     "supported": true
-  },
-  "MSG": {
-    "fullname": "The Message",
-    "shortname": "MSG",
-    "supported": false
-  },
-  "NASB": {
-    "fullname": "New American Standard Bible",
-    "shortname": "NASB",
-    "supported": false
-  },
-  "NIV": {
-    "fullname": "New International Version",
-    "shortname": "NIV",
-    "supported": false
-  },
-  "NKJV": {
-    "fullname": "New King James Version",
-    "shortname": "NKJV",
-    "supported": false
-  },
-  "NLT": {
-    "fullname": "New Living Translation",
-    "shortname": "NLT",
-    "supported": false
-  },
-  "RSV": {
-    "fullname": "Revised Standard Version",
-    "shortname": "RSV",
-    "supported": false
-  },
-  "TYNDALE": {
-    "fullname": "Tyndale Bible",
-    "shortname": "TYNDALE",
-    "supported": false
-  },
-  "WYC": {
-    "fullname": "Wycliffe Bible",
-    "shortname": "Wycliffe",
-    "supported": false
   },
   "YLT": {
     "fullname": "Young's Literal Translation",
