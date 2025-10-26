@@ -1,5 +1,5 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Application from 'expo-application';
+import AsyncStorage from 'expo-sqlite/kv-store';
 import {
   Alert,
   Button,

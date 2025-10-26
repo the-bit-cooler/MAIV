@@ -1,9 +1,9 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { PlatformPressable } from '@react-navigation/elements';
+import { useLocalSearchParams } from 'expo-router';
+import AsyncStorage from 'expo-sqlite/kv-store';
 import { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Markdown from 'react-native-markdown-display';
-import { useLocalSearchParams } from 'expo-router';
 
 import { useAppPreferences } from '@/hooks/use-app-preferences-provider';
 import { useThemeColor } from '@/hooks/use-theme-color';
@@ -11,10 +11,10 @@ import { useThemeColor } from '@/hooks/use-theme-color';
 import { getBibleVersionDisplayName } from '@/utilities/get-bible-version-info';
 import { shareMarkdownAsPdf } from '@/utilities/share-markdown-as-pdf';
 
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
 import AiThinkingIndicator from '@/components/ai-thinking-indicator';
 import { IconSymbol } from '@/components/icon-symbol';
+import ParallaxScrollView from '@/components/parallax-scroll-view';
+import { ThemedText } from '@/components/themed-text';
 
 type NewBibleVerseTranslationRouteParams = {
   version: string;

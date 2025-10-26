@@ -1,13 +1,13 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { FlashList, FlashListRef } from '@shopify/flash-list';
+import AsyncStorage from 'expo-sqlite/kv-store';
 import { memo, useEffect, useRef } from 'react';
 import { AppState, TouchableOpacity, View } from 'react-native';
 import PagerView from 'react-native-pager-view';
-import { FlashList, FlashListRef } from '@shopify/flash-list';
 
 import { useAppPreferences } from '@/hooks/use-app-preferences-provider';
+import { useChapterPages } from '@/hooks/use-chapter-pages';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { useVerseContextMenu } from '@/hooks/use-verse-context-menu';
-import { useChapterPages } from '@/hooks/use-chapter-pages';
 
 import { getBibleBookChapterCount } from '@/utilities/get-bible-book-chapter-count';
 import { getBibleBookList } from '@/utilities/get-bible-book-list';

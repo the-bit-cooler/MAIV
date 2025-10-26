@@ -1,9 +1,9 @@
+import { ThemeProvider as NavThemeProvider } from '@react-navigation/native';
+import AsyncStorage from 'expo-sqlite/kv-store';
 import { createContext, useContext, useEffect, useState } from 'react';
 import { Appearance } from 'react-native';
-import { ThemeProvider as NavThemeProvider } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import { LightNavTheme, DarkNavTheme, SepiaNavTheme } from '@/constants/navigation-theme';
+import { DarkNavTheme, LightNavTheme, SepiaNavTheme } from '@/constants/navigation-theme';
 import { ThemeName } from '@/constants/theme';
 import { UserPreferences } from '@/constants/user-preferences';
 

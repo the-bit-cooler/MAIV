@@ -1,4 +1,4 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from 'expo-sqlite/kv-store';
 import { createContext, useContext, useEffect, useState } from 'react';
 
 import { AppDefaults } from '@/constants/app-defaults';

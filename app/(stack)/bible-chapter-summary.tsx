@@ -1,18 +1,18 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { PlatformPressable } from '@react-navigation/elements';
+import { Image } from 'expo-image';
+import AsyncStorage from 'expo-sqlite/kv-store';
 import { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { PlatformPressable } from '@react-navigation/elements';
 import Markdown from 'react-native-markdown-display';
-import { Image } from 'expo-image';
 
 import { useAppPreferences } from '@/hooks/use-app-preferences-provider';
 import { useThemeColor } from '@/hooks/use-theme-color';
 
 import { shareMarkdownAsPdf } from '@/utilities/share-markdown-as-pdf';
 
-import ParallaxScrollView from '@/components/parallax-scroll-view';
 import AiThinkingIndicator from '@/components/ai-thinking-indicator';
 import { IconSymbol } from '@/components/icon-symbol';
+import ParallaxScrollView from '@/components/parallax-scroll-view';
 import { ThemedText } from '@/components/themed-text';
 
 type BibleChapterSummaryParams = {

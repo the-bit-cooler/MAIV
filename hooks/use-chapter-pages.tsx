@@ -1,6 +1,6 @@
-import { useEffect, useState, useMemo } from 'react';
-import { View, Dimensions } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from 'expo-sqlite/kv-store';
+import { useEffect, useMemo, useState } from 'react';
+import { Dimensions, View } from 'react-native';
 
 import { VerseView } from '@/components/verse-view';
 

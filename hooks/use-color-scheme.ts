@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from 'expo-sqlite/kv-store';
+import { useEffect, useState } from 'react';
 import { Appearance } from 'react-native';
 
 import { ThemeName } from '@/constants/theme';
