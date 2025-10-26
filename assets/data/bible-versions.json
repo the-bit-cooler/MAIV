@@ -14,14 +14,34 @@
     "shortname": "ASV (1901)",
     "supported": true
   },
+  "Darby": {
+    "fullname": "Darby Bible (1889)",
+    "shortname": "Darby (1889)",
+    "supported": true
+  },
+  "Jubilee2000": {
+    "fullname": "English Jubilee Bible (2000)",
+    "shortname": "Jubilee (2000)",
+    "supported": true
+  },
   "KJV": {
     "fullname": "King James Version (1769)",
     "shortname": "KJV (1769)",
     "supported": true
   },
+  "NHEB": {
+    "fullname": "New Heart English Bible (2010)",
+    "shortname": "NHEB (2010)",
+    "supported": true
+  },
+  "Webster": {
+    "fullname": "Webster Bible (1833)",
+    "shortname": "Webster (1833)",
+    "supported": true
+  },
   "YLT": {
     "fullname": "Young's Literal Translation",
     "shortname": "YLT",
-    "supported": false
+    "supported": true
   }
 }
