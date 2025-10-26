@@ -2,46 +2,64 @@
   "MAIV": {
     "fullname": "Modern AI Translation (2025)",
     "shortname": "MAIV (2025)",
-    "supported": true
+    "supported": true,
+    "description": "A modern translation generated with the assistance of advanced AI models trained on public domain biblical texts, aiming for clarity and readability while preserving the original meaning and tone.",
+    "copyright": "Public Domain (Released 2025 by ScipturAI)"
   },
   "AKJV": {
     "fullname": "American King James Version (1999)",
     "shortname": "AKJV (1999)",
-    "supported": true
+    "supported": true,
+    "description": "A modernized revision of the King James Version by Michael Peter (Stone) Engelbrite, updating archaic language while keeping the traditional KJV style and structure intact.",
+    "copyright": "Public Domain (Released 1999 by Michael Peter (Stone) Engelbrite)"
   },
   "ASV": {
     "fullname": "American Standard Version (1901)",
     "shortname": "ASV (1901)",
-    "supported": true
+    "supported": true,
+    "description": "A highly literal English translation of the Bible, derived from the Revised Version (RV) of 1881-1895, known for its accuracy and use of 'Jehovah' for the divine name.",
+    "copyright": "Public Domain (1901)"
   },
   "Darby": {
     "fullname": "Darby Bible (1889)",
     "shortname": "Darby (1889)",
-    "supported": true
+    "supported": true,
+    "description": "Translated by John Nelson Darby, this version emphasizes formal equivalence and was influential in early dispensationalist and Plymouth Brethren movements.",
+    "copyright": "Public Domain (1889)"
   },
   "Jubilee2000": {
     "fullname": "English Jubilee Bible (2000)",
     "shortname": "Jubilee (2000)",
-    "supported": true
+    "supported": true,
+    "description": "Translated by Russell M. Stendal from the Spanish Reina-Valera text, the Jubilee Bible retains traditional phrasing while enhancing readability for modern audiences.",
+    "copyright": "© 2000 Russell M. Stendal, used with permission through Life Sentence Publishing"
   },
   "KJV": {
     "fullname": "King James Version (1769)",
     "shortname": "KJV (1769)",
-    "supported": true
+    "supported": true,
+    "description": "Originally commissioned in 1604 and first published in 1611, the King James Version remains one of the most influential English Bible translations. The 1769 Oxford edition is the most widely used standardized text.",
+    "copyright": "Public Domain (1769 Oxford Edition)"
   },
   "NHEB": {
     "fullname": "New Heart English Bible (2010)",
     "shortname": "NHEB (2010)",
-    "supported": true
+    "supported": true,
+    "description": "A modern, public domain update of the World English Bible, itself based on the American Standard Version, with contemporary English and inclusive language.",
+    "copyright": "Public Domain (2010, based on the World English Bible)"
   },
   "Webster": {
     "fullname": "Webster Bible (1833)",
     "shortname": "Webster (1833)",
-    "supported": true
+    "supported": true,
+    "description": "Noah Webster's update to the King James Version, modernizing archaic words and spellings while preserving the text's traditional structure and theological tone.",
+    "copyright": "Public Domain (1833)"
   },
   "YLT": {
-    "fullname": "Young's Literal Translation",
+    "fullname": "Young's Literal Translation (1862, revised 1898)",
     "shortname": "YLT",
-    "supported": true
+    "supported": true,
+    "description": "A highly literal translation by Robert Young, aiming to preserve the original Hebrew and Greek grammatical structures as closely as possible in English.",
+    "copyright": "Public Domain (1898 Revised Edition)"
   }
 }
