@@ -5,7 +5,6 @@ import { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Markdown from 'react-native-markdown-display';
 
-import { useAppPreferences } from '@/hooks/use-app-preferences-provider';
 import { useThemeColor } from '@/hooks/use-theme-color';
 
 import { shareMarkdownAsPdf } from '@/utilities/share-markdown-as-pdf';
@@ -16,15 +15,13 @@ import ParallaxScrollView from '@/components/parallax-scroll-view';
 import { ThemedText } from '@/components/themed-text';
 
 type BibleChapterSummaryParams = {
-  version: string;
   book: string;
   chapter: number;
 };
 
-export default function BibleChapterSummary({ version, book, chapter }: BibleChapterSummaryParams) {
+export default function BibleChapterSummary({ book, chapter }: BibleChapterSummaryParams) {
   const [summary, setSummary] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const { aiMode } = useAppPreferences();
 
   // ✅ use theme defaults
   const headerBackgroundColor = useThemeColor({}, 'cardBackground');
@@ -34,29 +31,32 @@ export default function BibleChapterSummary({ version, book, chapter }: BibleCha
 
   const fetchBibleChapterSummary = useCallback(
     async (cacheKey: string) => {
-      if (!aiMode) return; // wait until mode is loaded
       try {
-        const url = `${process.env.EXPO_PUBLIC_AZURE_FUNCTION_URL}${version}/${book}/${chapter}/summarize/${aiMode}?code=${process.env.EXPO_PUBLIC_AZURE_FUNCTION_KEY}`;
+        const url = `${process.env.EXPO_PUBLIC_AZURE_STORAGE_URL}summary/${book.replace(/ /g, '')}/${chapter}.txt`;
         const response = await fetch(url);
-        if (!response.ok)
-          throw new Error(
-            `API Error ${response.status}: Failed to fetch a summary for ${version}:${book}:${chapter}.`,
-          );
-
-        const result = await response.text();
-        setSummary(result);
-        setLoading(false);
-        await AsyncStorage.setItem(cacheKey, result);
+        if (response.ok) {
+          const result = await response.text();
+          if (result) {
+            setSummary(result);
+            await AsyncStorage.setItem(cacheKey, result);
+          } else {
+            console.warn('Empty summary');
+          }
+        } else {
+          console.warn('Failed to load summary');
+        }
       } catch (err) {
         console.warn(err);
+      } finally {
+        setLoading(false);
       }
     },
-    [version, book, chapter, aiMode],
+    [book, chapter],
   );
 
   useEffect(() => {
     const loadSummary = async () => {
-      const cacheKey = `${version}:${book}:${chapter}:Summary:${aiMode}`;
+      const cacheKey = `${book}:${chapter}:Summary`;
       const cached = await AsyncStorage.getItem(cacheKey);
       if (cached) {
         setSummary(cached);
@@ -68,17 +68,17 @@ export default function BibleChapterSummary({ version, book, chapter }: BibleCha
     };
 
     loadSummary();
-  }, [fetchBibleChapterSummary, version, book, chapter, aiMode]);
+  }, [fetchBibleChapterSummary, book, chapter]);
 
-  const imageUrl = `${process.env.EXPO_PUBLIC_AZURE_STORAGE_URL}${book}/${chapter}.png`;
+  const imageUrl = `${process.env.EXPO_PUBLIC_AZURE_STORAGE_URL}summary/${book.replace(/ /g, '')}/${chapter}.png`;
 
   const sharePdf = async () => {
     if (summary)
       await shareMarkdownAsPdf(
         summary,
-        `Summary of ${book} ${chapter} (${version})`,
-        `${book} ${chapter} (${version})`,
-        aiMode,
+        `Summary of ${book} ${chapter}`,
+        `${book} ${chapter}`,
+        undefined,
         undefined,
         imageUrl,
       );
@@ -86,6 +86,14 @@ export default function BibleChapterSummary({ version, book, chapter }: BibleCha
 
   const blurhash =
     '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
+
+  const failedMarkdown = `
+  \`\`\`
+  So sorry! I failed to generate a summary for this chapter. 
+  
+  I will try again later.
+  \`\`\`
+  `;
 
   return (
     <ParallaxScrollView
@@ -115,7 +123,7 @@ export default function BibleChapterSummary({ version, book, chapter }: BibleCha
         </>
       }>
       <View style={[styles.container]}>
-        {loading || !summary ? (
+        {loading ? (
           <AiThinkingIndicator />
         ) : (
           <>
@@ -154,7 +162,7 @@ export default function BibleChapterSummary({ version, book, chapter }: BibleCha
                   borderRadius: 8,
                 },
               }}>
-              {summary}
+              {summary || failedMarkdown}
             </Markdown>
           </>
         )}
