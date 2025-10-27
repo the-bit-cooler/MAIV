@@ -17,7 +17,7 @@ export async function shareMarkdownAsPdf(
   markdown: string,
   title: string,
   verseReference: string,
-  aiMode: string,
+  aiMode?: string,
   verse?: Verse,
   imageUrl?: string,
 ) {
@@ -107,11 +107,12 @@ export async function shareMarkdownAsPdf(
     // Generate PDF
     const { uri } = await Print.printToFileAsync({ html });
 
+    const fileDisplayName = aiMode
+      ? `${verseReference.replace(/[\s:]+/g, '-')}-${Application.applicationName}-${aiMode}-Mode.pdf`
+      : `${verseReference.replace(/[\s:]+/g, '-')}-${Application.applicationName}.pdf`;
+
     const temp = new File(uri);
-    const file = new File(
-      Paths.cache,
-      `${verseReference.replace(/[\s:]+/g, '-')}-${Application.applicationName}-${aiMode}-Mode.pdf`,
-    );
+    const file = new File(Paths.cache, fileDisplayName);
 
     if (file.exists) file.delete();
     temp.copy(file);
