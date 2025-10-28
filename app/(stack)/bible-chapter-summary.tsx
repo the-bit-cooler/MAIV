@@ -29,46 +29,43 @@ export default function BibleChapterSummary({ book, chapter }: BibleChapterSumma
   const markdownBackgroundColor = useThemeColor({}, 'cardBackground');
   const markdownTextColor = useThemeColor({}, 'text');
 
-  const fetchBibleChapterSummary = useCallback(
-    async (cacheKey: string) => {
-      try {
-        const url = `${process.env.EXPO_PUBLIC_AZURE_STORAGE_URL}summary/${book.replace(/ /g, '')}/${chapter}.txt`;
-        const response = await fetch(url);
-        if (response.ok) {
-          const result = await response.text();
-          if (result) {
-            setSummary(result);
-            await AsyncStorage.setItem(cacheKey, result);
-          } else {
-            console.warn('Empty summary');
-          }
-        } else {
-          console.warn('Failed to load summary');
-        }
-      } catch (err) {
-        console.warn(err);
-      } finally {
-        setLoading(false);
-      }
-    },
-    [book, chapter],
-  );
+  const fetchBibleChapterSummary = useCallback(async () => {
+    setLoading(true);
 
-  useEffect(() => {
-    const loadSummary = async () => {
-      const cacheKey = `${book}:${chapter}:Summary`;
+    const cacheKey = `${book}:${chapter}:Summary`;
+
+    // Construct known storage URL
+    const storageUrl = `${process.env.EXPO_PUBLIC_AZURE_STORAGE_URL}summary/${book.replace(/ /g, '')}/${chapter}.txt`;
+
+    try {
+      // --- STEP 1: Try AsyncStorage (local cache) ---
       const cached = await AsyncStorage.getItem(cacheKey);
       if (cached) {
         setSummary(cached);
-        setLoading(false);
         return;
       }
 
-      await fetchBibleChapterSummary(cacheKey);
-    };
+      // --- STEP 2: Try to fetch from Azure Storage directly ---
+      try {
+        const fileResponse = await fetch(storageUrl);
+        if (fileResponse.ok) {
+          const summaryText = await fileResponse.text();
+          setSummary(summaryText);
+          await AsyncStorage.setItem(cacheKey, summaryText);
+        }
+      } catch (storageErr) {
+        console.warn('Storage fetch failed:', storageErr);
+      }
+    } catch (err) {
+      console.warn('Error fetching summary:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, [book, chapter]);
 
-    loadSummary();
-  }, [fetchBibleChapterSummary, book, chapter]);
+  useEffect(() => {
+    fetchBibleChapterSummary();
+  }, [fetchBibleChapterSummary]);
 
   const imageUrl = `${process.env.EXPO_PUBLIC_AZURE_STORAGE_URL}summary/${book.replace(/ /g, '')}/${chapter}.png`;
 
@@ -78,8 +75,8 @@ export default function BibleChapterSummary({ book, chapter }: BibleChapterSumma
         summary,
         `Summary of ${book} ${chapter}`,
         `${book} ${chapter}`,
-        undefined,
-        undefined,
+        undefined, // no ai mode
+        undefined, // no verse obj
         imageUrl,
       );
   };

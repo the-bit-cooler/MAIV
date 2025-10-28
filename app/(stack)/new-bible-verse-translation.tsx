@@ -37,41 +37,71 @@ export default function NewBibleVerseTranslation() {
   const markdownBackgroundColor = useThemeColor({}, 'cardBackground');
   const markdownTextColor = useThemeColor({}, 'text');
 
-  const fetchBibleVerseExplanation = useCallback(
-    async (cacheKey: string) => {
-      if (!aiMode) return; // wait until mode is loaded
-      try {
-        const url = `${process.env.EXPO_PUBLIC_AZURE_FUNCTION_URL}${version}/${book}/${chapter}/${verse}/translate?code=${process.env.EXPO_PUBLIC_AZURE_FUNCTION_KEY}`;
-        const response = await fetch(url);
-        if (!response.ok)
-          throw new Error(
-            `API Error ${response.status}: Failed to fetch new translation for ${version}:${book}:${chapter}:${verse}.`,
-          );
+  const fetchNewBibleVerseTranslation = useCallback(async () => {
+    if (!aiMode) return;
+    setLoading(true);
 
-        const result = await response.text();
-        setTranslation(result);
-        setLoading(false);
-        await AsyncStorage.setItem(cacheKey, result);
-      } catch {}
-    },
-    [version, book, chapter, verse, aiMode],
-  );
+    const cacheKey = `${version}:${book}:${chapter}:${verse}:Translation:${aiMode}`;
 
-  useEffect(() => {
-    const loadNewTranslation = async () => {
-      const cacheKey = `${version}:${book}:${chapter}:${verse}:Translation:${aiMode}`;
+    // Construct known storage URL
+    const storageUrl = `${process.env.EXPO_PUBLIC_AZURE_STORAGE_URL}translation/${version}/${book.replace(/ /g, '')}/${chapter}/${verse}/${aiMode}.txt`;
+
+    try {
+      // --- STEP 1: Try AsyncStorage (local cache) ---
       const cached = await AsyncStorage.getItem(cacheKey);
       if (cached) {
         setTranslation(cached);
-        setLoading(false);
         return;
       }
 
-      fetchBibleVerseExplanation(cacheKey);
-    };
+      // --- STEP 2: Try to fetch from Azure Storage directly ---
+      try {
+        const fileResponse = await fetch(storageUrl);
+        if (fileResponse.ok) {
+          const translationText = await fileResponse.text();
+          setTranslation(translationText);
+          await AsyncStorage.setItem(cacheKey, translationText);
+          return;
+        }
+      } catch (storageErr) {
+        console.warn('Storage fetch failed, will try Azure Function:', storageErr);
+      }
 
-    loadNewTranslation();
-  }, [fetchBibleVerseExplanation, version, book, chapter, verse, aiMode]);
+      // --- STEP 3: Fallback to Azure Function (generates & stores) ---
+      const functionUrl = `${process.env.EXPO_PUBLIC_AZURE_FUNCTION_URL}${version}/${book}/${chapter}/${verse}/translate/${aiMode}?code=${process.env.EXPO_PUBLIC_AZURE_FUNCTION_KEY}`;
+      const response = await fetch(functionUrl);
+
+      if (!response.ok) {
+        console.warn('Failed to get translation URL from Azure Function');
+        return;
+      }
+
+      const resultUrl = await response.text();
+      if (!resultUrl) {
+        console.warn('Azure Function returned empty URL');
+        return;
+      }
+
+      // Fetch the newly generated file
+      const fileResponse = await fetch(resultUrl);
+      if (!fileResponse.ok) {
+        console.warn('Failed to fetch generated translation file');
+        return;
+      }
+
+      const translationText = await fileResponse.text();
+      setTranslation(translationText);
+      await AsyncStorage.setItem(cacheKey, translationText);
+    } catch (err) {
+      console.warn('Error fetching translation:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, [version, book, chapter, verse, aiMode]);
+
+  useEffect(() => {
+    fetchNewBibleVerseTranslation();
+  }, [fetchNewBibleVerseTranslation]);
 
   const sharePdf = async () => {
     if (translation)
@@ -89,6 +119,14 @@ export default function NewBibleVerseTranslation() {
         },
       );
   };
+
+  const failedMarkdown = `
+  \`\`\`
+  So sorry! I failed to generate a new translation for this verse. 
+  
+  I will try again later.
+  \`\`\`
+  `;
 
   return (
     <ParallaxScrollView
@@ -119,7 +157,7 @@ export default function NewBibleVerseTranslation() {
         </>
       }>
       <View style={styles.container}>
-        {loading || !translation ? (
+        {loading ? (
           <AiThinkingIndicator />
         ) : (
           <>
@@ -158,7 +196,7 @@ export default function NewBibleVerseTranslation() {
                   borderRadius: 8,
                 },
               }}>
-              {translation}
+              {translation || failedMarkdown}
             </Markdown>
           </>
         )}

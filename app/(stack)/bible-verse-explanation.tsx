@@ -37,41 +37,71 @@ export default function BibleVerseExplanation() {
   const markdownBackgroundColor = useThemeColor({}, 'cardBackground');
   const markdownTextColor = useThemeColor({}, 'text');
 
-  const fetchBibleVerseExplanation = useCallback(
-    async (cacheKey: string) => {
-      if (!aiMode) return; // wait until mode is loaded
-      try {
-        const url = `${process.env.EXPO_PUBLIC_AZURE_FUNCTION_URL}${version}/${book}/${chapter}/${verse}/explain/${aiMode}?code=${process.env.EXPO_PUBLIC_AZURE_FUNCTION_KEY}`;
-        const response = await fetch(url);
-        if (!response.ok)
-          throw new Error(
-            `API Error ${response.status}: Failed to fetch any insight for ${version}:${book}:${chapter}:${verse}.`,
-          );
+  const fetchBibleVerseExplanation = useCallback(async () => {
+    if (!aiMode) return;
+    setLoading(true);
 
-        const result = await response.text();
-        setExplanation(result);
-        setLoading(false);
-        await AsyncStorage.setItem(cacheKey, result);
-      } catch {}
-    },
-    [version, book, chapter, verse, aiMode],
-  );
+    const cacheKey = `${version}:${book}:${chapter}:${verse}:Explanation:${aiMode}`;
 
-  useEffect(() => {
-    const loadExplanation = async () => {
-      const cacheKey = `${version}:${book}:${chapter}:${verse}:Explanation:${aiMode}`;
+    // Construct known storage URL
+    const storageUrl = `${process.env.EXPO_PUBLIC_AZURE_STORAGE_URL}explanation/${version}/${book.replace(/ /g, '')}/${chapter}/${verse}/${aiMode}.txt`;
+
+    try {
+      // --- STEP 1: Try AsyncStorage (local cache) ---
       const cached = await AsyncStorage.getItem(cacheKey);
       if (cached) {
         setExplanation(cached);
-        setLoading(false);
         return;
       }
 
-      fetchBibleVerseExplanation(cacheKey);
-    };
+      // --- STEP 2: Try to fetch from Azure Storage directly ---
+      try {
+        const fileResponse = await fetch(storageUrl);
+        if (fileResponse.ok) {
+          const explanationText = await fileResponse.text();
+          setExplanation(explanationText);
+          await AsyncStorage.setItem(cacheKey, explanationText);
+          return;
+        }
+      } catch (storageErr) {
+        console.warn('Storage fetch failed, will try Azure Function:', storageErr);
+      }
 
-    loadExplanation();
-  }, [fetchBibleVerseExplanation, version, book, chapter, verse, aiMode]);
+      // --- STEP 3: Fallback to Azure Function (generates & stores) ---
+      const functionUrl = `${process.env.EXPO_PUBLIC_AZURE_FUNCTION_URL}${version}/${book}/${chapter}/${verse}/explain/${aiMode}?code=${process.env.EXPO_PUBLIC_AZURE_FUNCTION_KEY}`;
+      const response = await fetch(functionUrl);
+
+      if (!response.ok) {
+        console.warn('Failed to get explanation URL from Azure Function');
+        return;
+      }
+
+      const resultUrl = await response.text();
+      if (!resultUrl) {
+        console.warn('Azure Function returned empty URL');
+        return;
+      }
+
+      // Fetch the newly generated file
+      const fileResponse = await fetch(resultUrl);
+      if (!fileResponse.ok) {
+        console.warn('Failed to fetch generated explanation file');
+        return;
+      }
+
+      const explanationText = await fileResponse.text();
+      setExplanation(explanationText);
+      await AsyncStorage.setItem(cacheKey, explanationText);
+    } catch (err) {
+      console.warn('Error fetching explanation:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, [version, book, chapter, verse, aiMode]);
+
+  useEffect(() => {
+    fetchBibleVerseExplanation();
+  }, [fetchBibleVerseExplanation]);
 
   const sharePdf = async () => {
     if (explanation)
@@ -89,6 +119,14 @@ export default function BibleVerseExplanation() {
         },
       );
   };
+
+  const failedMarkdown = `
+  \`\`\`
+  So sorry! I failed to generate an explanation for this verse. 
+  
+  I will try again later.
+  \`\`\`
+  `;
 
   return (
     <ParallaxScrollView
@@ -119,7 +157,7 @@ export default function BibleVerseExplanation() {
         </>
       }>
       <View style={styles.container}>
-        {loading || !explanation ? (
+        {loading ? (
           <AiThinkingIndicator />
         ) : (
           <>
@@ -158,7 +196,7 @@ export default function BibleVerseExplanation() {
                   borderRadius: 8,
                 },
               }}>
-              {explanation}
+              {explanation || failedMarkdown}
             </Markdown>
           </>
         )}
