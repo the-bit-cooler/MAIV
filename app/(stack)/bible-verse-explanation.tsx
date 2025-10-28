@@ -1,6 +1,5 @@
 import { PlatformPressable } from '@react-navigation/elements';
 import { useLocalSearchParams } from 'expo-router';
-import AsyncStorage from 'expo-sqlite/kv-store';
 import { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Markdown from 'react-native-markdown-display';
@@ -10,6 +9,7 @@ import { useThemeColor } from '@/hooks/use-theme-color';
 
 import { getBibleVersionDisplayName } from '@/utilities/get-bible-version-info';
 import { shareMarkdownAsPdf } from '@/utilities/share-markdown-as-pdf';
+import { getCache, setCache, TTL } from '@/utilities/cache';
 
 import AiThinkingIndicator from '@/components/ai-thinking-indicator';
 import { IconSymbol } from '@/components/icon-symbol';
@@ -47,11 +47,13 @@ export default function BibleVerseExplanation() {
     const storageUrl = `${process.env.EXPO_PUBLIC_AZURE_STORAGE_URL}explanation/${version}/${book.replace(/ /g, '')}/${chapter}/${verse}/${aiMode}.txt`;
 
     try {
-      // --- STEP 1: Try AsyncStorage (local cache) ---
-      const cached = await AsyncStorage.getItem(cacheKey);
+      // --- STEP 1: Try local cache ---
+      const cached = await getCache<string>(cacheKey);
       if (cached) {
         setExplanation(cached);
         return;
+      } else {
+        console.log('Explanation cache expired or missing — refetching...');
       }
 
       // --- STEP 2: Try to fetch from Azure Storage directly ---
@@ -60,7 +62,7 @@ export default function BibleVerseExplanation() {
         if (fileResponse.ok) {
           const explanationText = await fileResponse.text();
           setExplanation(explanationText);
-          await AsyncStorage.setItem(cacheKey, explanationText);
+          await setCache(cacheKey, explanationText, TTL.MONTH);
           return;
         }
       } catch (storageErr) {
@@ -91,7 +93,7 @@ export default function BibleVerseExplanation() {
 
       const explanationText = await fileResponse.text();
       setExplanation(explanationText);
-      await AsyncStorage.setItem(cacheKey, explanationText);
+      await setCache(cacheKey, explanationText, TTL.MONTH);
     } catch (err) {
       console.warn('Error fetching explanation:', err);
     } finally {

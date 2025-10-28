@@ -1,5 +1,4 @@
 import * as Application from 'expo-application';
-import AsyncStorage from 'expo-sqlite/kv-store';
 import {
   Alert,
   Button,
@@ -13,6 +12,8 @@ import {
 import { useAppPreferences } from '@/hooks/use-app-preferences-provider';
 import { AppTheme, useAppTheme } from '@/hooks/use-app-theme-provider';
 import { useThemeColor } from '@/hooks/use-theme-color';
+
+import { clearCache } from '@/utilities/cache';
 
 import { HorizontalThemedSeparator } from '@/components/themed-separator';
 import { ThemedText } from '@/components/themed-text';
@@ -38,7 +39,7 @@ export default function SettingsScreen() {
           style: 'destructive',
           onPress: async () => {
             try {
-              await AsyncStorage.clear();
+              await clearCache();
               Alert.alert('Cleared', 'All app data has been cleared.');
               setTheme('system'); // reset theme to system default
             } catch (err) {

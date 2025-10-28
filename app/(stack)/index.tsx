@@ -1,5 +1,4 @@
 import { FlashList, FlashListRef } from '@shopify/flash-list';
-import AsyncStorage from 'expo-sqlite/kv-store';
 import { memo, useEffect, useRef } from 'react';
 import { AppState, TouchableOpacity, View } from 'react-native';
 import PagerView from 'react-native-pager-view';
@@ -11,6 +10,7 @@ import { useVerseContextMenu } from '@/hooks/use-verse-context-menu';
 
 import { getBibleBookChapterCount } from '@/utilities/get-bible-book-chapter-count';
 import { getBibleBookList } from '@/utilities/get-bible-book-list';
+import { setCache } from '@/utilities/cache';
 
 import { CenteredActivityIndicator } from '@/components/centered-activity-indicator';
 import { VerseView } from '@/components/verse-view';
@@ -30,10 +30,7 @@ export default function BibleBookReader() {
     const saveReadingLocation = async () => {
       if (readingLocation && !isInitialMount.current) {
         try {
-          await AsyncStorage.setItem(
-            UserPreferences.saved_reading_location,
-            JSON.stringify(readingLocation),
-          );
+          await setCache(UserPreferences.saved_reading_location, readingLocation);
         } catch {}
       }
     };
@@ -142,7 +139,6 @@ function Pages() {
       }}>
       <ChapterSummary
         key={`summary-${readingLocation.chapter}`}
-        version={readingLocation.version}
         book={readingLocation.book}
         chapter={readingLocation.chapter}
       />
@@ -160,13 +156,12 @@ function Pages() {
 }
 
 type ChapterSummaryProps = {
-  version: string;
   book: string;
   chapter: number;
 };
 
-const ChapterSummary = memo(({ version, book, chapter }: ChapterSummaryProps) => {
-  return <BibleChapterSummary version={version} book={book} chapter={chapter} />;
+const ChapterSummary = memo(({ book, chapter }: ChapterSummaryProps) => {
+  return <BibleChapterSummary book={book} chapter={chapter} />;
 });
 ChapterSummary.displayName = 'ChapterSummary';
 

@@ -1,5 +1,6 @@
-import AsyncStorage from 'expo-sqlite/kv-store';
 import { createContext, useContext, useEffect, useState } from 'react';
+
+import { getCache, setCache } from '@/utilities/cache';
 
 import { AppDefaults } from '@/constants/app-defaults';
 import { UserPreferences } from '@/constants/user-preferences';
@@ -48,57 +49,53 @@ export function AppPreferencesProvider({ children }: { children: React.ReactNode
 
   useEffect(() => {
     (async () => {
-      const stored = await AsyncStorage.getItem(UserPreferences.bible_version);
+      const stored = await getCache<string>(UserPreferences.bible_version);
       if (stored) setVersionState(stored);
     })();
   }, []);
 
   useEffect(() => {
     (async () => {
-      const stored = await AsyncStorage.getItem(UserPreferences.saved_reading_location);
+      const stored = await getCache<ReadingLocation>(UserPreferences.saved_reading_location);
       if (stored) {
-        const savedReadingLocation = JSON.parse(stored) as ReadingLocation;
-        savedReadingLocation.version = version;
-        setReadingLocation(savedReadingLocation);
+        stored.version = version;
+        setReadingLocation(stored);
       }
     })();
   }, [version]);
 
   useEffect(() => {
     (async () => {
-      const stored = await AsyncStorage.getItem(UserPreferences.ai_mode);
+      const stored = await getCache<string>(UserPreferences.ai_mode);
       if (stored) setAiModeState(stored);
     })();
   }, []);
 
   useEffect(() => {
     (async () => {
-      const stored = await AsyncStorage.getItem(UserPreferences.ai_thinking_sound);
-      if (stored) setAllowAiThinkingSoundState(stored === 'true');
+      const stored = await getCache<boolean>(UserPreferences.ai_thinking_sound);
+      setAllowAiThinkingSoundState(stored ?? true);
     })();
   }, []);
 
   const setVersion = async (version: string) => {
     setVersionState(version); // updates immediately
-    await AsyncStorage.setItem(UserPreferences.bible_version, version);
+    await setCache(UserPreferences.bible_version, version);
   };
 
   const setReadingLocation = async (readingLocation: ReadingLocation) => {
     setReadingLocationState(readingLocation); // updates immediately
-    await AsyncStorage.setItem(
-      UserPreferences.saved_reading_location,
-      JSON.stringify(readingLocation),
-    );
+    await setCache(UserPreferences.saved_reading_location, readingLocation);
   };
 
   const setAiMode = async (mode: string) => {
     setAiModeState(mode); // updates immediately
-    await AsyncStorage.setItem(UserPreferences.ai_mode, mode);
+    await setCache(UserPreferences.ai_mode, mode);
   };
 
   const setAllowAiThinkingSound = async (value: boolean) => {
     setAllowAiThinkingSoundState(value); // updates immediately
-    await AsyncStorage.setItem(UserPreferences.ai_thinking_sound, value ? 'true' : 'false');
+    await setCache(UserPreferences.ai_thinking_sound, value);
   };
 
   return (

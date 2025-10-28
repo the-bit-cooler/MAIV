@@ -1,6 +1,5 @@
 import { PlatformPressable } from '@react-navigation/elements';
 import { Image } from 'expo-image';
-import AsyncStorage from 'expo-sqlite/kv-store';
 import { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Markdown from 'react-native-markdown-display';
@@ -8,6 +7,7 @@ import Markdown from 'react-native-markdown-display';
 import { useThemeColor } from '@/hooks/use-theme-color';
 
 import { shareMarkdownAsPdf } from '@/utilities/share-markdown-as-pdf';
+import { getCache, setCache, TTL } from '@/utilities/cache';
 
 import AiThinkingIndicator from '@/components/ai-thinking-indicator';
 import { IconSymbol } from '@/components/icon-symbol';
@@ -38,11 +38,13 @@ export default function BibleChapterSummary({ book, chapter }: BibleChapterSumma
     const storageUrl = `${process.env.EXPO_PUBLIC_AZURE_STORAGE_URL}summary/${book.replace(/ /g, '')}/${chapter}.txt`;
 
     try {
-      // --- STEP 1: Try AsyncStorage (local cache) ---
-      const cached = await AsyncStorage.getItem(cacheKey);
+      // --- STEP 1: Try local cache ---
+      const cached = await getCache<string>(cacheKey);
       if (cached) {
         setSummary(cached);
         return;
+      } else {
+        console.log('Summary cache expired or missing — refetching...');
       }
 
       // --- STEP 2: Try to fetch from Azure Storage directly ---
@@ -51,7 +53,7 @@ export default function BibleChapterSummary({ book, chapter }: BibleChapterSumma
         if (fileResponse.ok) {
           const summaryText = await fileResponse.text();
           setSummary(summaryText);
-          await AsyncStorage.setItem(cacheKey, summaryText);
+          await setCache(cacheKey, summaryText, TTL.MONTH);
         }
       } catch (storageErr) {
         console.warn('Storage fetch failed:', storageErr);

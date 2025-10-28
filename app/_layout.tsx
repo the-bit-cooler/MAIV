@@ -3,7 +3,7 @@ import { useRouter } from 'expo-router';
 import { Drawer } from 'expo-router/drawer';
 import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
-import { Dispatch, useState } from 'react';
+import { Dispatch, useEffect, useState } from 'react';
 import { PlatformPressable } from '@react-navigation/elements';
 import { TouchableOpacity, View } from 'react-native';
 import Modal from 'react-native-modal';
@@ -19,6 +19,7 @@ import {
 } from '@/utilities/get-bible-version-info';
 import { getBibleBookChapterCount } from '@/utilities/get-bible-book-chapter-count';
 import { getBibleBookList } from '@/utilities/get-bible-book-list';
+import { purgeExpiredCache } from '@/utilities/cache';
 
 import { IconSymbol } from '@/components/icon-symbol';
 import { ThemedText } from '@/components/themed-text';
@@ -29,6 +30,10 @@ SplashScreen.setOptions({
 });
 
 export default function App() {
+  useEffect(() => {
+    purgeExpiredCache(); // runs once at launch
+  }, []);
+
   return (
     <ActionSheetProvider>
       <AppPreferencesProvider>

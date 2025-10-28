@@ -1,6 +1,7 @@
-import AsyncStorage from 'expo-sqlite/kv-store';
 import { useEffect, useMemo, useState } from 'react';
 import { Dimensions, View } from 'react-native';
+
+import { getCache, setCache } from '@/utilities/cache';
 
 import { VerseView } from '@/components/verse-view';
 
@@ -48,9 +49,9 @@ export function useChapterPages(version: string, book: string, chapter: number) 
       setHeights({});
 
       // Load cached pages if exists...
-      const cached = await AsyncStorage.getItem(storageKey);
+      const cached = await getCache<ViewableVersesPage[]>(storageKey);
       if (cached && isMounted) {
-        setPages(JSON.parse(cached));
+        setPages(cached);
         setLoading(false);
         return;
       }
@@ -94,7 +95,7 @@ export function useChapterPages(version: string, book: string, chapter: number) 
       }
     });
 
-    AsyncStorage.setItem(storageKey, JSON.stringify(pages));
+    setCache(storageKey, pages);
     setPages(pages);
     setLoading(false);
   }, [heights, safeViewHeight, storageKey, verses]);

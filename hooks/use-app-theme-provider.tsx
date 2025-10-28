@@ -1,7 +1,8 @@
 import { ThemeProvider as NavThemeProvider } from '@react-navigation/native';
-import AsyncStorage from 'expo-sqlite/kv-store';
 import { createContext, useContext, useEffect, useState } from 'react';
 import { Appearance } from 'react-native';
+
+import { getCache, setCache } from '@/utilities/cache';
 
 import { DarkNavTheme, LightNavTheme, SepiaNavTheme } from '@/constants/navigation-theme';
 import { ThemeName } from '@/constants/theme';
@@ -21,14 +22,14 @@ export const AppThemeProvider = ({ children }: { children: React.ReactNode }) =>
 
   useEffect(() => {
     (async () => {
-      const stored = await AsyncStorage.getItem(UserPreferences.app_theme);
-      if (stored) setThemeState(stored as AppTheme);
+      const stored = await getCache<AppTheme>(UserPreferences.app_theme);
+      if (stored) setThemeState(stored);
     })();
   }, []);
 
   const setTheme = async (newTheme: AppTheme) => {
     setThemeState(newTheme);
-    await AsyncStorage.setItem(UserPreferences.app_theme, newTheme);
+    await setCache(UserPreferences.app_theme, newTheme);
   };
 
   // Compute effective theme for NavigationProvider

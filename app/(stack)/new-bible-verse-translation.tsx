@@ -1,6 +1,5 @@
 import { PlatformPressable } from '@react-navigation/elements';
 import { useLocalSearchParams } from 'expo-router';
-import AsyncStorage from 'expo-sqlite/kv-store';
 import { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Markdown from 'react-native-markdown-display';
@@ -10,6 +9,7 @@ import { useThemeColor } from '@/hooks/use-theme-color';
 
 import { getBibleVersionDisplayName } from '@/utilities/get-bible-version-info';
 import { shareMarkdownAsPdf } from '@/utilities/share-markdown-as-pdf';
+import { getCache, setCache, TTL } from '@/utilities/cache';
 
 import AiThinkingIndicator from '@/components/ai-thinking-indicator';
 import { IconSymbol } from '@/components/icon-symbol';
@@ -47,11 +47,13 @@ export default function NewBibleVerseTranslation() {
     const storageUrl = `${process.env.EXPO_PUBLIC_AZURE_STORAGE_URL}translation/${version}/${book.replace(/ /g, '')}/${chapter}/${verse}/${aiMode}.txt`;
 
     try {
-      // --- STEP 1: Try AsyncStorage (local cache) ---
-      const cached = await AsyncStorage.getItem(cacheKey);
+      // --- STEP 1: Try local cache ---
+      const cached = await getCache<string>(cacheKey);
       if (cached) {
         setTranslation(cached);
         return;
+      } else {
+        console.log('New translation cache expired or missing — refetching...');
       }
 
       // --- STEP 2: Try to fetch from Azure Storage directly ---
@@ -60,7 +62,7 @@ export default function NewBibleVerseTranslation() {
         if (fileResponse.ok) {
           const translationText = await fileResponse.text();
           setTranslation(translationText);
-          await AsyncStorage.setItem(cacheKey, translationText);
+          await setCache(cacheKey, translationText, TTL.MONTH);
           return;
         }
       } catch (storageErr) {
@@ -91,7 +93,7 @@ export default function NewBibleVerseTranslation() {
 
       const translationText = await fileResponse.text();
       setTranslation(translationText);
-      await AsyncStorage.setItem(cacheKey, translationText);
+      await setCache(cacheKey, translationText, TTL.MONTH);
     } catch (err) {
       console.warn('Error fetching translation:', err);
     } finally {
