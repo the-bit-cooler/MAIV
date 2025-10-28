@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 
-import { useAppPreferences } from '@/hooks/use-app-preferences-provider';
 import { useThemeColor } from '@/hooks/use-theme-color';
 
 import { getBibleVersionDisplayName } from '@/utilities/get-bible-version-info';
@@ -26,25 +25,29 @@ export default function BibleVerseVersions() {
     useLocalSearchParams<BibleVersVersionsRouteParams>();
   const [verses, setVerses] = useState<Verse[]>([]);
   const [loading, setLoading] = useState(true);
-  const { aiMode } = useAppPreferences();
 
   // ✅ use theme defaults
   const headerBackgroundColor = useThemeColor({}, 'cardBackground');
 
   const fetchBibleVerseVersions = useCallback(async () => {
-    if (!aiMode) return; // wait until mode is loaded
+    setLoading(true);
+
     try {
       const url = `${process.env.EXPO_PUBLIC_AZURE_FUNCTION_URL}${version}/${book}/${chapter}/${verse}/versions?code=${process.env.EXPO_PUBLIC_AZURE_FUNCTION_KEY}`;
       const response = await fetch(url);
-      if (!response.ok)
-        throw new Error(
-          `API Error ${response.status}: Failed to fetch other verse versions for ${version}:${book}:${chapter}:${verse}.`,
-        );
+
+      if (!response.ok) {
+        console.warn('Failed to get versions to compare from Azure Function');
+        return;
+      }
 
       setVerses(await response.json());
+    } catch (err) {
+      console.warn('Error fetching versions to compare:', err);
+    } finally {
       setLoading(false);
-    } catch {}
-  }, [version, book, chapter, verse, aiMode]);
+    }
+  }, [version, book, chapter, verse]);
 
   useEffect(() => {
     fetchBibleVerseVersions();
@@ -75,9 +78,10 @@ export default function BibleVerseVersions() {
       <ThemedText type="title" style={styles.title}>
         Compare Versions
       </ThemedText>
-      <View style={styles.verseItemContainer}>
-        {loading || (verses.length < 0 && <AiThinkingIndicator />)}
-        {!loading &&
+      <View style={styles.container}>
+        {loading ? (
+          <AiThinkingIndicator />
+        ) : verses.length > 0 ? (
           verses.map((verse) => (
             <View style={styles.verseItem} key={verse.version}>
               <ThemedText type="defaultSemiBold" style={styles.verseId}>
@@ -85,13 +89,26 @@ export default function BibleVerseVersions() {
               </ThemedText>
               <ThemedText style={styles.verseText}>{verse.text}</ThemedText>
             </View>
-          ))}
+          ))
+        ) : (
+          <View style={[styles.fenceBlock, { backgroundColor: headerBackgroundColor }]}>
+            <ThemedText style={styles.fenceText}>
+              So sorry! I couldn’t find any other versions for comparison.
+            </ThemedText>
+            <ThemedText style={[styles.fenceText, { marginTop: 20 }]}>
+              I will try again later.
+            </ThemedText>
+          </View>
+        )}
       </View>
     </ParallaxScrollView>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
   verseHeaderContainer: {
     margin: 'auto',
     alignItems: 'center',
@@ -106,9 +123,6 @@ const styles = StyleSheet.create({
   versionHeaderText: {
     opacity: 0.8,
     textAlign: 'center',
-  },
-  verseItemContainer: {
-    flex: 1,
   },
   verseItem: {
     marginBottom: 15,
@@ -125,5 +139,19 @@ const styles = StyleSheet.create({
     marginBottom: 6,
     fontWeight: '600',
     textAlign: 'center',
+  },
+  fenceBlock: {
+    borderColor: '#666', // neutral mid-gray border
+    borderWidth: 1,
+    borderRadius: 6,
+    padding: 12,
+    marginVertical: 16,
+  },
+  fenceText: {
+    fontFamily: Platform.select({
+      ios: 'Menlo',
+      android: 'monospace',
+      default: 'Courier New',
+    }),
   },
 });
