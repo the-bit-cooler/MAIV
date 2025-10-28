@@ -2,7 +2,7 @@
   "expo": {
     "name": "MAIV",
     "description": "The Holy Bible: MAIV — an AI-translated edition published by ScripturAI.",
-    "slug": "MAIV",
+    "slug": "maiv",
     "version": "1.1.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
