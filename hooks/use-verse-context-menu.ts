@@ -13,7 +13,13 @@ export function useVerseContextMenu() {
   const onContextMenu = useCallback(
     (verse: Verse) => {
       // Build options dynamically
-      const options = ['Explain Verse', 'New Translation', 'Similar Verses', 'Compare Versions'];
+      const options = [
+        'Explain Verse',
+        'New Translation',
+        'Similar Verses',
+        'Compare Versions',
+        'Illustrate',
+      ];
       if (Platform.OS === 'android') options.push('Copy');
       options.push('Share');
 
@@ -60,6 +66,18 @@ export function useVerseContextMenu() {
             case 'Compare Versions':
               router.push({
                 pathname: './bible-verse-versions',
+                params: {
+                  version: verse.version,
+                  book: verse.book,
+                  chapter: verse.chapter,
+                  verse: verse.verse,
+                  text: verse.text,
+                },
+              });
+              break;
+            case 'Illustrate':
+              router.push({
+                pathname: './bible-verse-illustration',
                 params: {
                   version: verse.version,
                   book: verse.book,
