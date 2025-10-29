@@ -1,22 +1,19 @@
+import AiThinkingIndicator from '@/components/ai-thinking-indicator';
+import { IconSymbol } from '@/components/icon-symbol';
+import ParallaxScrollView from '@/components/parallax-scroll-view';
+import { ThemedText } from '@/components/themed-text';
+import { useAppPreferences } from '@/hooks/use-app-preferences-provider';
+import { useThemeColor } from '@/hooks/use-theme-color';
+import { getCache, setCache, TTL } from '@/utilities/cache';
+import { getBibleVersionDisplayName } from '@/utilities/get-bible-version-info';
+import { shareMarkdownAsPdf } from '@/utilities/share-markdown-as-pdf';
 import { PlatformPressable } from '@react-navigation/elements';
 import { useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Markdown from 'react-native-markdown-display';
 
-import { useAppPreferences } from '@/hooks/use-app-preferences-provider';
-import { useThemeColor } from '@/hooks/use-theme-color';
-
-import { getBibleVersionDisplayName } from '@/utilities/get-bible-version-info';
-import { shareMarkdownAsPdf } from '@/utilities/share-markdown-as-pdf';
-import { getCache, setCache, TTL } from '@/utilities/cache';
-
-import AiThinkingIndicator from '@/components/ai-thinking-indicator';
-import { IconSymbol } from '@/components/icon-symbol';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-
-type NewBibleVerseTranslationRouteParams = {
+type BibleVerseExplanationRouteParams = {
   version: string;
   book: string;
   chapter: string;
@@ -24,10 +21,10 @@ type NewBibleVerseTranslationRouteParams = {
   text: string;
 };
 
-export default function NewBibleVerseTranslation() {
+export default function BibleVerseExplanation() {
   const { version, book, chapter, verse, text } =
-    useLocalSearchParams<NewBibleVerseTranslationRouteParams>();
-  const [translation, setTranslation] = useState<string | null>(null);
+    useLocalSearchParams<BibleVerseExplanationRouteParams>();
+  const [explanation, setExplanation] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const { aiMode } = useAppPreferences();
 
@@ -37,32 +34,32 @@ export default function NewBibleVerseTranslation() {
   const markdownBackgroundColor = useThemeColor({}, 'cardBackground');
   const markdownTextColor = useThemeColor({}, 'text');
 
-  const fetchNewBibleVerseTranslation = useCallback(async () => {
+  const fetchBibleVerseExplanation = useCallback(async () => {
     if (!aiMode) return;
     setLoading(true);
 
-    const cacheKey = `${version}:${book}:${chapter}:${verse}:Translation:${aiMode}`;
+    const cacheKey = `${version}:${book}:${chapter}:${verse}:Explanation:${aiMode}`;
 
     // Construct known storage URL
-    const storageUrl = `${process.env.EXPO_PUBLIC_AZURE_STORAGE_URL}translation/${version}/${book.replace(/ /g, '')}/${chapter}/${verse}/${aiMode}.txt`;
+    const storageUrl = `${process.env.EXPO_PUBLIC_AZURE_STORAGE_URL}explanation/${version}/${book.replace(/ /g, '')}/${chapter}/${verse}/${aiMode}.txt`;
 
     try {
       // --- STEP 1: Try local cache ---
       const cached = await getCache<string>(cacheKey);
       if (cached) {
-        setTranslation(cached);
+        setExplanation(cached);
         return;
       } else {
-        console.log('New translation cache expired or missing — refetching...');
+        console.log('Explanation cache expired or missing — refetching...');
       }
 
       // --- STEP 2: Try to fetch from Azure Storage directly ---
       try {
         const fileResponse = await fetch(storageUrl);
         if (fileResponse.ok) {
-          const translationText = await fileResponse.text();
-          setTranslation(translationText);
-          await setCache(cacheKey, translationText, TTL.MONTH);
+          const explanationText = await fileResponse.text();
+          setExplanation(explanationText);
+          await setCache(cacheKey, explanationText, TTL.MONTH);
           return;
         }
       } catch (storageErr) {
@@ -70,11 +67,11 @@ export default function NewBibleVerseTranslation() {
       }
 
       // --- STEP 3: Fallback to Azure Function (generates & stores) ---
-      const functionUrl = `${process.env.EXPO_PUBLIC_AZURE_FUNCTION_URL}${version}/${book}/${chapter}/${verse}/translate/${aiMode}?code=${process.env.EXPO_PUBLIC_AZURE_FUNCTION_KEY}`;
+      const functionUrl = `${process.env.EXPO_PUBLIC_AZURE_FUNCTION_URL}${version}/${book}/${chapter}/${verse}/explain/${aiMode}?code=${process.env.EXPO_PUBLIC_AZURE_FUNCTION_KEY}`;
       const response = await fetch(functionUrl);
 
       if (!response.ok) {
-        console.warn('Failed to get translation URL from Azure Function');
+        console.warn('Failed to get explanation URL from Azure Function');
         return;
       }
 
@@ -87,29 +84,29 @@ export default function NewBibleVerseTranslation() {
       // Fetch the newly generated file
       const fileResponse = await fetch(resultUrl);
       if (!fileResponse.ok) {
-        console.warn('Failed to fetch generated translation file');
+        console.warn('Failed to fetch generated explanation file');
         return;
       }
 
-      const translationText = await fileResponse.text();
-      setTranslation(translationText);
-      await setCache(cacheKey, translationText, TTL.MONTH);
+      const explanationText = await fileResponse.text();
+      setExplanation(explanationText);
+      await setCache(cacheKey, explanationText, TTL.MONTH);
     } catch (err) {
-      console.warn('Error fetching translation:', err);
+      console.warn('Error fetching explanation:', err);
     } finally {
       setLoading(false);
     }
   }, [version, book, chapter, verse, aiMode]);
 
   useEffect(() => {
-    fetchNewBibleVerseTranslation();
-  }, [fetchNewBibleVerseTranslation]);
+    fetchBibleVerseExplanation();
+  }, [fetchBibleVerseExplanation]);
 
   const sharePdf = async () => {
-    if (translation)
+    if (explanation)
       await shareMarkdownAsPdf(
-        translation,
-        'New Translation',
+        explanation,
+        'Explain Verse',
         `${book} ${chapter}:${verse} (${version})`,
         aiMode,
         {
@@ -124,7 +121,7 @@ export default function NewBibleVerseTranslation() {
 
   const failedMarkdown = `
   \`\`\`
-  So sorry! I failed to generate a new translation for this verse. 
+  So sorry! I failed to generate an explanation for this verse. 
   
   I will try again later.
   \`\`\`
@@ -151,7 +148,7 @@ export default function NewBibleVerseTranslation() {
             </ThemedText>
           </View>
           {/* ✅ Floating Share Button */}
-          {translation && (
+          {explanation && (
             <PlatformPressable onPress={sharePdf} style={styles.fab} pressOpacity={0.8}>
               <IconSymbol size={34} name="square.and.arrow.up" color={iconColor} />
             </PlatformPressable>
@@ -164,7 +161,7 @@ export default function NewBibleVerseTranslation() {
         ) : (
           <>
             <ThemedText type="title" style={styles.title}>
-              New Translation
+              Explain Verse
             </ThemedText>
             <Markdown
               style={{
@@ -198,7 +195,7 @@ export default function NewBibleVerseTranslation() {
                   borderRadius: 8,
                 },
               }}>
-              {translation || failedMarkdown}
+              {explanation || failedMarkdown}
             </Markdown>
           </>
         )}

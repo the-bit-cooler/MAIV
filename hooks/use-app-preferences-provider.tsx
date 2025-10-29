@@ -1,15 +1,10 @@
-import { createContext, useContext, useEffect, useState } from 'react';
-
-import { getCache, setCache } from '@/utilities/cache';
-
 import { AppDefaults } from '@/constants/app-defaults';
 import { UserPreferences } from '@/constants/user-preferences';
-
-import { ReadingLocation } from '@/types/reading-locatoin';
+import { ReadingLocation } from '@/types/reading-location';
+import { getCache, setCache } from '@/utilities/cache';
+import { createContext, useContext, useEffect, useState } from 'react';
 
 type AppPreferencesContextType = {
-  version: string;
-  setVersion: (version: string) => Promise<void>;
   readingLocation: ReadingLocation;
   setReadingLocation: (readingLocation: ReadingLocation) => Promise<void>;
   aiMode: string;
@@ -19,8 +14,6 @@ type AppPreferencesContextType = {
 };
 
 const AppPreferencesContext = createContext<AppPreferencesContextType>({
-  version: AppDefaults.version,
-  setVersion: async () => {},
   readingLocation: {
     version: AppDefaults.version,
     book: AppDefaults.book,
@@ -35,7 +28,6 @@ const AppPreferencesContext = createContext<AppPreferencesContextType>({
 });
 
 export function AppPreferencesProvider({ children }: { children: React.ReactNode }) {
-  const [version, setVersionState] = useState(AppDefaults.version);
   const [readingLocation, setReadingLocationState] = useState<ReadingLocation>({
     version: AppDefaults.version,
     book: AppDefaults.book,
@@ -49,20 +41,12 @@ export function AppPreferencesProvider({ children }: { children: React.ReactNode
 
   useEffect(() => {
     (async () => {
-      const stored = await getCache<string>(UserPreferences.bible_version);
-      if (stored) setVersionState(stored);
-    })();
-  }, []);
-
-  useEffect(() => {
-    (async () => {
       const stored = await getCache<ReadingLocation>(UserPreferences.saved_reading_location);
       if (stored) {
-        stored.version = version;
         setReadingLocation(stored);
       }
     })();
-  }, [version]);
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -77,11 +61,6 @@ export function AppPreferencesProvider({ children }: { children: React.ReactNode
       setAllowAiThinkingSoundState(stored ?? true);
     })();
   }, []);
-
-  const setVersion = async (version: string) => {
-    setVersionState(version); // updates immediately
-    await setCache(UserPreferences.bible_version, version);
-  };
 
   const setReadingLocation = async (readingLocation: ReadingLocation) => {
     setReadingLocationState(readingLocation); // updates immediately
@@ -101,8 +80,6 @@ export function AppPreferencesProvider({ children }: { children: React.ReactNode
   return (
     <AppPreferencesContext.Provider
       value={{
-        version,
-        setVersion,
         readingLocation,
         setReadingLocation,
         aiMode,
