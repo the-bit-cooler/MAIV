@@ -7,7 +7,6 @@
     "start": "npx expo start --clear --tunnel",
     "start:prod": "npx expo start --no-dev --minify --clear --tunnel",
     "lint": "npx expo lint",
-    "lint:fix": "npx expo lint --fix",
     "install:check": "npx expo install --check",
     "export": "npx expo export",
     "export:clear": "npx expo export --clear",
