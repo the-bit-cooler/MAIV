@@ -70,7 +70,6 @@ export default function DrawerLayout() {
             <Drawer.Screen
               key={version.key}
               name={version.key} // points to your dynamic route file
-              // initialParams={{ version: version.key }}
               options={{
                 drawerLabel: version.fullname, // you can map to full names if needed
               }}
@@ -111,7 +110,6 @@ function ReadingLocationPicker({
   const modalPickerColor = useThemeColor({}, 'text');
 
   useEffect(() => {
-    console.log(JSON.stringify(verseToPageMap));
     // if the user manually picked a verse, don’t auto-reset
     if (lastManualSelectionRef.current != null) {
       // skip syncing completely; keep showing their chosen verse
