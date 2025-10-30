@@ -1,18 +1,15 @@
-import { PlatformPressable } from '@react-navigation/elements';
-import { useLocalSearchParams } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
-import { Platform, StyleSheet, View } from 'react-native';
-import { Image } from 'expo-image';
-
-import { useThemeColor } from '@/hooks/use-theme-color';
-
-import { getBibleVersionDisplayName } from '@/utilities/get-bible-version-info';
-import { shareIllustrationPdf } from '@/utilities/share-illustration-pdf';
-
 import AiThinkingIndicator from '@/components/ai-thinking-indicator';
 import { IconSymbol } from '@/components/icon-symbol';
 import ParallaxScrollView from '@/components/parallax-scroll-view';
 import { ThemedText } from '@/components/themed-text';
+import { useThemeColor } from '@/hooks/use-theme-color';
+import { getBibleVersionDisplayName } from '@/utilities/get-bible-version-info';
+import { shareIllustrationPdf } from '@/utilities/share-illustration-pdf';
+import { PlatformPressable } from '@react-navigation/elements';
+import { Image } from 'expo-image';
+import { useLocalSearchParams } from 'expo-router';
+import { useCallback, useEffect, useState } from 'react';
+import { Platform, StyleSheet, View } from 'react-native';
 
 type BibleVerseIllustrationRouteParams = {
   version: string;
@@ -22,7 +19,7 @@ type BibleVerseIllustrationRouteParams = {
   text: string;
 };
 
-export default function BibleVerseIllustration() {
+export default function BibleVerseIllustrationModal() {
   const { version, book, chapter, verse, text } =
     useLocalSearchParams<BibleVerseIllustrationRouteParams>();
   const [imageUri, setImageUri] = useState<string | null>(null);

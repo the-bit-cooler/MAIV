@@ -1,17 +1,13 @@
-import { useCallback, useEffect, useState } from 'react';
-import { Platform, StyleSheet, View } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
-
-import { useAppPreferences } from '@/hooks/use-app-preferences-provider';
-import { useThemeColor } from '@/hooks/use-theme-color';
-
-import { getBibleVersionDisplayName } from '@/utilities/get-bible-version-info';
-
+import AiThinkingIndicator from '@/components/ai-thinking-indicator';
 import ParallaxScrollView from '@/components/parallax-scroll-view';
 import { ThemedText } from '@/components/themed-text';
-import AiThinkingIndicator from '@/components/ai-thinking-indicator';
-
+import { useAppPreferences } from '@/hooks/use-app-preferences-provider';
+import { useThemeColor } from '@/hooks/use-theme-color';
 import { Verse } from '@/types/verse';
+import { getBibleVersionDisplayName } from '@/utilities/get-bible-version-info';
+import { useLocalSearchParams } from 'expo-router';
+import { useCallback, useEffect, useState } from 'react';
+import { Platform, StyleSheet, View } from 'react-native';
 
 type SimilarBibleVerseRouteParams = {
   version: string;
@@ -21,7 +17,7 @@ type SimilarBibleVerseRouteParams = {
   text: string;
 };
 
-export default function SimilarBibleVerses() {
+export default function SimilarBibleVersesModal() {
   const { version, book, chapter, verse, text } =
     useLocalSearchParams<SimilarBibleVerseRouteParams>();
   const [verses, setVerses] = useState<Verse[]>([]);

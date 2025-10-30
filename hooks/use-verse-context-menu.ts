@@ -29,7 +29,7 @@ export function useVerseContextMenu() {
           switch (options[selectedIndex!]) {
             case 'Explain Verse':
               router.push({
-                pathname: './bible-verse-explanation',
+                pathname: '/bible-verse-explanation',
                 params: {
                   version: verse.version,
                   book: verse.book,
@@ -41,7 +41,7 @@ export function useVerseContextMenu() {
               break;
             case 'New Translation':
               router.push({
-                pathname: './new-bible-verse-translation',
+                pathname: '/new-bible-verse-translation',
                 params: {
                   version: verse.version,
                   book: verse.book,
@@ -53,7 +53,7 @@ export function useVerseContextMenu() {
               break;
             case 'Similar Verses':
               router.push({
-                pathname: './similar-bible-verses',
+                pathname: '/similar-bible-verses',
                 params: {
                   version: verse.version,
                   book: verse.book,
@@ -65,7 +65,7 @@ export function useVerseContextMenu() {
               break;
             case 'Compare Versions':
               router.push({
-                pathname: './bible-verse-versions',
+                pathname: '/bible-verse-versions',
                 params: {
                   version: verse.version,
                   book: verse.book,
@@ -77,7 +77,7 @@ export function useVerseContextMenu() {
               break;
             case 'Illustrate':
               router.push({
-                pathname: './bible-verse-illustration',
+                pathname: '/bible-verse-illustration',
                 params: {
                   version: verse.version,
                   book: verse.book,

@@ -1,3 +1,12 @@
+import { HorizontalThemedSeparator } from '@/components/themed-separator';
+import { ThemedText } from '@/components/themed-text';
+import { ThemedView } from '@/components/themed-view';
+import { AiModeValues } from '@/constants/ai-modes';
+import { Colors } from '@/constants/theme';
+import { useAppPreferences } from '@/hooks/use-app-preferences-provider';
+import { AppTheme, useAppTheme } from '@/hooks/use-app-theme-provider';
+import { useThemeColor } from '@/hooks/use-theme-color';
+import { clearCache } from '@/utilities/cache';
 import * as Application from 'expo-application';
 import {
   Alert,
@@ -9,20 +18,7 @@ import {
   View,
 } from 'react-native';
 
-import { useAppPreferences } from '@/hooks/use-app-preferences-provider';
-import { AppTheme, useAppTheme } from '@/hooks/use-app-theme-provider';
-import { useThemeColor } from '@/hooks/use-theme-color';
-
-import { clearCache } from '@/utilities/cache';
-
-import { HorizontalThemedSeparator } from '@/components/themed-separator';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-
-import { AiModeValues } from '@/constants/ai-modes';
-import { Colors } from '@/constants/theme';
-
-export default function SettingsScreen() {
+export default function SettingsModal() {
   const { theme, setTheme } = useAppTheme();
   const backgroundColor = useThemeColor({}, 'cardBackground');
   const textColor = useThemeColor({}, 'text');

@@ -1,20 +1,17 @@
+import AiThinkingIndicator from '@/components/ai-thinking-indicator';
+import { IconSymbol } from '@/components/icon-symbol';
+import ParallaxScrollView from '@/components/parallax-scroll-view';
+import { ThemedText } from '@/components/themed-text';
+import { useAppPreferences } from '@/hooks/use-app-preferences-provider';
+import { useThemeColor } from '@/hooks/use-theme-color';
+import { getCache, setCache, TTL } from '@/utilities/cache';
+import { getBibleVersionDisplayName } from '@/utilities/get-bible-version-info';
+import { shareMarkdownAsPdf } from '@/utilities/share-markdown-as-pdf';
 import { PlatformPressable } from '@react-navigation/elements';
 import { useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Markdown from 'react-native-markdown-display';
-
-import { useAppPreferences } from '@/hooks/use-app-preferences-provider';
-import { useThemeColor } from '@/hooks/use-theme-color';
-
-import { getBibleVersionDisplayName } from '@/utilities/get-bible-version-info';
-import { shareMarkdownAsPdf } from '@/utilities/share-markdown-as-pdf';
-import { getCache, setCache, TTL } from '@/utilities/cache';
-
-import AiThinkingIndicator from '@/components/ai-thinking-indicator';
-import { IconSymbol } from '@/components/icon-symbol';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
 
 type NewBibleVerseTranslationRouteParams = {
   version: string;
@@ -24,7 +21,7 @@ type NewBibleVerseTranslationRouteParams = {
   text: string;
 };
 
-export default function NewBibleVerseTranslation() {
+export default function NewBibleVerseTranslationModal() {
   const { version, book, chapter, verse, text } =
     useLocalSearchParams<NewBibleVerseTranslationRouteParams>();
   const [translation, setTranslation] = useState<string | null>(null);
