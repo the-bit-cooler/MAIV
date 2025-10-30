@@ -1,6 +1,7 @@
 import { UserPreferences } from '@/constants/user-preferences';
 import { AppPreferencesProvider, useAppPreferences } from '@/hooks/use-app-preferences-provider';
 import { AppThemeProvider } from '@/hooks/use-app-theme-provider';
+import { VerseContextProvider } from '@/hooks/use-verse-context';
 import { purgeExpiredCache, setCache } from '@/utilities/cache';
 import { ActionSheetProvider } from '@expo/react-native-action-sheet';
 import { Stack } from 'expo-router';
@@ -23,8 +24,10 @@ export default function App() {
     <ActionSheetProvider>
       <AppPreferencesProvider>
         <AppThemeProvider>
-          <StatusBar style="auto" />
-          <RootLayout />
+          <VerseContextProvider value={{ verseToPageMap: {}, totalChapterVerseCount: 0 }}>
+            <StatusBar style="auto" />
+            <RootLayout />
+          </VerseContextProvider>
         </AppThemeProvider>
       </AppPreferencesProvider>
     </ActionSheetProvider>

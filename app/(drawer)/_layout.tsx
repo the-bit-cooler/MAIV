@@ -3,17 +3,19 @@ import { ThemedText } from '@/components/themed-text';
 import { AppDefaults } from '@/constants/app-defaults';
 import { useAppPreferences } from '@/hooks/use-app-preferences-provider';
 import { useThemeColor } from '@/hooks/use-theme-color';
+import { useVerseContext } from '@/hooks/use-verse-context';
 import { getBibleBookChapterCount } from '@/utilities/get-bible-book-chapter-count';
 import { getBibleBookList } from '@/utilities/get-bible-book-list';
 import {
   getBibleVersionDisplayName,
   getSupportedBibleVersions,
 } from '@/utilities/get-bible-version-info';
+import { getFirstVerseOnPage } from '@/utilities/get-first-verse-on-page';
 import { Picker } from '@react-native-picker/picker';
 import { PlatformPressable } from '@react-navigation/elements';
 import { useRouter } from 'expo-router';
 import { Drawer } from 'expo-router/drawer';
-import { Dispatch, useState } from 'react';
+import { Dispatch, useEffect, useRef, useState } from 'react';
 import { TouchableOpacity, View } from 'react-native';
 import Modal from 'react-native-modal';
 
@@ -100,9 +102,27 @@ function ReadingLocationPicker({
   setShowReadingLocationPickerModal,
 }: ReadingLocationPickerParams) {
   const { readingLocation, setReadingLocation } = useAppPreferences();
-
+  const { verseToPageMap, totalChapterVerseCount } = useVerseContext();
+  const [selectedVerse, setSelectedVerse] = useState(
+    getFirstVerseOnPage(readingLocation.page ?? 0, verseToPageMap),
+  );
+  const lastManualSelectionRef = useRef<number | null>(null);
   const modalBackgroundColor = useThemeColor({}, 'cardBackground');
   const modalPickerColor = useThemeColor({}, 'text');
+
+  useEffect(() => {
+    console.log(JSON.stringify(verseToPageMap));
+    // if the user manually picked a verse, don’t auto-reset
+    if (lastManualSelectionRef.current != null) {
+      // skip syncing completely; keep showing their chosen verse
+      lastManualSelectionRef.current = null;
+      return;
+    }
+
+    // otherwise, sync picker to the first verse on the current page
+    const verse = getFirstVerseOnPage(readingLocation.page ?? 0, verseToPageMap);
+    setSelectedVerse(verse);
+  }, [readingLocation.page, verseToPageMap]);
 
   return (
     <Modal
@@ -152,6 +172,32 @@ function ReadingLocationPicker({
               <Picker.Item key={ch} label={`Chapter ${ch}`} value={ch} />
             ))}
           </Picker>
+          {/* ✝️ Verse Picker (computed page jump) */}
+          {totalChapterVerseCount > 0 && (
+            <Picker
+              style={{ opacity: 0.95 }}
+              selectedValue={selectedVerse}
+              onValueChange={(vs) => {
+                lastManualSelectionRef.current = vs;
+                setSelectedVerse(vs); // update local value
+                const pageNumber = verseToPageMap?.[vs] ?? 0;
+                setReadingLocation({
+                  ...readingLocation,
+                  page: pageNumber,
+                });
+              }}
+              itemStyle={{
+                borderRadius: 200,
+                color: modalPickerColor,
+                backgroundColor: modalBackgroundColor,
+                fontWeight: 'bold',
+                marginTop: 30,
+              }}>
+              {Array.from({ length: totalChapterVerseCount }, (_, i) => i + 1).map((vs) => (
+                <Picker.Item key={vs} label={`Verse ${vs}`} value={vs} />
+              ))}
+            </Picker>
+          )}
         </View>
       </View>
     </Modal>

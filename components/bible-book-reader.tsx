@@ -38,9 +38,11 @@ type BibleBookReaderPagesParams = {
 };
 
 function BibleBookReaderPages({ version }: BibleBookReaderPagesParams) {
+  const pagerRef = useRef<PagerView>(null);
   const userScrollRef = useRef(false);
   const hasMounted = useRef(false);
   const { readingLocation, setReadingLocation } = useAppPreferences();
+  const onContextMenu = useVerseContextMenu();
   const { loading, pages, measureView } = useChapterPages(
     version,
     readingLocation.book,
@@ -52,7 +54,19 @@ function BibleBookReaderPages({ version }: BibleBookReaderPagesParams) {
     return () => clearTimeout(t);
   }, []);
 
-  const onContextMenu = useVerseContextMenu();
+  // 👇 NEW: react to external page changes (from drawer picker)
+  useEffect(() => {
+    if (!pagerRef.current || !pages) return;
+    if (readingLocation.page == null) return;
+
+    // Bounds check
+    if (readingLocation.page < 0 || readingLocation.page >= pages.length) return;
+
+    // If user didn't manually drag, trigger programmatic jump
+    if (!userScrollRef.current) {
+      pagerRef.current.setPageWithoutAnimation(readingLocation.page);
+    }
+  }, [readingLocation.page, pages]);
 
   const bibleBooks = getBibleBookList();
 
@@ -63,6 +77,7 @@ function BibleBookReaderPages({ version }: BibleBookReaderPagesParams) {
     </>
   ) : (
     <PagerView
+      ref={pagerRef}
       key={`${version}-${readingLocation.book}-${readingLocation.chapter}`}
       style={{ flex: 1 }}
       initialPage={readingLocation.page === -1 ? pages.length : readingLocation.page}

@@ -1,11 +1,9 @@
+import { VerseView } from '@/components/verse-view';
+import { useVerseContext } from '@/hooks/use-verse-context';
+import { Verse } from '@/types/verse';
+import { getCache, setCache } from '@/utilities/cache';
 import { useEffect, useMemo, useState } from 'react';
 import { Dimensions, View } from 'react-native';
-
-import { getCache, setCache } from '@/utilities/cache';
-
-import { VerseView } from '@/components/verse-view';
-
-import { Verse } from '@/types/verse';
 
 export type ViewableVersesPage = {
   pageNumber: number;
@@ -30,11 +28,11 @@ export function useChapterPages(version: string, book: string, chapter: number) 
   const [pages, setPages] = useState<ViewableVersesPage[] | null>(null);
   const [heights, setHeights] = useState<Record<number, number>>({});
   const [loading, setLoading] = useState(true);
+  const verseContext = useVerseContext();
 
   const windowHeight = Dimensions.get('window').height;
-  const buffer = Math.max(200, windowHeight * 0.15); // Fixed 100px or 15% of height, whichever is larger
+  const buffer = Math.max(200, windowHeight * 0.15);
   const safeViewHeight = windowHeight - buffer;
-
   const storageKey = `${version}:${book}:${chapter}`;
 
   // Load chapter...
@@ -100,6 +98,32 @@ export function useChapterPages(version: string, book: string, chapter: number) 
     setLoading(false);
   }, [heights, safeViewHeight, storageKey, verses]);
 
+  // Derived values (work for both cached and measured pages)
+  const totalChapterVerseCount = useMemo(() => {
+    if (verses) return verses.length;
+    if (pages) return pages.reduce((sum, p) => sum + p.verses.length, 0);
+    return 0;
+  }, [verses, pages]);
+
+  const verseToPageMap = useMemo(() => {
+    if (!pages) return {};
+    const map: Record<number, number> = {};
+    for (const page of pages) {
+      for (const v of page.verses) {
+        map[v.verse] = page.pageNumber;
+      }
+    }
+    return map;
+  }, [pages]);
+
+  // update global context once computed
+  useEffect(() => {
+    if (Object.keys(verseToPageMap).length && totalChapterVerseCount > 0) {
+      verseContext.verseToPageMap = verseToPageMap;
+      verseContext.totalChapterVerseCount = totalChapterVerseCount;
+    }
+  }, [verseToPageMap, totalChapterVerseCount, verseContext]);
+
   // Prepare hidden measurement view (only when verses need measuring)
   const measureView = useMemo(() => {
     if (!verses || pages) return null;
@@ -127,5 +151,11 @@ export function useChapterPages(version: string, book: string, chapter: number) 
     );
   }, [verses, pages]);
 
-  return { loading, pages, measureView };
+  return {
+    loading,
+    pages,
+    measureView,
+    verseToPageMap,
+    totalChapterVerseCount,
+  };
 }
