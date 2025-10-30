@@ -14,12 +14,12 @@ type AppPreferencesContextType = {
 };
 
 const AppPreferencesContext = createContext<AppPreferencesContextType>({
-  //* Set initial context to nonsense (see below for sense)
+  //* Set initial state to something other than default (see below for sense)
   readingLocation: {
-    version: 'N/A',
-    book: 'N/A',
-    chapter: 0,
-    page: -100,
+    version: 'KJV',
+    book: 'John',
+    chapter: 2,
+    page: 1,
   },
   setReadingLocation: async () => {},
   aiMode: AppDefaults.aiMode,
@@ -29,12 +29,12 @@ const AppPreferencesContext = createContext<AppPreferencesContextType>({
 });
 
 export function AppPreferencesProvider({ children }: { children: React.ReactNode }) {
-  //* Set initial state to nonsense (see below for sense)
+  //* Set initial state to something other than default (see below for sense)
   const [readingLocation, setReadingLocationState] = useState<ReadingLocation>({
-    version: 'N/A',
-    book: 'N/A',
-    chapter: 0,
-    page: -100,
+    version: 'KJV',
+    book: 'John',
+    chapter: 2,
+    page: 1,
   });
   const [aiMode, setAiModeState] = useState(AppDefaults.aiMode);
   const [allowAiThinkingSound, setAllowAiThinkingSoundState] = useState(
@@ -46,7 +46,7 @@ export function AppPreferencesProvider({ children }: { children: React.ReactNode
       /*
        * Our app index relies on ReadingLocation to change after initial mount,
        * so we check for a saved one or set the app default one here.
-       * This is why we use a nonsense initial ReadingLocation above.
+       * This is why we use a non-default initial ReadingLocation state above.
        * All values must change in case any is used as a hook dependency.
        */
       const firstTime: ReadingLocation = {
