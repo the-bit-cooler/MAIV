@@ -24,7 +24,7 @@ export async function setCache<T>(key: string, value: T, ttlSeconds?: number) {
 }
 
 /**
- * Get a value if not expired, otherwise remove and return null
+ * Get a value if not expired, otherwise remove it and return null
  */
 export async function getCache<T>(key: string): Promise<T | null> {
   const raw = await Storage.getItem(key);
@@ -39,6 +39,26 @@ export async function getCache<T>(key: string): Promise<T | null> {
     return item.value;
   } catch {
     await Storage.removeItem(key);
+    return null;
+  }
+}
+
+/**
+ * Get a value synchronously if not expired, otherwise remove it synchronously and return null
+ */
+export function getCacheSync<T>(key: string): T | null {
+  const raw = Storage.getItemSync(key);
+  if (!raw) return null;
+
+  try {
+    const item: CacheItem<T> = JSON.parse(raw);
+    if (item.expiresAt !== -1 && Date.now() > item.expiresAt) {
+      Storage.removeItemSync(key);
+      return null;
+    }
+    return item.value;
+  } catch {
+    Storage.removeItemSync(key);
     return null;
   }
 }
