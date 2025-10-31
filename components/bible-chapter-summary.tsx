@@ -2,6 +2,7 @@ import AiThinkingIndicator from '@/components/ai-thinking-indicator';
 import { IconSymbol } from '@/components/icon-symbol';
 import ParallaxScrollView from '@/components/parallax-scroll-view';
 import { ThemedText } from '@/components/themed-text';
+import { blurhash } from '@/constants/blur-hash';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { getCache, setCache, TTL } from '@/utilities/cache';
 import { shareMarkdownAsPdf } from '@/utilities/share-markdown-as-pdf';
@@ -79,9 +80,6 @@ export default function BibleChapterSummary({ book, chapter }: BibleChapterSumma
         imageUrl,
       );
   };
-
-  const blurhash =
-    '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
 
   const failedMarkdown = `
   \`\`\`
