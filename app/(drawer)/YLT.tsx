@@ -1,17 +1,8 @@
 import BibleBookReader from '@/components/bible-book-reader';
-import { useAppPreferences } from '@/hooks/use-app-preferences-provider';
-import { useEffect } from 'react';
+import { useLocalSearchParams } from 'expo-router';
 
 export default function YLT() {
-  const { readingLocation, setReadingLocation } = useAppPreferences();
+  const { timestamp } = useLocalSearchParams<{ timestamp: string }>();
 
-  useEffect(() => {
-    if (readingLocation.version !== 'YLT') {
-      setReadingLocation({ ...readingLocation, version: 'YLT' });
-    }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [setReadingLocation]);
-
-  return <BibleBookReader version="YLT" />;
+  return <BibleBookReader version="YLT" timestamp={timestamp} />;
 }

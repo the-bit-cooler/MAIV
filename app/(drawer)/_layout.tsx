@@ -1,9 +1,12 @@
 import { IconSymbol } from '@/components/icon-symbol';
 import { ThemedText } from '@/components/themed-text';
 import { AppDefaults } from '@/constants/app-defaults';
+import { UserPreferences } from '@/constants/user-preferences';
 import { useAppPreferences } from '@/hooks/use-app-preferences-provider';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { useVerseContext } from '@/hooks/use-verse-context';
+import { ReadingLocation } from '@/types/reading-location';
+import { getCacheSync } from '@/utilities/cache';
 import { getBibleBookChapterCount } from '@/utilities/get-bible-book-chapter-count';
 import { getBibleBookList } from '@/utilities/get-bible-book-list';
 import {
@@ -23,6 +26,11 @@ export default function DrawerLayout() {
   const router = useRouter();
   const { readingLocation } = useAppPreferences();
   const [showReadingLocationPickerModal, setShowReadingLocationPickerModal] = useState(false);
+
+  // Synchronously read before render
+  let drawerSelection =
+    getCacheSync<ReadingLocation>(UserPreferences.saved_reading_location)?.drawerSelection ??
+    AppDefaults.drawerSelection;
 
   return (
     <>
@@ -45,7 +53,7 @@ export default function DrawerLayout() {
               }}>
               <IconSymbol name="chevron.down" size={16} color="#666" style={{ marginRight: 6 }} />
               <ThemedText type="subtitle">
-                {`${readingLocation.book} ${readingLocation.chapter}`}
+                {`${readingLocation.bible.book} ${readingLocation.bible.chapter}`}
               </ThemedText>
             </TouchableOpacity>
           ),
@@ -59,13 +67,26 @@ export default function DrawerLayout() {
               />
             </PlatformPressable>
           ),
+        }}
+        screenListeners={{
+          drawerItemPress: (e) => {
+            e.preventDefault(); // prevent default auto navigation
+            const selection = e.target?.split('-')[0]; // extract the screen name (KJV, MAIV, etc.)
+            if (selection) {
+              router.push({
+                pathname: `/${selection}` as any,
+                params: { timestamp: Date.now() }, // 👈 new timestamp each click
+              });
+            }
+          },
         }}>
         <Drawer.Screen
-          name={AppDefaults.version}
-          options={{ title: getBibleVersionDisplayName(AppDefaults.version) }}
+          data-maiv="MAIV"
+          name={AppDefaults.drawerSelection}
+          options={{ title: getBibleVersionDisplayName(AppDefaults.drawerSelection) }}
         />
         {getSupportedBibleVersions()
-          .filter((v) => v.key !== AppDefaults.version)
+          .filter((v) => v.key !== AppDefaults.drawerSelection)
           .map((version) => (
             <Drawer.Screen
               key={version.key}
@@ -81,6 +102,7 @@ export default function DrawerLayout() {
             drawerLabel: () => null,
             drawerItemStyle: { height: 0 },
           }}
+          initialParams={{ drawerSelection }}
         />
       </Drawer>
       <ReadingLocationPicker
@@ -103,7 +125,7 @@ function ReadingLocationPicker({
   const { readingLocation, setReadingLocation } = useAppPreferences();
   const { verseToPageMap, totalChapterVerseCount } = useVerseContext();
   const [selectedVerse, setSelectedVerse] = useState(
-    getFirstVerseOnPage(readingLocation.page ?? 0, verseToPageMap),
+    getFirstVerseOnPage(readingLocation.bible.page ?? 0, verseToPageMap),
   );
   const lastManualSelectionRef = useRef<number | null>(null);
   const modalBackgroundColor = useThemeColor({}, 'cardBackground');
@@ -118,9 +140,9 @@ function ReadingLocationPicker({
     }
 
     // otherwise, sync picker to the first verse on the current page
-    const verse = getFirstVerseOnPage(readingLocation.page ?? 0, verseToPageMap);
+    const verse = getFirstVerseOnPage(readingLocation.bible.page ?? 0, verseToPageMap);
     setSelectedVerse(verse);
-  }, [readingLocation.page, verseToPageMap]);
+  }, [readingLocation.bible.page, verseToPageMap]);
 
   return (
     <Modal
@@ -136,9 +158,9 @@ function ReadingLocationPicker({
         <View style={{ padding: 16, width: '80%' }}>
           <Picker
             style={{ opacity: 0.95 }}
-            selectedValue={readingLocation.book}
+            selectedValue={readingLocation.bible.book}
             onValueChange={(bk) => {
-              setReadingLocation({ ...readingLocation, book: bk, chapter: 1, page: 0 });
+              setReadingLocation({ ...readingLocation, bible: { book: bk, chapter: 1, page: 0 } });
             }}
             itemStyle={{
               borderRadius: 200,
@@ -153,9 +175,12 @@ function ReadingLocationPicker({
           </Picker>
           <Picker
             style={{ opacity: 0.95 }}
-            selectedValue={readingLocation.chapter}
+            selectedValue={readingLocation.bible.chapter}
             onValueChange={(ch) => {
-              setReadingLocation({ ...readingLocation, chapter: ch, page: 0 });
+              setReadingLocation({
+                ...readingLocation,
+                bible: { ...readingLocation.bible, chapter: ch, page: 0 },
+              });
             }}
             itemStyle={{
               borderRadius: 200,
@@ -164,7 +189,7 @@ function ReadingLocationPicker({
               fontWeight: 'bold',
             }}>
             {Array.from(
-              { length: getBibleBookChapterCount(readingLocation.book!) },
+              { length: getBibleBookChapterCount(readingLocation.bible.book) },
               (_, i) => i + 1,
             ).map((ch) => (
               <Picker.Item key={ch} label={`Chapter ${ch}`} value={ch} />
@@ -181,7 +206,7 @@ function ReadingLocationPicker({
                 const pageNumber = verseToPageMap?.[vs] ?? 0;
                 setReadingLocation({
                   ...readingLocation,
-                  page: pageNumber,
+                  bible: { ...readingLocation.bible, page: pageNumber },
                 });
               }}
               itemStyle={{

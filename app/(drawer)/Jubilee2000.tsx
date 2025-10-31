@@ -1,17 +1,8 @@
 import BibleBookReader from '@/components/bible-book-reader';
-import { useAppPreferences } from '@/hooks/use-app-preferences-provider';
-import { useEffect } from 'react';
+import { useLocalSearchParams } from 'expo-router';
 
 export default function Jubilee2000() {
-  const { readingLocation, setReadingLocation } = useAppPreferences();
+  const { timestamp } = useLocalSearchParams<{ timestamp: string }>();
 
-  useEffect(() => {
-    if (readingLocation.version !== 'Jubilee2000') {
-      setReadingLocation({ ...readingLocation, version: 'Jubilee2000' });
-    }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [setReadingLocation]);
-
-  return <BibleBookReader version="Jubilee2000" />;
+  return <BibleBookReader version="Jubilee2000" timestamp={timestamp} />;
 }
