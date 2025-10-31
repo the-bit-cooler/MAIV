@@ -14,12 +14,13 @@ type AppPreferencesContextType = {
 };
 
 const AppPreferencesContext = createContext<AppPreferencesContextType>({
-  //* Set initial state to something other than default (see below for sense)
   readingLocation: {
-    version: 'KJV',
-    book: 'John',
-    chapter: 2,
-    page: 1,
+    drawerSelection: AppDefaults.drawerSelection,
+    bible: {
+      book: AppDefaults.bibleBook,
+      chapter: 1,
+      page: 0,
+    },
   },
   setReadingLocation: async () => {},
   aiMode: AppDefaults.aiMode,
@@ -29,12 +30,13 @@ const AppPreferencesContext = createContext<AppPreferencesContextType>({
 });
 
 export function AppPreferencesProvider({ children }: { children: React.ReactNode }) {
-  //* Set initial state to something other than default (see below for sense)
   const [readingLocation, setReadingLocationState] = useState<ReadingLocation>({
-    version: 'KJV',
-    book: 'John',
-    chapter: 2,
-    page: 1,
+    drawerSelection: AppDefaults.drawerSelection,
+    bible: {
+      book: AppDefaults.bibleBook,
+      chapter: 1,
+      page: 0,
+    },
   });
   const [aiMode, setAiModeState] = useState(AppDefaults.aiMode);
   const [allowAiThinkingSound, setAllowAiThinkingSoundState] = useState(
@@ -43,20 +45,8 @@ export function AppPreferencesProvider({ children }: { children: React.ReactNode
 
   useEffect(() => {
     (async () => {
-      /*
-       * Our app index relies on ReadingLocation to change after initial mount,
-       * so we check for a saved one or set the app default one here.
-       * This is why we use a non-default initial ReadingLocation state above.
-       * All values must change in case any is used as a hook dependency.
-       */
-      const firstTime: ReadingLocation = {
-        version: AppDefaults.version,
-        book: AppDefaults.book,
-        chapter: 1,
-        page: 0,
-      };
       const stored = await getCache<ReadingLocation>(UserPreferences.saved_reading_location);
-      setReadingLocationState(stored ?? firstTime);
+      if (stored) setReadingLocationState(stored);
     })();
   }, []);
 

@@ -1,7 +1,6 @@
 export const UserPreferences = {
   app_theme: 'app-theme',
-  bible_version: 'bible-version',
-  saved_reading_location: 'saved-location',
+  saved_reading_location: 'saved_reading_location_v1',
   ai_mode: 'ai-mode',
   ai_thinking_sound: 'ai-thinking-sound',
 };
