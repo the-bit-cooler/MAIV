@@ -11,10 +11,16 @@ import { getBibleBookChapterCount } from '@/utilities/get-bible-book-chapter-cou
 import { getBibleBookList } from '@/utilities/get-bible-book-list';
 import {
   getBibleVersionDisplayName,
+  getKeyListOfSupportedBibleVersions,
   getSupportedBibleVersions,
 } from '@/utilities/get-bible-version-info';
 import { getFirstVerseOnPage } from '@/utilities/get-first-verse-on-page';
 import { Picker } from '@react-native-picker/picker';
+import {
+  DrawerContentComponentProps,
+  DrawerContentScrollView,
+  DrawerItem,
+} from '@react-navigation/drawer';
 import { PlatformPressable } from '@react-navigation/elements';
 import { useRouter } from 'expo-router';
 import { Drawer } from 'expo-router/drawer';
@@ -35,6 +41,7 @@ export default function DrawerLayout() {
   return (
     <>
       <Drawer
+        drawerContent={(props) => <CustomDrawerContent {...props} />}
         screenOptions={{
           headerShown: true,
           drawerType: 'front',
@@ -67,23 +74,12 @@ export default function DrawerLayout() {
               />
             </PlatformPressable>
           ),
-        }}
-        screenListeners={{
-          drawerItemPress: (e) => {
-            e.preventDefault(); // prevent default auto navigation
-            const selection = e.target?.split('-')[0]; // extract the screen name (KJV, MAIV, etc.)
-            if (selection) {
-              router.push({
-                pathname: `/${selection}` as any,
-                params: { timestamp: Date.now() }, // 👈 new timestamp each click
-              });
-            }
-          },
         }}>
+        <Drawer.Screen name="index" initialParams={{ drawerSelection }} />
         <Drawer.Screen
           data-maiv="MAIV"
           name={AppDefaults.drawerSelection}
-          options={{ title: getBibleVersionDisplayName(AppDefaults.drawerSelection) }}
+          options={{ drawerLabel: getBibleVersionDisplayName(AppDefaults.drawerSelection) }}
         />
         {getSupportedBibleVersions()
           .filter((v) => v.key !== AppDefaults.drawerSelection)
@@ -96,14 +92,6 @@ export default function DrawerLayout() {
               }}
             />
           ))}
-        <Drawer.Screen
-          name="index"
-          options={{
-            drawerLabel: () => null,
-            drawerItemStyle: { height: 0 },
-          }}
-          initialParams={{ drawerSelection }}
-        />
       </Drawer>
       <ReadingLocationPicker
         showReadingLocationPickerModal={showReadingLocationPickerModal}
@@ -224,5 +212,57 @@ function ReadingLocationPicker({
         </View>
       </View>
     </Modal>
+  );
+}
+
+function CustomDrawerContent(props: DrawerContentComponentProps) {
+  const activeTintColor = useThemeColor({}, 'tint');
+  const inactiveTintColor = useThemeColor({}, 'text');
+  const supportedBibleVersions = getKeyListOfSupportedBibleVersions();
+
+  // Create mapping of route.key to original index
+  const routeIndexMap = new Map(
+    props.state.routes.map((route: any, index: number) => [route.key, index]),
+  );
+
+  return (
+    <DrawerContentScrollView {...props}>
+      {/* Subtitle header for the group */}
+      <View style={{ paddingHorizontal: 16, paddingVertical: 8 }}>
+        <ThemedText type="subtitle" style={{ color: inactiveTintColor }}>
+          Bible Versions
+        </ThemedText>
+      </View>
+
+      {/* Manually render items, grouped under the subtitle */}
+      {props.state.routes
+        .filter((route: any) => supportedBibleVersions.includes(route.name)) // Hide index
+        .map((route: any, index: number) => {
+          const descriptor = props.descriptors[route.key];
+          const label =
+            descriptor.options.drawerLabel !== undefined
+              ? descriptor.options.drawerLabel
+              : descriptor.options.title !== undefined
+                ? descriptor.options.title
+                : route.name;
+
+          // Lookup original index for accurate focused check
+          const originalIndex = routeIndexMap.get(route.key)!;
+          const focused = originalIndex === props.state.index;
+
+          return (
+            <DrawerItem
+              key={route.key}
+              label={label}
+              focused={focused}
+              activeTintColor={activeTintColor} // Customize active/inactive colors
+              inactiveTintColor={inactiveTintColor}
+              onPress={
+                () => props.navigation.navigate(route.name, { timestamp: Date.now() }) // Match your custom navigation with timestamp
+              }
+            />
+          );
+        })}
+    </DrawerContentScrollView>
   );
 }
