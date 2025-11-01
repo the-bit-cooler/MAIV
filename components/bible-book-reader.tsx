@@ -1,6 +1,9 @@
 import { bookCovers } from '@/assets/images/book-covers';
 import BibleChapterSummary from '@/components/bible-chapter-summary';
+import { BibleReadingLocationPicker } from '@/components/bible-reading-location-picker';
 import { CenteredActivityIndicator } from '@/components/centered-activity-indicator';
+import { IconSymbol } from '@/components/icon-symbol';
+import { ThemedText } from '@/components/themed-text';
 import { VerseView } from '@/components/verse-view';
 import { useAppPreferences } from '@/hooks/use-app-preferences-provider';
 import { useChapterPages } from '@/hooks/use-chapter-pages';
@@ -11,7 +14,8 @@ import { getBibleBookChapterCount } from '@/utilities/get-bible-book-chapter-cou
 import { getBibleBookList } from '@/utilities/get-bible-book-list';
 import { FlashList, FlashListRef } from '@shopify/flash-list';
 import { Image } from 'expo-image';
-import { memo, useEffect, useRef, useState } from 'react';
+import { useNavigation } from 'expo-router';
+import { memo, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Animated, StyleSheet, TouchableOpacity, View } from 'react-native';
 import PagerView from 'react-native-pager-view';
 
@@ -21,9 +25,36 @@ type BibleBookReaderParams = {
 };
 
 export default function BibleBookReader({ version, timestamp }: BibleBookReaderParams) {
+  const [showBibleReadingLocationPickerModal, setShowBibleReadingLocationPickerModal] =
+    useState(false);
   const { readingLocation, setReadingLocation } = useAppPreferences();
   const [coverVisible, setCoverVisible] = useState(true);
+  const navigation = useNavigation();
   const fadeAnim = useRef(new Animated.Value(1)).current;
+
+  // Dynamically set headerTitle with the picker trigger
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerTitle: () => (
+        <TouchableOpacity
+          onPress={() => setShowBibleReadingLocationPickerModal(true)}
+          activeOpacity={0.7}
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            backgroundColor: 'rgba(0,0,0,0.05)',
+            borderRadius: 8,
+            paddingHorizontal: 10,
+            paddingVertical: 4,
+          }}>
+          <IconSymbol name="chevron.down" size={16} color="#666" style={{ marginRight: 6 }} />
+          <ThemedText type="subtitle">
+            {`${readingLocation.bible.book} ${readingLocation.bible.chapter}`}
+          </ThemedText>
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation, readingLocation.bible.book, readingLocation.bible.chapter]);
 
   useEffect(() => {
     // Reset state whenever version changes
@@ -62,6 +93,12 @@ export default function BibleBookReader({ version, timestamp }: BibleBookReaderP
         <BibleBookReaderPages
           key={`${version}-${readingLocation.bible.book}-${readingLocation.bible.chapter}`}
           version={version}
+        />
+      )}
+      {readingLocation && (
+        <BibleReadingLocationPicker
+          showBibleReadingLocationPickerModal={showBibleReadingLocationPickerModal}
+          setShowBibleReadingLocationPickerModal={setShowBibleReadingLocationPickerModal}
         />
       )}
     </View>
