@@ -27,7 +27,7 @@ export const getBibleVersionDisplayName = (key: string): string => {
   return (bibleVersions as BibleVersions)[key].fullname || '';
 };
 
-export const getSupportedBibleVersionsShortNames = (): string[] => {
+export const getKeyListOfSupportedBibleVersions = (): string[] => {
   const versions = bibleVersions as BibleVersions;
   return Object.keys(versions).filter((key) => versions[key].supported);
 };
