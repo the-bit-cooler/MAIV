@@ -18,6 +18,9 @@
     "android:preview": "npm run install:check && eas build --platform android --profile preview",
     "android:production": "npm run install:check && eas build --platform android --profile production",
     "android:submit": "eas submit --platform android",
+    "eas:install": "npm install -g eas-cli",
+    "eas:login": "eas login",
+    "eas:whoami": "eas whoami",
     "prepare": "husky"
   },
   "dependencies": {
