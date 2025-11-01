@@ -1,0 +1,21 @@
+{
+  "release-type": "expo",
+  "packages": {
+    ".": {
+      "changelog-sections": [
+        { "type": "feat", "section": "✨ Features" },
+        { "type": "fix", "section": "🐛 Bug Fixes" },
+        { "type": "refactor", "section": "♻️ Refactors" },
+        { "type": "perf", "section": "⚡ Performance" },
+        { "type": "docs", "section": "📖 Documentation" },
+        { "type": "test", "section": "🧪 Tests" },
+        { "type": "style", "section": "💅 Style" },
+        { "type": "build", "section": "🏗️ Build System" },
+        { "type": "ci", "section": "⚙️ CI/CD" },
+        { "type": "chore", "section": "🧰 Maintenance" },
+        { "type": "revert", "section": "⏪ Reverts" },
+        { "type": "other", "section": "🔹 Other Changes" }
+      ]
+    }
+  }
+}
