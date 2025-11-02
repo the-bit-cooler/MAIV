@@ -18,6 +18,9 @@
       "bundleIdentifier": "com.scripturai.maiv",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
+      },
+      "config": {
+        "usesNonExemptEncryption": false
       }
     },
     "android": {
@@ -37,7 +40,14 @@
         }
       ],
       "expo-audio",
-      "expo-sqlite"
+      "expo-sqlite",
+      [
+        "expo-secure-store",
+        {
+          "configureAndroidBackup": true,
+          "faceIDPermission": "Allow $(PRODUCT_NAME) to access your Face ID biometric data."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
