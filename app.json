@@ -15,7 +15,7 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.scripturai.maiv",
+      "bundleIdentifier": "ai.scripturai.maiv",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       },
@@ -26,7 +26,7 @@
     "android": {
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.scripturai.maiv"
+      "package": "ai.scripturai.maiv"
     },
     "plugins": [
       "expo-router",
@@ -56,7 +56,7 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "bce293ff-9a45-4ec5-a415-e23f4854d951"
+        "projectId": "de87f680-1041-4f2a-84a2-f7b69bc6e3bb"
       }
     }
   }
