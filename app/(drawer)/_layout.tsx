@@ -16,6 +16,7 @@ import {
   DrawerItem,
 } from '@react-navigation/drawer';
 import { PlatformPressable } from '@react-navigation/elements';
+import { NavigationRoute, ParamListBase } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
 import { Drawer } from 'expo-router/drawer';
 import { View } from 'react-native';
@@ -73,9 +74,11 @@ function CustomDrawerContent(props: DrawerContentComponentProps) {
   const inactiveTintColor = useThemeColor({}, 'text');
   const supportedBibleVersions = getKeyListOfSupportedBibleVersions();
 
-  // Create mapping of route.key to original index
-  const routeIndexMap = new Map(
-    props.state.routes.map((route: any, index: number) => [route.key, index]),
+  const routeMap = new Map(
+    props.state.routes.map((route: NavigationRoute<ParamListBase, string>, index: number) => [
+      route.name,
+      { route, index },
+    ]),
   );
 
   return (
@@ -86,36 +89,30 @@ function CustomDrawerContent(props: DrawerContentComponentProps) {
           Bible Versions
         </ThemedText>
       </View>
+      {supportedBibleVersions.map((version: string) => {
+        const { route, index } = routeMap.get(version)!;
+        if (!route) return null;
+        const descriptor = props.descriptors[route.key];
+        const label =
+          descriptor.options.drawerLabel !== undefined
+            ? descriptor.options.drawerLabel
+            : descriptor.options.title !== undefined
+              ? descriptor.options.title
+              : route.name;
 
-      {/* Manually render items, grouped under the subtitle */}
-      {props.state.routes
-        .filter((route: any) => supportedBibleVersions.includes(route.name)) // Hide index
-        .map((route: any, index: number) => {
-          const descriptor = props.descriptors[route.key];
-          const label =
-            descriptor.options.drawerLabel !== undefined
-              ? descriptor.options.drawerLabel
-              : descriptor.options.title !== undefined
-                ? descriptor.options.title
-                : route.name;
-
-          // Lookup original index for accurate focused check
-          const originalIndex = routeIndexMap.get(route.key)!;
-          const focused = originalIndex === props.state.index;
-
-          return (
-            <DrawerItem
-              key={route.key}
-              label={label}
-              focused={focused}
-              activeTintColor={activeTintColor} // Customize active/inactive colors
-              inactiveTintColor={inactiveTintColor}
-              onPress={
-                () => props.navigation.navigate(route.name, { timestamp: Date.now() }) // Match your custom navigation with timestamp
-              }
-            />
-          );
-        })}
+        return (
+          <DrawerItem
+            key={route.key}
+            label={label}
+            focused={index === props.state.index}
+            activeTintColor={activeTintColor} // Customize active/inactive colors
+            inactiveTintColor={inactiveTintColor}
+            onPress={
+              () => props.navigation.navigate(route.name, { timestamp: Date.now() }) // Match your custom navigation with timestamp
+            }
+          />
+        );
+      })}
     </DrawerContentScrollView>
   );
 }
