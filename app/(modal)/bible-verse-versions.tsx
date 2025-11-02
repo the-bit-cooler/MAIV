@@ -29,7 +29,7 @@ export default function BibleVerseVersionsModal() {
     setLoading(true);
 
     try {
-      const url = `${process.env.EXPO_PUBLIC_AZURE_FUNCTION_URL}${version}/${book}/${chapter}/${verse}/versions?code=${process.env.EXPO_PUBLIC_AZURE_FUNCTION_KEY}`;
+      const url = `${process.env.EXPO_PUBLIC_AZURE_FUNCTION_URL}bible/${version}/${book}/${chapter}/${verse}/versions?code=${process.env.EXPO_PUBLIC_AZURE_FUNCTION_KEY}`;
       const response = await fetch(url);
 
       if (!response.ok) {

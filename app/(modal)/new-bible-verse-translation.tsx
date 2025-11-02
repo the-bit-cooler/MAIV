@@ -67,7 +67,7 @@ export default function NewBibleVerseTranslationModal() {
       }
 
       // --- STEP 3: Fallback to Azure Function (generates & stores) ---
-      const functionUrl = `${process.env.EXPO_PUBLIC_AZURE_FUNCTION_URL}${version}/${book}/${chapter}/${verse}/translate/${aiMode}?code=${process.env.EXPO_PUBLIC_AZURE_FUNCTION_KEY}`;
+      const functionUrl = `${process.env.EXPO_PUBLIC_AZURE_FUNCTION_URL}bible/${version}/${book}/${chapter}/${verse}/translate/${aiMode}?code=${process.env.EXPO_PUBLIC_AZURE_FUNCTION_KEY}`;
       const response = await fetch(functionUrl);
 
       if (!response.ok) {

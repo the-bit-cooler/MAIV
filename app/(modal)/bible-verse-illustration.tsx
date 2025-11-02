@@ -51,7 +51,7 @@ export default function BibleVerseIllustrationModal() {
       }
 
       // --- STEP 2: Fallback to Azure Function (generates & stores) ---
-      const functionUrl = `${process.env.EXPO_PUBLIC_AZURE_FUNCTION_URL}${version}/${book}/${chapter}/${verse}/illustrate?code=${process.env.EXPO_PUBLIC_AZURE_FUNCTION_KEY}`;
+      const functionUrl = `${process.env.EXPO_PUBLIC_AZURE_FUNCTION_URL}bible/${version}/${book}/${chapter}/${verse}/illustrate?code=${process.env.EXPO_PUBLIC_AZURE_FUNCTION_KEY}`;
       const response = await fetch(functionUrl);
 
       if (!response.ok) {

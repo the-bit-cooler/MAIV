@@ -17,7 +17,7 @@ async function fetchChapterFromAPI(
   book: string,
   chapter: number,
 ): Promise<Verse[]> {
-  const url = `${process.env.EXPO_PUBLIC_AZURE_FUNCTION_URL}${version}/${book}/${chapter}?code=${process.env.EXPO_PUBLIC_AZURE_FUNCTION_KEY}`;
+  const url = `${process.env.EXPO_PUBLIC_AZURE_FUNCTION_URL}bible/${version}/${book}/${chapter}?code=${process.env.EXPO_PUBLIC_AZURE_FUNCTION_KEY}`;
   const res = await fetch(url);
   if (res.ok) return (await res.json()) as Verse[];
   return [];
