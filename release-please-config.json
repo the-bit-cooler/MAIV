@@ -1,20 +1,70 @@
 {
-  "release-type": "expo",
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
   "packages": {
     ".": {
+      "release-type": "expo",
+      "changelog-path": "CHANGELOG.md",
       "changelog-sections": [
-        { "type": "feat", "section": "✨ Features" },
-        { "type": "fix", "section": "🐛 Bug Fixes" },
-        { "type": "refactor", "section": "♻️ Refactors" },
-        { "type": "perf", "section": "⚡ Performance" },
-        { "type": "docs", "section": "📖 Documentation" },
-        { "type": "test", "section": "🧪 Tests" },
-        { "type": "style", "section": "💅 Style" },
-        { "type": "build", "section": "🏗️ Build System" },
-        { "type": "ci", "section": "⚙️ CI/CD" },
-        { "type": "chore", "section": "🧰 Maintenance" },
-        { "type": "revert", "section": "⏪ Reverts" },
-        { "type": "other", "section": "🔹 Other Changes" }
+        {
+          "type": "feat",
+          "section": "✨ Features",
+          "hidden": false
+        },
+        {
+          "type": "fix",
+          "section": "🐛 Bug Fixes",
+          "hidden": false
+        },
+        {
+          "type": "refactor",
+          "section": "♻️ Refactors",
+          "hidden": false
+        },
+        {
+          "type": "perf",
+          "section": "⚡ Performance",
+          "hidden": false
+        },
+        {
+          "type": "docs",
+          "section": "📖 Documentation",
+          "hidden": false
+        },
+        {
+          "type": "test",
+          "section": "🧪 Tests",
+          "hidden": false
+        },
+        {
+          "type": "style",
+          "section": "💅 Style",
+          "hidden": false
+        },
+        {
+          "type": "build",
+          "section": "🏗️ Build System",
+          "hidden": false
+        },
+        {
+          "type": "ci",
+          "section": "⚙️ CI/CD",
+          "hidden": false
+        },
+        {
+          "type": "chore",
+          "section": "🧰 Maintenance",
+          "hidden": false
+        },
+        {
+          "type": "revert",
+          "section": "⏪ Reverts",
+          "hidden": false
+        },
+        {
+          "type": "other",
+          "section": "🔹 Other Changes",
+          "hidden": false
+        }
       ]
     }
   }
