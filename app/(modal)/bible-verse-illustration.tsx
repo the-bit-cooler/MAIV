@@ -170,18 +170,13 @@ const styles = StyleSheet.create({
   },
   fab: {
     position: 'absolute',
-    bottom: 12,
-    right: 12,
+    bottom: 16,
+    right: 16,
     width: 56,
     height: 56,
-    borderRadius: 28,
+    backgroundColor: 'transparent',
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0.3,
-    shadowOffset: { width: 0, height: 3 },
-    shadowRadius: 4,
-    elevation: 5,
   },
   fenceBlock: {
     borderColor: '#666', // neutral mid-gray border
