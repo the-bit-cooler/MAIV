@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="MAIV — The Modern AI Version of the Holy Bible" />
+  <title>MAIV | Modern AI Version</title>
+  <link rel="icon" type="image/png" href="favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="shortcut icon" href="favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+  <meta name="apple-mobile-web-app-title" content="MAIV" />
+  <link rel="manifest" href="site.webmanifest" />
+
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@400;500&display=swap');
+
+    :root {
+      --bg-color: #E8D9B5;
+      --text-color: #3E2F1C;
+      --accent-color: #8B5E3C;
+      --border-color: #D6C49B;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 2rem;
+    }
+
+    header img {
+      width: 240px;
+      height: 240px;
+      margin-bottom: 1.2rem;
+    }
+
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      color: var(--accent-color);
+    }
+
+    h2 {
+      font-weight: 500;
+      font-size: 1.1rem;
+      color: #7a6a55;
+      margin-bottom: 1.8rem;
+    }
+
+    p {
+      max-width: 600px;
+      margin: 0 auto 2rem;
+      line-height: 1.6;
+    }
+
+    .store-buttons {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .store-buttons img {
+      height: 60px;
+      transition: transform 0.3s ease;
+    }
+
+    .store-buttons img:hover {
+      transform: scale(1.05);
+    }
+
+    a.disabled {
+      pointer-events: none;
+      opacity: 0.6;
+      cursor: default;
+    }
+
+    .coming-soon {
+      margin-top: 1.5rem;
+      font-weight: 500;
+      color: var(--muted-color);
+      font-style: italic;
+    }
+
+    footer {
+      position: fixed;
+      bottom: 1rem;
+      font-size: 0.85rem;
+      color: #7a6a55;
+    }
+
+    footer a {
+      color: var(--accent-color);
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <img src="icon.png" alt="MAIV Logo" />
+    <h1>MAIV</h1>
+    <h2>The Modern AI Version of the Holy Bible</h2>
+  </header>
+
+  <main>
+    <p style="max-width: 600px; margin: 0 auto 2rem;">
+      Experience the Word of God reimagined for the modern age. The MAIV app blends timeless scripture
+      with intelligent translation, study tools, and devotion modes — all powered by ScripturAI.
+    </p>
+
+    <div class="store-buttons">
+      <a href="javascript:void(0)" class="disabled">
+        <img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg"
+          alt="Download on the App Store" />
+      </a>
+
+      <a href="javascript:void(0)" class="disabled">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg"
+          alt="Get it on Google Play" />
+      </a>
+    </div>
+    <p class="coming-soon">Coming Soon to iOS and Android</p>
+  </main>
+
+  <footer>
+    © <span id="year"></span> ScripturAI — All Rights Reserved |
+    <a href="https://scripturai.ai">scripturai.ai</a>
+  </footer>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+
+</html>
