@@ -1,10 +1,9 @@
+import { Verse } from '@/types/verse';
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import * as Clipboard from 'expo-clipboard';
 import { useRouter } from 'expo-router';
 import { useCallback } from 'react';
 import { Alert, Share } from 'react-native';
-
-import { Verse } from '@/types/verse';
 
 export function useVerseContextMenu() {
   const router = useRouter();
@@ -21,10 +20,17 @@ export function useVerseContextMenu() {
         'Illustrate Verse',
         'Copy Verse',
         'Share Verse',
+        'Cancel',
       ];
 
       showActionSheetWithOptions(
-        { options, title: `${verse.book} ${verse.chapter}:${verse.verse}` },
+        {
+          options,
+          title: `${verse.book} ${verse.chapter}:${verse.verse}`,
+          cancelButtonIndex: 7,
+          destructiveButtonIndex: undefined,
+          tintColor: '#007AFF',
+        },
         async (selectedIndex?: number) => {
           switch (options[selectedIndex!]) {
             case 'Explain Verse':
