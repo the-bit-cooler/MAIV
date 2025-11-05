@@ -2,7 +2,7 @@ import { useActionSheet } from '@expo/react-native-action-sheet';
 import * as Clipboard from 'expo-clipboard';
 import { useRouter } from 'expo-router';
 import { useCallback } from 'react';
-import { Alert, Platform, Share } from 'react-native';
+import { Alert, Share } from 'react-native';
 
 import { Verse } from '@/types/verse';
 
@@ -15,13 +15,13 @@ export function useVerseContextMenu() {
       // Build options dynamically
       const options = [
         'Explain Verse',
-        'New Translation',
-        'Similar Verses',
+        'Translate Verse',
+        'Find Similar Verses',
         'Compare Versions',
-        'Illustrate',
+        'Illustrate Verse',
+        'Copy Verse',
+        'Share Verse',
       ];
-      if (Platform.OS === 'android') options.push('Copy');
-      options.push('Share');
 
       showActionSheetWithOptions(
         { options, title: `${verse.book} ${verse.chapter}:${verse.verse}` },
@@ -39,7 +39,7 @@ export function useVerseContextMenu() {
                 },
               });
               break;
-            case 'New Translation':
+            case 'Translate Verse':
               router.push({
                 pathname: '/new-bible-verse-translation',
                 params: {
@@ -51,7 +51,7 @@ export function useVerseContextMenu() {
                 },
               });
               break;
-            case 'Similar Verses':
+            case 'Find Similar Verses':
               router.push({
                 pathname: '/similar-bible-verses',
                 params: {
@@ -75,7 +75,7 @@ export function useVerseContextMenu() {
                 },
               });
               break;
-            case 'Illustrate':
+            case 'Illustrate Verse':
               router.push({
                 pathname: '/bible-verse-illustration',
                 params: {
@@ -87,13 +87,13 @@ export function useVerseContextMenu() {
                 },
               });
               break;
-            case 'Copy':
+            case 'Copy Verse':
               await Clipboard.setStringAsync(
                 `${verse.book} ${verse.chapter}:${verse.verse} — ${verse.text}`,
               );
               Alert.alert('Copied!', 'Verse copied to clipboard.');
               break;
-            case 'Share':
+            case 'Share Verse':
               try {
                 await Share.share({
                   message: `${verse.book} ${verse.chapter}:${verse.verse} — ${verse.text}`,
