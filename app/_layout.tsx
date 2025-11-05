@@ -1,6 +1,7 @@
 import { UserPreferences } from '@/constants/user-preferences';
 import { AppPreferencesProvider, useAppPreferences } from '@/hooks/use-app-preferences-provider';
 import { AppThemeProvider } from '@/hooks/use-app-theme-provider';
+import { useThemeColor } from '@/hooks/use-theme-color';
 import { VerseContextProvider } from '@/hooks/use-verse-context';
 import { purgeExpiredCache, setCache } from '@/utilities/cache';
 import { ActionSheetProvider } from '@expo/react-native-action-sheet';
@@ -8,7 +9,7 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useRef } from 'react';
-import { AppState } from 'react-native';
+import { AppState, View } from 'react-native';
 
 SplashScreen.setOptions({
   duration: 1000,
@@ -36,6 +37,7 @@ export default function App() {
 
 function RootLayout() {
   const { readingLocation } = useAppPreferences();
+  const backgroundColor = useThemeColor({}, 'background');
   const isInitialMount = useRef(true);
 
   // Save user's reading location
@@ -63,18 +65,22 @@ function RootLayout() {
   }, [readingLocation]);
 
   return (
-    <Stack
-      screenOptions={{
-        headerShown: false,
-      }}>
-      <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
-      <Stack.Screen
-        name="(modal)"
-        options={{
-          presentation: 'modal',
+    <View style={{ flex: 1, backgroundColor }}>
+      <Stack
+        screenOptions={{
           headerShown: false,
-        }}
-      />
-    </Stack>
+          // animation: 'none',
+          contentStyle: { backgroundColor },
+        }}>
+        <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="(modal)"
+          options={{
+            presentation: 'modal',
+            headerShown: false,
+          }}
+        />
+      </Stack>
+    </View>
   );
 }
