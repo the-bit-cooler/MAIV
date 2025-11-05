@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="MAIV — The Modern AI Version of the Holy Bible" />
+  <title>Account Deletion Policy | MAIV</title>
+  <link rel="icon" type="image/png" href="favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="shortcut icon" href="favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+  <meta name="apple-mobile-web-app-title" content="MAIV" />
+  <link rel="manifest" href="site.webmanifest" />
+  <style>
+    :root {
+      --bg-color: #E8D9B5;
+      --text-color: #3E2F1C;
+      --accent-color: #8B5E3C;
+      --border-color: #D6C49B;
+      --muted-color: #7a6a55;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      max-width: 1000px;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+      line-height: 1.7;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+    }
+
+    header {
+      text-align: center;
+      padding: 2rem 1rem;
+    }
+
+    main {
+      max-width: 1000px;
+      margin: 1rem auto;
+      padding: 0.5rem 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    h1,
+    h2 {
+      color: var(--accent-color);
+    }
+
+    section {
+      margin-bottom: 2rem;
+    }
+
+    a {
+      color: var(--accent-color);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    footer {
+      text-align: center;
+      padding: 2rem 1rem;
+      font-size: 0.85rem;
+      color: var(--muted-color);
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>Account and Data Deletion Policy</h1>
+    <p><strong>Developer:</strong> ScripturAI • <strong>App:</strong> MAIV (Modern AI Version)</p>
+    <p><em>Last updated: November 2025</em></p>
+  </header>
+
+  <main>
+    <section>
+      <h2 id="how-to-request-account-deletion">How to Request Account Deletion</h2>
+      <p>
+        If you created an account in MAIV using <strong>Apple Sign-In</strong> or <strong>Google Sign-In</strong>,
+        you can request deletion of your account and associated data at any time.
+      </p>
+      <ol>
+        <li>Send an email to <a href="mailto:support@scripturai.ai">support@scripturai.ai</a> with the subject
+          line:<br><strong>"Account Deletion Request – MAIV"</strong></li>
+        <li>Include the email address you used to sign in (Apple or Google account).</li>
+        <li>We will confirm once your account and data have been permanently deleted.</li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>What Data Is Deleted</h2>
+      <ul>
+        <li>Your <strong>email address</strong> used for sign-in (Apple or Google)</li>
+        <li>Any <strong>passkey credentials</strong> linked to your account</li>
+      </ul>
+      <p>Currently, MAIV does not store any personal notes, preferences, or content beyond these identifiers.</p>
+    </section>
+
+    <section>
+      <h2>Data Retention</h2>
+      <p>Deleted data is permanently removed within <strong>30 days</strong> of your verified request.
+        Limited, non-identifiable logs may be retained for <em>security and compliance</em> purposes only.</p>
+    </section>
+
+    <section>
+      <h2>Clear Local Data</h2>
+      <p>
+        You can clear any data stored locally by the MAIV app at any time:
+      </p>
+      <ul>
+        <li>
+          <strong>In the MAIV app:</strong> Open the <em>Settings</em> page, scroll to the bottom, and tap
+          <strong>“Clear Local Data”</strong> to remove cached Bible content, preferences, and offline data from your
+          device.
+        </li>
+        <li>
+          <strong>Alternatively:</strong> You can uninstall the MAIV app from your device, which automatically removes
+          all local data stored by the app.
+        </li>
+      </ul>
+      <p>
+        These options only affect data stored locally on your device. Any account-related data stored securely in the
+        cloud
+        (such as your email or passkey) must be deleted using the <a href="#how-to-request-account-deletion">account
+          deletion request process</a>.
+      </p>
+    </section>
+
+    <section>
+      <h2>Future Data and Subscriptions</h2>
+      <p>
+        Future versions of MAIV may include optional subscription data or personalized content.
+        These will also be fully deletable upon request using the same process.
+      </p>
+    </section>
+
+    <section>
+      <h2>Contact</h2>
+      <p>If you have any questions about your data or privacy, contact:</p>
+      <p>
+        Email: <a href="mailto:support@scripturai.ai">support@scripturai.ai</a><br />
+      </p>
+    </section>
+  </main>
+
+  <footer>
+    © <span id="year"></span> <a href="https://scripturai.ai">ScripturAI</a> — All Rights Reserved |
+    <a href="index.html">Home</a>
+  </footer>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+
+</html>
