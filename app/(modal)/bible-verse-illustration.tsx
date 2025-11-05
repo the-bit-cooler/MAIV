@@ -151,7 +151,7 @@ const styles = StyleSheet.create({
   },
   illustration: {
     aspectRatio: 2 / 3, // 1024x1536 aspect ratio
-    width: '100%',
+    width: '90%',
   },
   verseHeaderContainer: {
     margin: 'auto',
