@@ -16,7 +16,7 @@ import { FlashList, FlashListRef } from '@shopify/flash-list';
 import { Image } from 'expo-image';
 import { useNavigation } from 'expo-router';
 import { memo, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { Animated, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Animated, Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
 import PagerView from 'react-native-pager-view';
 
 type BibleBookReaderParams = {
@@ -113,6 +113,7 @@ function BibleBookReaderPages({ version }: BibleBookReaderPagesParams) {
   const pagerRef = useRef<PagerView>(null);
   const userScrollRef = useRef(false);
   const hasMounted = useRef(false);
+  const prevScrollState = useRef('idle'); // NEW: Track previous scroll state for Android overscroll detection
   const { readingLocation, setReadingLocation } = useAppPreferences();
   const onContextMenu = useVerseContextMenu();
   const { loading, pages, measureView } = useChapterPages(
@@ -157,6 +158,72 @@ function BibleBookReaderPages({ version }: BibleBookReaderPagesParams) {
       overScrollMode="always" // Android
       onPageScrollStateChanged={({ nativeEvent: { pageScrollState } }) => {
         if (pageScrollState === 'dragging') userScrollRef.current = true;
+
+        // NEW: Android-specific overscroll detection via state transition
+        if (Platform.OS === 'android') {
+          if (prevScrollState.current === 'dragging' && pageScrollState === 'idle') {
+            const currentPosition = readingLocation.bible.page;
+            const totalVersePages = pages.length;
+            const totalPages = 1 + totalVersePages; // summary + verse pages
+
+            // Overscroll at beginning (attempt to go previous)
+            if (currentPosition === 0) {
+              if (readingLocation.bible.chapter > 1) {
+                setReadingLocation({
+                  ...readingLocation,
+                  bible: {
+                    ...readingLocation.bible,
+                    chapter: readingLocation.bible.chapter - 1,
+                    page: -1,
+                  },
+                });
+              } else {
+                const bookIndex = bibleBooks.indexOf(readingLocation.bible.book);
+                if (bookIndex > 0) {
+                  const prevBook = bibleBooks[bookIndex - 1];
+                  const prevBookChapterCount = getBibleBookChapterCount(prevBook);
+                  setReadingLocation({
+                    ...readingLocation,
+                    bible: {
+                      book: prevBook,
+                      chapter: prevBookChapterCount,
+                      page: -1,
+                    },
+                  });
+                }
+              }
+            }
+
+            // Overscroll at end (attempt to go next)
+            else if (currentPosition === totalPages - 1) {
+              const chapterCount = getBibleBookChapterCount(readingLocation.bible.book);
+              if (readingLocation.bible.chapter < chapterCount) {
+                setReadingLocation({
+                  ...readingLocation,
+                  bible: {
+                    ...readingLocation.bible,
+                    chapter: readingLocation.bible.chapter + 1,
+                    page: 0,
+                  },
+                });
+              } else {
+                const bookIndex = bibleBooks.indexOf(readingLocation.bible.book);
+                if (bookIndex < bibleBooks.length - 1) {
+                  setReadingLocation({
+                    ...readingLocation,
+                    bible: {
+                      book: bibleBooks[bookIndex + 1],
+                      chapter: 1,
+                      page: 0,
+                    },
+                  });
+                }
+              }
+            }
+          }
+        }
+
+        prevScrollState.current = pageScrollState; // NEW: Update previous state
       }}
       onPageScroll={({ nativeEvent: { position, offset } }) => {
         if (!hasMounted.current || !userScrollRef.current) return;
