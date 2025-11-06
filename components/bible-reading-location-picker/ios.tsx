@@ -14,7 +14,7 @@ type BibleReadingLocationPickerParams = {
   setShowBibleReadingLocationPickerModal: Dispatch<React.SetStateAction<boolean>>;
 };
 
-export function BibleReadingLocationPicker({
+export default function BibleReadingLocationPicker({
   showBibleReadingLocationPickerModal,
   setShowBibleReadingLocationPickerModal,
 }: BibleReadingLocationPickerParams) {
