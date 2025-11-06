@@ -4,6 +4,7 @@ import { ThemedText } from '@/components/themed-text';
 import { useAppPreferences } from '@/hooks/use-app-preferences-provider';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { Verse } from '@/types/verse';
+import { constructAPIUrl } from '@/utilities/construct-api-url';
 import { getBibleVersionDisplayName } from '@/utilities/get-bible-version-info';
 import { useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
@@ -32,8 +33,10 @@ export default function SimilarBibleVersesModal() {
     setLoading(true);
 
     try {
-      const url = `${process.env.EXPO_PUBLIC_AZURE_FUNCTION_URL}bible/${version}/${book}/${chapter}/${verse}/similar/${aiMode}?code=${process.env.EXPO_PUBLIC_AZURE_FUNCTION_KEY}`;
-      const response = await fetch(url);
+      const apiUrl = constructAPIUrl(
+        `bible/${version}/${book}/${chapter}/${verse}/similar/${aiMode}`,
+      );
+      const response = await fetch(apiUrl);
 
       if (!response.ok) {
         console.warn('Failed to get similar verses from Azure Function');

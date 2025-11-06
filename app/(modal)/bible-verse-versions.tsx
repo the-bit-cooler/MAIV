@@ -3,6 +3,7 @@ import ParallaxScrollView from '@/components/parallax-scroll-view';
 import { ThemedText } from '@/components/themed-text';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { Verse } from '@/types/verse';
+import { constructAPIUrl } from '@/utilities/construct-api-url';
 import { getBibleVersionDisplayName } from '@/utilities/get-bible-version-info';
 import { useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
@@ -29,8 +30,8 @@ export default function BibleVerseVersionsModal() {
     setLoading(true);
 
     try {
-      const url = `${process.env.EXPO_PUBLIC_AZURE_FUNCTION_URL}bible/${version}/${book}/${chapter}/${verse}/versions?code=${process.env.EXPO_PUBLIC_AZURE_FUNCTION_KEY}`;
-      const response = await fetch(url);
+      const apiUrl = constructAPIUrl(`bible/${version}/${book}/${chapter}/${verse}/versions`);
+      const response = await fetch(apiUrl);
 
       if (!response.ok) {
         console.warn('Failed to get versions to compare from Azure Function');

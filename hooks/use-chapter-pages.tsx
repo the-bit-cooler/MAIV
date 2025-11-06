@@ -2,6 +2,7 @@ import { VerseView } from '@/components/verse-view';
 import { useVerseContext } from '@/hooks/use-verse-context';
 import { Verse } from '@/types/verse';
 import { getCache, setCache } from '@/utilities/cache';
+import { constructAPIUrl } from '@/utilities/construct-api-url';
 import { useEffect, useMemo, useState } from 'react';
 import { Dimensions, View } from 'react-native';
 
@@ -17,8 +18,8 @@ async function fetchChapterFromAPI(
   book: string,
   chapter: number,
 ): Promise<Verse[]> {
-  const url = `${process.env.EXPO_PUBLIC_AZURE_FUNCTION_URL}bible/${version}/${book}/${chapter}?code=${process.env.EXPO_PUBLIC_AZURE_FUNCTION_KEY}`;
-  const res = await fetch(url);
+  const apiUrl = constructAPIUrl(`bible/${version}/${book}/${chapter}`);
+  const res = await fetch(apiUrl);
   if (res.ok) return (await res.json()) as Verse[];
   return [];
 }

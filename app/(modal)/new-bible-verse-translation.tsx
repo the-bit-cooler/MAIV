@@ -5,6 +5,7 @@ import { ThemedText } from '@/components/themed-text';
 import { useAppPreferences } from '@/hooks/use-app-preferences-provider';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { getCache, setCache, TTL } from '@/utilities/cache';
+import { constructAPIUrl } from '@/utilities/construct-api-url';
 import { getBibleVersionDisplayName } from '@/utilities/get-bible-version-info';
 import { shareMarkdownAsPdf } from '@/utilities/share-markdown-as-pdf';
 import { PlatformPressable } from '@react-navigation/elements';
@@ -67,8 +68,10 @@ export default function NewBibleVerseTranslationModal() {
       }
 
       // --- STEP 3: Fallback to Azure Function (generates & stores) ---
-      const functionUrl = `${process.env.EXPO_PUBLIC_AZURE_FUNCTION_URL}bible/${version}/${book}/${chapter}/${verse}/translate/${aiMode}?code=${process.env.EXPO_PUBLIC_AZURE_FUNCTION_KEY}`;
-      const response = await fetch(functionUrl);
+      const apiUrl = constructAPIUrl(
+        `bible/${version}/${book}/${chapter}/${verse}/translate/${aiMode}`,
+      );
+      const response = await fetch(apiUrl);
 
       if (!response.ok) {
         console.warn('Failed to get translation URL from Azure Function');

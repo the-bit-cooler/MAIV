@@ -4,6 +4,7 @@ import ParallaxScrollView from '@/components/parallax-scroll-view';
 import { ThemedText } from '@/components/themed-text';
 import { blurhash } from '@/constants/blur-hash';
 import { useThemeColor } from '@/hooks/use-theme-color';
+import { constructAPIUrl } from '@/utilities/construct-api-url';
 import { getBibleVersionDisplayName } from '@/utilities/get-bible-version-info';
 import { shareIllustrationPdf } from '@/utilities/share-illustration-pdf';
 import { PlatformPressable } from '@react-navigation/elements';
@@ -51,8 +52,8 @@ export default function BibleVerseIllustrationModal() {
       }
 
       // --- STEP 2: Fallback to Azure Function (generates & stores) ---
-      const functionUrl = `${process.env.EXPO_PUBLIC_AZURE_FUNCTION_URL}bible/${version}/${book}/${chapter}/${verse}/illustrate?code=${process.env.EXPO_PUBLIC_AZURE_FUNCTION_KEY}`;
-      const response = await fetch(functionUrl);
+      const apiUrl = constructAPIUrl(`bible/${version}/${book}/${chapter}/${verse}/illustrate`);
+      const response = await fetch(apiUrl);
 
       if (!response.ok) {
         console.warn('Failed to get illustration URL from Azure Function');
