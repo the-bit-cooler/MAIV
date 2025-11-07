@@ -7,11 +7,12 @@ import { useThemeColor } from '@/hooks/use-theme-color';
 import { getCache, setCache, TTL } from '@/utilities/cache';
 import { constructAPIUrl } from '@/utilities/construct-api-url';
 import { getBibleVersionDisplayName } from '@/utilities/get-bible-version-info';
+import { getUserDirective } from '@/utilities/get-user-directive';
 import { shareMarkdownAsPdf } from '@/utilities/share-markdown-as-pdf';
 import { PlatformPressable } from '@react-navigation/elements';
 import { useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Alert, StyleSheet, View } from 'react-native';
 import Markdown from 'react-native-markdown-display';
 
 type BibleVerseExplanationRouteParams = {
@@ -27,7 +28,7 @@ export default function BibleVerseExplanationModal() {
     useLocalSearchParams<BibleVerseExplanationRouteParams>();
   const [explanation, setExplanation] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const { aiMode } = useAppPreferences();
+  const { aiMode, sessionToken } = useAppPreferences();
 
   // ✅ use theme defaults
   const headerBackgroundColor = useThemeColor({}, 'cardBackground');
@@ -71,21 +72,33 @@ export default function BibleVerseExplanationModal() {
       const apiUrl = constructAPIUrl(
         `bible/${version}/${book}/${chapter}/${verse}/explain/${aiMode}`,
       );
-      const response = await fetch(apiUrl);
+      const response = await fetch(apiUrl, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${sessionToken}`,
+        },
+      });
 
       if (!response.ok) {
         console.warn('Failed to get explanation URL from Azure Function');
         return;
       }
 
-      const resultUrl = await response.text();
-      if (!resultUrl) {
+      const result = await response.text();
+      if (!result) {
         console.warn('Azure Function returned empty URL');
         return;
       }
 
+      if (!result.startsWith('https')) {
+        const { title, message } = getUserDirective(result);
+        Alert.alert(title, message);
+        return;
+      }
+
       // Fetch the newly generated file
-      const fileResponse = await fetch(resultUrl);
+      const fileResponse = await fetch(result);
       if (!fileResponse.ok) {
         console.warn('Failed to fetch generated explanation file');
         return;
@@ -99,7 +112,7 @@ export default function BibleVerseExplanationModal() {
     } finally {
       setLoading(false);
     }
-  }, [version, book, chapter, verse, aiMode]);
+  }, [aiMode, version, book, chapter, verse, sessionToken]);
 
   useEffect(() => {
     fetchBibleVerseExplanation();

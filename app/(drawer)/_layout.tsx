@@ -2,6 +2,8 @@ import { IconSymbol } from '@/components/icon-symbol';
 import { ThemedText } from '@/components/themed-text';
 import { AppDefaults } from '@/constants/app-defaults';
 import { UserPreferences } from '@/constants/user-preferences';
+import { useAppPreferences } from '@/hooks/use-app-preferences-provider';
+import { useAuth } from '@/hooks/use-auth';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { ReadingLocation } from '@/types/reading-location';
 import { getCacheSync } from '@/utilities/cache';
@@ -17,9 +19,10 @@ import {
 } from '@react-navigation/drawer';
 import { PlatformPressable } from '@react-navigation/elements';
 import { NavigationRoute, ParamListBase } from '@react-navigation/native';
+import * as AppleAuthentication from 'expo-apple-authentication';
 import { useRouter } from 'expo-router';
 import { Drawer } from 'expo-router/drawer';
-import { View } from 'react-native';
+import { Platform, View } from 'react-native';
 
 export default function DrawerLayout() {
   const router = useRouter();
@@ -70,9 +73,11 @@ export default function DrawerLayout() {
 }
 
 function CustomDrawerContent(props: DrawerContentComponentProps) {
+  const { sessionToken } = useAppPreferences();
   const activeTintColor = useThemeColor({}, 'tint');
   const inactiveTintColor = useThemeColor({}, 'text');
   const supportedBibleVersions = getKeyListOfSupportedBibleVersions();
+  const { signIn } = useAuth();
 
   const routeMap = new Map(
     props.state.routes.map((route: NavigationRoute<ParamListBase, string>, index: number) => [
@@ -83,6 +88,23 @@ function CustomDrawerContent(props: DrawerContentComponentProps) {
 
   return (
     <DrawerContentScrollView {...props}>
+      {/* 🔐 Sign-In button section */}
+      {!sessionToken && (
+        <View style={{ padding: 16, borderBottomWidth: 0.5, borderColor: '#ccc' }}>
+          {Platform.OS === 'ios' ? (
+            <AppleAuthentication.AppleAuthenticationButton
+              buttonType={AppleAuthentication.AppleAuthenticationButtonType.CONTINUE}
+              buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
+              cornerRadius={8}
+              style={{ width: '100%', height: 44 }}
+              onPress={signIn}
+            />
+          ) : (
+            <></>
+          )}
+        </View>
+      )}
+
       {/* Subtitle header for the group */}
       <View style={{ paddingHorizontal: 16, paddingVertical: 8 }}>
         <ThemedText type="subtitle" style={{ color: inactiveTintColor }}>

@@ -7,6 +7,8 @@ import { createContext, useContext, useEffect, useState } from 'react';
 type AppPreferencesContextType = {
   readingLocation: ReadingLocation;
   setReadingLocation: (readingLocation: ReadingLocation) => Promise<void>;
+  sessionToken: string | null;
+  setSessionToken: (token: string | null) => Promise<void>;
   aiMode: string;
   setAiMode: (mode: string) => Promise<void>;
   allowAiThinkingSound: boolean;
@@ -23,6 +25,8 @@ const AppPreferencesContext = createContext<AppPreferencesContextType>({
     },
   },
   setReadingLocation: async () => {},
+  sessionToken: null,
+  setSessionToken: async () => {},
   aiMode: AppDefaults.aiMode,
   setAiMode: async () => {},
   allowAiThinkingSound: AppDefaults.allowAiThinkingSound,
@@ -38,6 +42,7 @@ export function AppPreferencesProvider({ children }: { children: React.ReactNode
       page: 0,
     },
   });
+  const [sessionToken, setSessionTokenState] = useState<string | null>(null);
   const [aiMode, setAiModeState] = useState(AppDefaults.aiMode);
   const [allowAiThinkingSound, setAllowAiThinkingSoundState] = useState(
     AppDefaults.allowAiThinkingSound,
@@ -69,6 +74,10 @@ export function AppPreferencesProvider({ children }: { children: React.ReactNode
     await setCache(UserPreferences.saved_reading_location, readingLocation);
   };
 
+  const setSessionToken = async (token: string | null) => {
+    setSessionTokenState(token); // updates immediately
+  };
+
   const setAiMode = async (mode: string) => {
     setAiModeState(mode); // updates immediately
     await setCache(UserPreferences.ai_mode, mode);
@@ -84,6 +93,8 @@ export function AppPreferencesProvider({ children }: { children: React.ReactNode
       value={{
         readingLocation,
         setReadingLocation,
+        sessionToken,
+        setSessionToken,
         aiMode,
         setAiMode,
         allowAiThinkingSound,

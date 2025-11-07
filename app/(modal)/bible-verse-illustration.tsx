@@ -3,15 +3,17 @@ import { IconSymbol } from '@/components/icon-symbol';
 import ParallaxScrollView from '@/components/parallax-scroll-view';
 import { ThemedText } from '@/components/themed-text';
 import { blurhash } from '@/constants/blur-hash';
+import { useAppPreferences } from '@/hooks/use-app-preferences-provider';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { constructAPIUrl } from '@/utilities/construct-api-url';
 import { getBibleVersionDisplayName } from '@/utilities/get-bible-version-info';
+import { getUserDirective } from '@/utilities/get-user-directive';
 import { shareIllustrationPdf } from '@/utilities/share-illustration-pdf';
 import { PlatformPressable } from '@react-navigation/elements';
 import { Image } from 'expo-image';
 import { useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { Platform, StyleSheet, View } from 'react-native';
+import { Alert, Platform, StyleSheet, View } from 'react-native';
 
 type BibleVerseIllustrationRouteParams = {
   version: string;
@@ -26,6 +28,7 @@ export default function BibleVerseIllustrationModal() {
     useLocalSearchParams<BibleVerseIllustrationRouteParams>();
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const { sessionToken } = useAppPreferences();
 
   // ✅ use theme defaults
   const headerBackgroundColor = useThemeColor({}, 'cardBackground');
@@ -53,26 +56,38 @@ export default function BibleVerseIllustrationModal() {
 
       // --- STEP 2: Fallback to Azure Function (generates & stores) ---
       const apiUrl = constructAPIUrl(`bible/${version}/${book}/${chapter}/${verse}/illustrate`);
-      const response = await fetch(apiUrl);
+      const response = await fetch(apiUrl, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${sessionToken}`,
+        },
+      });
 
       if (!response.ok) {
         console.warn('Failed to get illustration URL from Azure Function');
         return;
       }
 
-      const resultUrl = await response.text();
-      if (!resultUrl) {
+      const result = await response.text();
+      if (!result) {
         console.warn('Azure Function returned empty URL');
         return;
       }
 
-      setImageUri(resultUrl);
+      if (!result.startsWith('https')) {
+        const { title, message } = getUserDirective(result);
+        Alert.alert(title, message);
+        return;
+      }
+
+      setImageUri(result);
     } catch (err) {
       console.warn('Error fetching illustration url:', err);
     } finally {
       setLoading(false);
     }
-  }, [version, book, chapter, verse]);
+  }, [version, book, chapter, verse, sessionToken]);
 
   useEffect(() => {
     fetchBibleVerseIllustration();
