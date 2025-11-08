@@ -21,6 +21,11 @@
     "eas:whoami": "eas whoami",
     "eas:env-list": "eas env:list --include-sensitive",
     "env:generate": "bash scripts/generate-env.sh",
+    "ios:device:list": "eas device:list",
+    "ios:device:create": "eas device:create",
+    "ios:device:delete": "eas device:delete",
+    "ios:device:rename": "eas device:rename",
+    "ios:device:view": "eas device:view",
     "prepare": "husky"
   },
   "dependencies": {
