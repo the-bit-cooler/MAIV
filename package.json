@@ -8,7 +8,7 @@
     "start:prod": "npx expo start --no-dev --minify --clear --tunnel",
     "lint": "npx expo lint",
     "install:check": "npx expo install --check",
-    "dev:build:ios": "npm run install:check && eas build --platform ios --profile ios-simulator",
+    "dev:build:ios": "npm run install:check && eas build --platform ios --profile development",
     "dev:build:android": "npm run install:check && eas build --platform android --profile development",
     "prod:build": "npm run install:check && eas build --platform all --profile production",
     "prod:submit": "eas submit --platform all --profile production --latest",
