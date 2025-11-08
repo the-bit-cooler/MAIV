@@ -85,6 +85,25 @@ export async function isCacheValid(key: string): Promise<boolean> {
   return value !== null;
 }
 
+let storageReady = false;
+async function ensureStorageReady() {
+  if (storageReady) return;
+  try {
+    await Storage.getAllKeys();
+    storageReady = true;
+  } catch (e) {
+    console.warn('Retrying SQLite init...', e);
+    await new Promise((r) => setTimeout(r, 300));
+    await Storage.getAllKeys();
+    storageReady = true;
+  }
+}
+
+export async function safePurgeExpiredCache() {
+  await ensureStorageReady();
+  return purgeExpiredCache();
+}
+
 /**
  * Automatically purge all expired cache items
  * Call this once on app startup
