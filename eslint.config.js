@@ -8,5 +8,30 @@ module.exports = defineConfig([
   eslintPluginPrettierRecommended,
   {
     ignores: ['dist/*'],
+    settings: {
+      'import/resolver': {
+        typescript: {
+          project: './tsconfig.json',
+        },
+        node: {
+          extensions: [
+            '.js',
+            '.jsx',
+            '.ts',
+            '.tsx',
+            '.ios.js',
+            '.ios.ts',
+            '.ios.tsx',
+            '.android.js',
+            '.android.ts',
+            '.android.tsx',
+          ],
+        },
+      },
+    },
+    rules: {
+      // Optional: silence false positives from import/no-unresolved
+      'import/no-unresolved': [2, { ignore: ['^@/'] }],
+    },
   },
 ]);
