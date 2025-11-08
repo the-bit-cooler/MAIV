@@ -3,7 +3,6 @@ import SignInButton from '@/components/sign-in-button';
 import { ThemedText } from '@/components/themed-text';
 import { AppDefaults } from '@/constants/app-defaults';
 import { UserPreferences } from '@/constants/user-preferences';
-import { useAppPreferences } from '@/hooks/use-app-preferences-provider';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { ReadingLocation } from '@/types/reading-location';
 import { getCacheSync } from '@/utilities/cache';
@@ -72,7 +71,6 @@ export default function DrawerLayout() {
 }
 
 function CustomDrawerContent(props: DrawerContentComponentProps) {
-  const { sessionToken } = useAppPreferences();
   const activeTintColor = useThemeColor({}, 'tint');
   const inactiveTintColor = useThemeColor({}, 'text');
   const supportedBibleVersions = getKeyListOfSupportedBibleVersions();
@@ -87,11 +85,9 @@ function CustomDrawerContent(props: DrawerContentComponentProps) {
   return (
     <DrawerContentScrollView {...props}>
       {/* 🔐 Sign-In button section */}
-      {!sessionToken && (
-        <View style={{ padding: 16, marginBottom: 10 }}>
-          <SignInButton />
-        </View>
-      )}
+      <View style={{ padding: 16, marginBottom: 10 }}>
+        <SignInButton />
+      </View>
 
       {/* Subtitle header for the group */}
       <View style={{ paddingHorizontal: 16, paddingVertical: 8 }}>

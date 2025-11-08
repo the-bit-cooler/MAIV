@@ -1,16 +1,25 @@
+import { images } from '@/assets/images';
+import { UserPreferences } from '@/constants/user-preferences';
+import { useAppPreferences } from '@/hooks/use-app-preferences-provider';
 import { useSignIn } from '@/hooks/use-sign-in';
+import { useThemeColor } from '@/hooks/use-theme-color';
 import {
   GoogleSignin,
   isErrorWithCode,
   isSuccessResponse,
   statusCodes,
 } from '@react-native-google-signin/google-signin';
-import { Alert, Image, Pressable, StyleSheet, View } from 'react-native';
+import * as SecureStore from 'expo-secure-store';
 import { useEffect, useState } from 'react';
+import { Alert, Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
 export default function SignInButton() {
   const [disabled, setDisabled] = useState(false);
+  const { sessionToken, setSessionToken } = useAppPreferences();
   const { signIn } = useSignIn();
+
+  const backgroundColor = useThemeColor({}, 'background');
+  const textColor = useThemeColor({}, 'text');
 
   useEffect(() => {
     GoogleSignin.configure({
@@ -18,7 +27,23 @@ export default function SignInButton() {
     });
   }, []);
 
-  const onSignIn = async () => {
+  async function handleSignOut() {
+    try {
+      setDisabled(true);
+      await GoogleSignin.signOut();
+      // Clear your local session data
+      await SecureStore.deleteItemAsync(UserPreferences.session_token);
+      setSessionToken(null);
+      Alert.alert('Signed Out 👋', 'You have been securely signed out.');
+    } catch (error) {
+      console.error('Error during sign-out:', error);
+      Alert.alert('Sign-Out Error ⚠️', 'Unable to complete sign-out. Please try again.');
+    } finally {
+      setDisabled(false);
+    }
+  }
+
+  async function handleSignIn() {
     try {
       setDisabled(true);
 
@@ -72,25 +97,46 @@ export default function SignInButton() {
     } finally {
       setDisabled(false);
     }
-  };
+  }
 
   return (
-    <Pressable
-      onPress={onSignIn}
-      disabled={disabled}
-      style={({ pressed }) => [
-        styles.button,
-        pressed && styles.buttonPressed,
-        disabled && styles.buttonDisabled,
-      ]}>
-      <View style={styles.imageWrapper}>
-        <Image
-          source={require('../../assets/images/google-sign-in-button.png')}
-          style={styles.logo}
-          resizeMode="contain"
-        />
-      </View>
-    </Pressable>
+    <View key={sessionToken ? 'signed-in' : 'signed-out'}>
+      {sessionToken ? (
+        <Pressable
+          onPress={handleSignOut}
+          disabled={disabled}
+          style={{
+            width: '100%',
+            height: 48,
+            marginVertical: 6,
+            borderRadius: 24,
+            backgroundColor: backgroundColor,
+            borderWidth: 1,
+            borderColor: textColor,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+          <Text style={{ color: textColor, fontSize: 16, fontWeight: '600' }}>Sign Out</Text>
+        </Pressable>
+      ) : (
+        <Pressable
+          onPress={handleSignIn}
+          disabled={disabled}
+          style={({ pressed }) => [
+            styles.button,
+            pressed && styles.buttonPressed,
+            disabled && styles.buttonDisabled,
+          ]}>
+          <View style={styles.imageWrapper}>
+            <Image
+              source={images.ContinueWithGoogleButton}
+              style={styles.logo}
+              resizeMode="contain"
+            />
+          </View>
+        </Pressable>
+      )}
+    </View>
   );
 }
 
