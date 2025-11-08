@@ -13,7 +13,9 @@ export default function SignInButton() {
   const { signIn } = useSignIn();
 
   useEffect(() => {
-    GoogleSignin.configure();
+    GoogleSignin.configure({
+      webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
+    });
   }, []);
 
   const onSignIn = async () => {
