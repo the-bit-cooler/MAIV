@@ -19,7 +19,7 @@
     "eas:install": "npm install -g eas-cli",
     "eas:login": "eas login",
     "eas:whoami": "eas whoami",
-    "eas:env-list": "eas env:list --include-sensitive",
+    "env:eas-list": "eas env:list --include-sensitive",
     "env:generate": "bash scripts/generate-env.sh",
     "ios:device:list": "eas device:list",
     "ios:device:create": "eas device:create",
