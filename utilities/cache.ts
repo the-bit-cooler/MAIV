@@ -1,3 +1,5 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import Storage from 'expo-sqlite/kv-store';
 
 interface CacheItem<T> {
@@ -12,21 +14,96 @@ export const TTL = {
   MONTH: 2592000,
 };
 
-/**
- * Save a value with an optional expiration time (in seconds)
- */
+// ==================================================
+//  ASYNCSTORAGE VERSION (lightweight user prefs, etc.)
+// ==================================================
+
+/** Save a value with an optional expiration time (in seconds) */
 export async function setCache<T>(key: string, value: T, ttlSeconds?: number) {
   const item: CacheItem<T> = {
     value,
-    expiresAt: ttlSeconds ? Date.now() + ttlSeconds * 1000 : -1, // -1 never expires
+    expiresAt: ttlSeconds ? Date.now() + ttlSeconds * 1000 : -1,
+  };
+  await AsyncStorage.setItem(key, JSON.stringify(item));
+}
+
+/** Get a value if not expired, otherwise remove it and return null */
+export async function getCache<T>(key: string): Promise<T | null> {
+  const raw = await AsyncStorage.getItem(key);
+  if (!raw) return null;
+
+  try {
+    const item: CacheItem<T> = JSON.parse(raw);
+    if (item.expiresAt !== -1 && Date.now() > item.expiresAt) {
+      await AsyncStorage.removeItem(key);
+      return null;
+    }
+    return item.value;
+  } catch {
+    await AsyncStorage.removeItem(key);
+    return null;
+  }
+}
+
+/** Remove a cached value */
+export async function removeCache(key: string) {
+  await AsyncStorage.removeItem(key);
+}
+
+/** Clear all cache */
+export async function clearCache() {
+  await AsyncStorage.clear();
+}
+
+/** Check if a key is still valid (exists + not expired) */
+export async function isCacheValid(key: string): Promise<boolean> {
+  const value = await getCache(key);
+  return value !== null;
+}
+
+/** Purge expired items */
+export async function purgeExpiredCache() {
+  const keys = await AsyncStorage.getAllKeys();
+  const now = Date.now();
+  let removed = 0;
+  let kept = 0;
+
+  for (const key of keys) {
+    const raw = await AsyncStorage.getItem(key);
+    if (!raw) continue;
+
+    try {
+      const item = JSON.parse(raw);
+      if (!('expiresAt' in item) || (item.expiresAt !== -1 && item.expiresAt < now)) {
+        await AsyncStorage.removeItem(key);
+        removed++;
+      } else {
+        kept++;
+      }
+    } catch {
+      await AsyncStorage.removeItem(key);
+      removed++;
+    }
+  }
+
+  console.log(`🧹 Small cache cleanup → removed ${removed}, kept ${kept}`);
+}
+
+// ==================================================
+//  SQLITE/kv-store VERSION (for larger structured data)
+// ==================================================
+
+/** Save a value with an optional expiration time (in seconds) */
+export async function setLargeCache<T>(key: string, value: T, ttlSeconds?: number) {
+  const item: CacheItem<T> = {
+    value,
+    expiresAt: ttlSeconds ? Date.now() + ttlSeconds * 1000 : -1,
   };
   await Storage.setItem(key, JSON.stringify(item));
 }
 
-/**
- * Get a value if not expired, otherwise remove it and return null
- */
-export async function getCache<T>(key: string): Promise<T | null> {
+/** Get a value if not expired, otherwise remove it and return null */
+export async function getLargeCache<T>(key: string): Promise<T | null> {
   const raw = await Storage.getItem(key);
   if (!raw) return null;
 
@@ -43,10 +120,8 @@ export async function getCache<T>(key: string): Promise<T | null> {
   }
 }
 
-/**
- * Get a value synchronously if not expired, otherwise remove it synchronously and return null
- */
-export function getCacheSync<T>(key: string): T | null {
+/** Get a value synchronously (kv-store only) */
+export function getLargeCacheSync<T>(key: string): T | null {
   const raw = Storage.getItemSync(key);
   if (!raw) return null;
 
@@ -63,52 +138,24 @@ export function getCacheSync<T>(key: string): T | null {
   }
 }
 
-/**
- * Remove a cached value
- */
-export async function removeCache(key: string) {
+/** Remove a cached value */
+export async function removeLargeCache(key: string) {
   await Storage.removeItem(key);
 }
 
-/**
- * Remove a cached value
- */
-export async function clearCache() {
+/** Clear the entire SQLite kv-store cache */
+export async function clearLargeCache() {
   await Storage.clear();
 }
 
-/**
- * Helper: check if a key is still valid (exists + not expired)
- */
-export async function isCacheValid(key: string): Promise<boolean> {
-  const value = await getCache(key);
+/** Check if a key is valid */
+export async function isLargeCacheValid(key: string): Promise<boolean> {
+  const value = await getLargeCache(key);
   return value !== null;
 }
 
-let storageReady = false;
-async function ensureStorageReady() {
-  if (storageReady) return;
-  try {
-    await Storage.getAllKeys();
-    storageReady = true;
-  } catch (e) {
-    console.warn('Retrying SQLite init...', e);
-    await new Promise((r) => setTimeout(r, 300));
-    await Storage.getAllKeys();
-    storageReady = true;
-  }
-}
-
-export async function safePurgeExpiredCache() {
-  await ensureStorageReady();
-  return purgeExpiredCache();
-}
-
-/**
- * Automatically purge all expired cache items
- * Call this once on app startup
- */
-export async function purgeExpiredCache() {
+/** Purge expired kv-store items */
+export async function purgeExpiredLargeCache() {
   const keys = await Storage.getAllKeys();
   const now = Date.now();
   let removed = 0;
@@ -132,5 +179,5 @@ export async function purgeExpiredCache() {
     }
   }
 
-  console.log(`🧹 Cache cleanup → removed ${removed}, kept ${kept}`);
+  console.log(`🧹 Large cache cleanup → removed ${removed}, kept ${kept}`);
 }
