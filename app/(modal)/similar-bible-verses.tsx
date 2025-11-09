@@ -1,14 +1,16 @@
+import { useCallback, useEffect, useState } from 'react';
+import { Platform, StyleSheet, View } from 'react-native';
+
+import { useLocalSearchParams } from 'expo-router';
+
 import AiThinkingIndicator from '@/components/ai-thinking-indicator';
 import ParallaxScrollView from '@/components/parallax-scroll-view';
 import { ThemedText } from '@/components/themed-text';
-import { useAppPreferences } from '@/hooks/use-app-preferences-provider';
+import { useAppContext } from '@/hooks/use-app-context';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { Verse } from '@/types/verse';
 import { constructAPIUrl } from '@/utilities/construct-api-url';
 import { getBibleVersionDisplayName } from '@/utilities/get-bible-version-info';
-import { useLocalSearchParams } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
-import { Platform, StyleSheet, View } from 'react-native';
 
 type SimilarBibleVerseRouteParams = {
   version: string;
@@ -23,7 +25,7 @@ export default function SimilarBibleVersesModal() {
     useLocalSearchParams<SimilarBibleVerseRouteParams>();
   const [verses, setVerses] = useState<Verse[]>([]);
   const [loading, setLoading] = useState(true);
-  const { aiMode } = useAppPreferences();
+  const { aiMode } = useAppContext();
 
   // ✅ use theme defaults
   const headerBackgroundColor = useThemeColor({}, 'cardBackground');

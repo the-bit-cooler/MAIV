@@ -1,19 +1,21 @@
+import { PlatformPressable } from '@react-navigation/elements';
+import { useCallback, useEffect, useState } from 'react';
+import { Alert, StyleSheet, View } from 'react-native';
+import Markdown from 'react-native-markdown-display';
+
+import { useLocalSearchParams } from 'expo-router';
+
 import AiThinkingIndicator from '@/components/ai-thinking-indicator';
 import { IconSymbol } from '@/components/icon-symbol';
 import ParallaxScrollView from '@/components/parallax-scroll-view';
 import { ThemedText } from '@/components/themed-text';
-import { useAppPreferences } from '@/hooks/use-app-preferences-provider';
+import { useAppContext } from '@/hooks/use-app-context';
 import { useThemeColor } from '@/hooks/use-theme-color';
-import { getCache, setCache, TTL } from '@/utilities/cache';
+import { getLargeCache, setLargeCache, TTL } from '@/utilities/cache';
 import { constructAPIUrl } from '@/utilities/construct-api-url';
 import { getBibleVersionDisplayName } from '@/utilities/get-bible-version-info';
 import { getUserDirective } from '@/utilities/get-user-directive';
 import { shareMarkdownAsPdf } from '@/utilities/share-markdown-as-pdf';
-import { PlatformPressable } from '@react-navigation/elements';
-import { useLocalSearchParams } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
-import { Alert, StyleSheet, View } from 'react-native';
-import Markdown from 'react-native-markdown-display';
 
 type NewBibleVerseTranslationRouteParams = {
   version: string;
@@ -28,7 +30,7 @@ export default function NewBibleVerseTranslationModal() {
     useLocalSearchParams<NewBibleVerseTranslationRouteParams>();
   const [translation, setTranslation] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const { aiMode, sessionToken } = useAppPreferences();
+  const { aiMode, sessionToken } = useAppContext();
 
   // ✅ use theme defaults
   const headerBackgroundColor = useThemeColor({}, 'cardBackground');
@@ -47,7 +49,7 @@ export default function NewBibleVerseTranslationModal() {
 
     try {
       // --- STEP 1: Try local cache ---
-      const cached = await getCache<string>(cacheKey);
+      const cached = await getLargeCache<string>(cacheKey);
       if (cached) {
         setTranslation(cached);
         return;
@@ -61,7 +63,7 @@ export default function NewBibleVerseTranslationModal() {
         if (fileResponse.ok) {
           const translationText = await fileResponse.text();
           setTranslation(translationText);
-          await setCache(cacheKey, translationText, TTL.MONTH);
+          await setLargeCache(cacheKey, translationText, TTL.MONTH);
           return;
         }
       } catch (storageErr) {
@@ -106,7 +108,7 @@ export default function NewBibleVerseTranslationModal() {
 
       const translationText = await fileResponse.text();
       setTranslation(translationText);
-      await setCache(cacheKey, translationText, TTL.MONTH);
+      await setLargeCache(cacheKey, translationText, TTL.MONTH);
     } catch (err) {
       console.warn('Error fetching translation:', err);
     } finally {
