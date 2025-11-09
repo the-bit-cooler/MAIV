@@ -37,25 +37,16 @@ module.exports = defineConfig([
       'import/order': [
         'error',
         {
-          groups: [
-            'builtin', // e.g. react, react-native
-            'external', // e.g. @expo, @react-navigation
-            'internal', // e.g. @/hooks, @/constants
-            'parent',
-            'sibling',
-            'index',
-            'object',
-            'type',
-          ],
+          groups: ['builtin', 'external', 'internal'],
+
           pathGroups: [
             // ⚛️ React ecosystem (react, react-native, @react*)
             {
-              pattern:
-                '{react,react-dom,react-native,react-native-*, @react*/**,react-native-*/**}',
+              pattern: '{react,react-native,react-native-*,react-native-*/**,@react*/**}',
               group: 'builtin',
               position: 'before',
             },
-            // 🧩 Expo ecosystem
+            // 🧩 Expo ecosystem (scoped + unscoped)
             {
               pattern: '{@expo/**,expo*,expo-*/**}',
               group: 'external',
@@ -67,13 +58,14 @@ module.exports = defineConfig([
               group: 'external',
               position: 'after',
             },
-            // 🏠 Internal project imports (@/)
+            // 🏠 Internal project imports
             {
               pattern: '@/**',
               group: 'internal',
               position: 'after',
             },
           ],
+
           pathGroupsExcludedImportTypes: ['builtin'],
           alphabetize: { order: 'asc', caseInsensitive: true },
           'newlines-between': 'always',
