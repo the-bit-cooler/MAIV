@@ -56,7 +56,7 @@ module.exports = defineConfig([
             },
             // 🧩 Expo ecosystem
             {
-              pattern: '@expo/**',
+              pattern: '{expo*,@expo/**}',
               group: 'external',
               position: 'after',
             },
