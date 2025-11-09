@@ -1,3 +1,10 @@
+import { PlatformPressable } from '@react-navigation/elements';
+import { useCallback, useEffect, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
+import Markdown from 'react-native-markdown-display';
+
+import { Image } from 'expo-image';
+
 import AiThinkingIndicator from '@/components/ai-thinking-indicator';
 import { IconSymbol } from '@/components/icon-symbol';
 import ParallaxScrollView from '@/components/parallax-scroll-view';
@@ -6,11 +13,6 @@ import { blurhash } from '@/constants/blur-hash';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { getCache, setCache, TTL } from '@/utilities/cache';
 import { shareMarkdownAsPdf } from '@/utilities/share-markdown-as-pdf';
-import { PlatformPressable } from '@react-navigation/elements';
-import { Image } from 'expo-image';
-import { useCallback, useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
-import Markdown from 'react-native-markdown-display';
 
 type BibleChapterSummaryParams = {
   book: string;

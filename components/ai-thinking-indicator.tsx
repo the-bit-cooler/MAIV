@@ -1,10 +1,10 @@
-import { AudioPlayer, createAudioPlayer } from 'expo-audio';
 import { useEffect, useRef, useState } from 'react';
 import { Animated, Easing, View } from 'react-native';
 
-import { useAppPreferences } from '@/hooks/use-app-preferences-provider';
+import { AudioPlayer, createAudioPlayer } from 'expo-audio';
 
 import { ThemedText } from '@/components/themed-text';
+import { useAppContext } from '@/hooks/use-app-context';
 
 const SYMBOLS = [
   'α',
@@ -36,7 +36,7 @@ export default function AiThinkingIndicator() {
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const soundRef = useRef<AudioPlayer | null>(null);
-  const { allowAiThinkingSound } = useAppPreferences();
+  const { allowAiThinkingSound } = useAppContext();
 
   // 🌀 Animated symbol flow
   useEffect(() => {

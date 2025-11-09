@@ -1,8 +1,7 @@
 import { ActivityIndicator, ColorValue, StyleSheet, View } from 'react-native';
 
-import { useThemeColor } from '@/hooks/use-theme-color';
-
 import { ThemedText } from '@/components/themed-text';
+import { useThemeColor } from '@/hooks/use-theme-color';
 
 type CenteredActivityIndicatorProps = {
   size?: 'small' | 'large' | number;

@@ -1,21 +1,23 @@
-import { images } from '@/assets/images';
-import { UserPreferences } from '@/constants/user-preferences';
-import { useAppPreferences } from '@/hooks/use-app-preferences-provider';
-import { useSignIn } from '@/hooks/use-sign-in';
-import { useThemeColor } from '@/hooks/use-theme-color';
 import {
   GoogleSignin,
   isErrorWithCode,
   isSuccessResponse,
   statusCodes,
 } from '@react-native-google-signin/google-signin';
-import * as SecureStore from 'expo-secure-store';
 import { useEffect, useState } from 'react';
 import { Alert, Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
+import * as SecureStore from 'expo-secure-store';
+
+import { images } from '@/assets/images';
+import { UserPreferences } from '@/constants/user-preferences';
+import { useAppContext } from '@/hooks/use-app-context';
+import { useSignIn } from '@/hooks/use-sign-in';
+import { useThemeColor } from '@/hooks/use-theme-color';
+
 export default function SignInButton() {
   const [disabled, setDisabled] = useState(false);
-  const { sessionToken, setSessionToken } = useAppPreferences();
+  const { sessionToken, setSessionToken } = useAppContext();
   const { signIn } = useSignIn();
 
   const backgroundColor = useThemeColor({}, 'background');

@@ -1,7 +1,8 @@
+import { Dispatch } from 'react';
+import { Platform } from 'react-native';
+
 import AndroidBibleReadingLocationPicker from '@/components/bible-reading-location-picker/android';
 import IOSBibleReadingLocationPicker from '@/components/bible-reading-location-picker/ios';
-import { Platform } from 'react-native';
-import { Dispatch } from 'react';
 
 type BibleReadingLocationPickerParams = {
   showBibleReadingLocationPickerModal: boolean;

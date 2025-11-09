@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Appearance } from 'react-native';
 
-import { getCache } from '@/utilities/cache';
-
 import { ThemeName } from '@/constants/theme';
 import { UserPreferences } from '@/constants/user-preferences';
-import { AppTheme } from './use-app-theme-provider';
+import { AppTheme } from '@/hooks/use-app-context';
+import { getCache } from '@/utilities/cache';
 
 export function useColorScheme(): ThemeName {
   const [theme, setTheme] = useState<ThemeName>('light');

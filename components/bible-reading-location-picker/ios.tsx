@@ -1,13 +1,13 @@
-import { useThemeColor } from '@/hooks/use-theme-color';
-import { useAppPreferences } from '@/hooks/use-app-preferences-provider';
-import { useVerseContext } from '@/hooks/use-verse-context';
-import { getBibleBookChapterCount } from '@/utilities/get-bible-book-chapter-count';
-import { getBibleBookList } from '@/utilities/get-bible-book-list';
-import { getFirstVerseOnPage } from '@/utilities/get-first-verse-on-page';
 import { Picker } from '@react-native-picker/picker';
 import { Dispatch, useEffect, useRef, useState } from 'react';
 import { View } from 'react-native';
 import Modal from 'react-native-modal';
+
+import { useAppContext } from '@/hooks/use-app-context';
+import { useThemeColor } from '@/hooks/use-theme-color';
+import { getBibleBookChapterCount } from '@/utilities/get-bible-book-chapter-count';
+import { getBibleBookList } from '@/utilities/get-bible-book-list';
+import { getFirstVerseOnPage } from '@/utilities/get-first-verse-on-page';
 
 type BibleReadingLocationPickerParams = {
   showBibleReadingLocationPickerModal: boolean;
@@ -18,8 +18,8 @@ export default function BibleReadingLocationPicker({
   showBibleReadingLocationPickerModal,
   setShowBibleReadingLocationPickerModal,
 }: BibleReadingLocationPickerParams) {
-  const { readingLocation, setReadingLocation } = useAppPreferences();
-  const { verseToPageMap, totalChapterVerseCount } = useVerseContext();
+  const { readingLocation, setReadingLocation, verseToPageMap, totalChapterVerseCount } =
+    useAppContext();
   const [selectedVerse, setSelectedVerse] = useState(
     getFirstVerseOnPage(readingLocation.bible.page ?? 0, verseToPageMap),
   );

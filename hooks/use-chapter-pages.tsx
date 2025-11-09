@@ -1,10 +1,11 @@
+import { useEffect, useMemo, useState } from 'react';
+import { Dimensions, View } from 'react-native';
+
 import { VerseView } from '@/components/verse-view';
-import { useVerseContext } from '@/hooks/use-verse-context';
+import { useAppContext } from '@/hooks/use-app-context';
 import { Verse } from '@/types/verse';
 import { getCache, setCache } from '@/utilities/cache';
 import { constructAPIUrl } from '@/utilities/construct-api-url';
-import { useEffect, useMemo, useState } from 'react';
-import { Dimensions, View } from 'react-native';
 
 export type ViewableVersesPage = {
   pageNumber: number;
@@ -29,7 +30,7 @@ export function useChapterPages(version: string, book: string, chapter: number) 
   const [pages, setPages] = useState<ViewableVersesPage[] | null>(null);
   const [heights, setHeights] = useState<Record<number, number>>({});
   const [loading, setLoading] = useState(true);
-  const verseContext = useVerseContext();
+  const { setVerseToPageMap, setTotalChapterVerseCount } = useAppContext();
 
   const windowHeight = Dimensions.get('window').height;
   const buffer = Math.max(200, windowHeight * 0.15);
@@ -120,10 +121,10 @@ export function useChapterPages(version: string, book: string, chapter: number) 
   // update global context once computed
   useEffect(() => {
     if (Object.keys(verseToPageMap).length && totalChapterVerseCount > 0) {
-      verseContext.verseToPageMap = verseToPageMap;
-      verseContext.totalChapterVerseCount = totalChapterVerseCount;
+      setVerseToPageMap(verseToPageMap);
+      setTotalChapterVerseCount(totalChapterVerseCount);
     }
-  }, [verseToPageMap, totalChapterVerseCount, verseContext]);
+  }, [verseToPageMap, totalChapterVerseCount, setVerseToPageMap, setTotalChapterVerseCount]);
 
   // Prepare hidden measurement view (only when verses need measuring)
   const measureView = useMemo(() => {

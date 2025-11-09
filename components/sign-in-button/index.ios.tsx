@@ -1,15 +1,17 @@
-import { UserPreferences } from '@/constants/user-preferences';
-import { useAppPreferences } from '@/hooks/use-app-preferences-provider';
-import { useSignIn } from '@/hooks/use-sign-in';
-import { useThemeColor } from '@/hooks/use-theme-color';
-import * as AppleAuthentication from 'expo-apple-authentication';
-import * as SecureStore from 'expo-secure-store';
 import { useState } from 'react';
 import { Alert, Pressable, Text } from 'react-native';
 
+import * as AppleAuthentication from 'expo-apple-authentication';
+import * as SecureStore from 'expo-secure-store';
+
+import { UserPreferences } from '@/constants/user-preferences';
+import { useAppContext } from '@/hooks/use-app-context';
+import { useSignIn } from '@/hooks/use-sign-in';
+import { useThemeColor } from '@/hooks/use-theme-color';
+
 export default function SignInButton() {
   const [disabled, setDisabled] = useState(false);
-  const { sessionToken, setSessionToken } = useAppPreferences();
+  const { sessionToken, setSessionToken } = useAppContext();
   const { signIn } = useSignIn();
 
   const backgroundColor = useThemeColor({}, 'background');

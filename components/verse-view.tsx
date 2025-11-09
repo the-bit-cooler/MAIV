@@ -1,7 +1,6 @@
 import { View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
-
 import { Verse } from '@/types/verse';
 
 type VerseViewProps = {

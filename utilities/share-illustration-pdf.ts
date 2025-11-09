@@ -1,9 +1,11 @@
-import * as Print from 'expo-print';
-import * as Sharing from 'expo-sharing';
+import { Alert } from 'react-native';
+
 import * as Application from 'expo-application';
 import { File, Paths } from 'expo-file-system';
+import * as Print from 'expo-print';
+import * as Sharing from 'expo-sharing';
+
 import { marked } from 'marked';
-import { Alert } from 'react-native';
 
 interface Verse {
   version: string;

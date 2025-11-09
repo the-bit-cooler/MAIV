@@ -1,9 +1,11 @@
-import { Verse } from '@/types/verse';
+import { useCallback } from 'react';
+import { Alert, Share } from 'react-native';
+
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import * as Clipboard from 'expo-clipboard';
 import { useRouter } from 'expo-router';
-import { useCallback } from 'react';
-import { Alert, Share } from 'react-native';
+
+import { Verse } from '@/types/verse';
 
 export function useVerseContextMenu() {
   const router = useRouter();

@@ -1,14 +1,13 @@
 import { Appearance } from 'react-native';
 
-import { useAppTheme } from '@/hooks/use-app-theme-provider';
-
 import { Colors } from '@/constants/theme';
+import { useAppContext } from '@/hooks/use-app-context';
 
 export function useThemeColor(
   props: { light?: string; dark?: string; sepia?: string; error?: string },
   colorName: keyof typeof Colors.light & keyof typeof Colors.dark & keyof typeof Colors.sepia,
 ) {
-  const { theme } = useAppTheme();
+  const { theme } = useAppContext();
 
   // map "system" to actual theme
   const effectiveTheme =

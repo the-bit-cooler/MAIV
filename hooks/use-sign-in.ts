@@ -1,12 +1,14 @@
-import { UserPreferences } from '@/constants/user-preferences';
-import { useAppPreferences } from '@/hooks/use-app-preferences-provider';
-import { constructAPIUrl } from '@/utilities/construct-api-url';
-import * as SecureStore from 'expo-secure-store';
 import { useCallback } from 'react';
 import { Alert } from 'react-native';
 
+import * as SecureStore from 'expo-secure-store';
+
+import { UserPreferences } from '@/constants/user-preferences';
+import { useAppContext } from '@/hooks/use-app-context';
+import { constructAPIUrl } from '@/utilities/construct-api-url';
+
 export function useSignIn() {
-  const { setSessionToken } = useAppPreferences();
+  const { setSessionToken } = useAppContext();
   const signIn = useCallback(
     async (params: { provider: 'apple' | 'google'; idToken: string }) => {
       try {

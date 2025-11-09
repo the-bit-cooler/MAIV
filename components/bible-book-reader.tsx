@@ -1,3 +1,12 @@
+import { memo, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { Animated, Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
+import PagerView from 'react-native-pager-view';
+
+import { Image } from 'expo-image';
+import { useNavigation } from 'expo-router';
+
+import { FlashList, FlashListRef } from '@shopify/flash-list';
+
 import { bookCovers } from '@/assets/images/book-covers';
 import BibleChapterSummary from '@/components/bible-chapter-summary';
 import { BibleReadingLocationPicker } from '@/components/bible-reading-location-picker';
@@ -5,19 +14,13 @@ import { CenteredActivityIndicator } from '@/components/centered-activity-indica
 import { IconSymbol } from '@/components/icon-symbol';
 import { ThemedText } from '@/components/themed-text';
 import { VerseView } from '@/components/verse-view';
-import { useAppPreferences } from '@/hooks/use-app-preferences-provider';
+import { useAppContext } from '@/hooks/use-app-context';
 import { useChapterPages } from '@/hooks/use-chapter-pages';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { useVerseContextMenu } from '@/hooks/use-verse-context-menu';
 import { Verse } from '@/types/verse';
 import { getBibleBookChapterCount } from '@/utilities/get-bible-book-chapter-count';
 import { getBibleBookList } from '@/utilities/get-bible-book-list';
-import { FlashList, FlashListRef } from '@shopify/flash-list';
-import { Image } from 'expo-image';
-import { useNavigation } from 'expo-router';
-import { memo, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { Animated, Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
-import PagerView from 'react-native-pager-view';
 
 type BibleBookReaderParams = {
   version: string;
@@ -27,7 +30,7 @@ type BibleBookReaderParams = {
 export default function BibleBookReader({ version, timestamp }: BibleBookReaderParams) {
   const [showBibleReadingLocationPickerModal, setShowBibleReadingLocationPickerModal] =
     useState(false);
-  const { readingLocation, setReadingLocation } = useAppPreferences();
+  const { readingLocation, setReadingLocation } = useAppContext();
   const [coverVisible, setCoverVisible] = useState(true);
   const navigation = useNavigation();
   const fadeAnim = useRef(new Animated.Value(1)).current;
@@ -114,7 +117,7 @@ function BibleBookReaderPages({ version }: BibleBookReaderPagesParams) {
   const userScrollRef = useRef(false);
   const hasMounted = useRef(false);
   const prevScrollState = useRef('idle'); // NEW: Track previous scroll state for Android overscroll detection
-  const { readingLocation, setReadingLocation } = useAppPreferences();
+  const { readingLocation, setReadingLocation } = useAppContext();
   const onContextMenu = useVerseContextMenu();
   const { loading, pages, measureView } = useChapterPages(
     version,
