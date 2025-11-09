@@ -30,8 +30,54 @@ module.exports = defineConfig([
       },
     },
     rules: {
-      // Optional: silence false positives from import/no-unresolved
+      // Fix false positives for path alias
       'import/no-unresolved': [2, { ignore: ['^@/'] }],
+
+      // Enforce consistent import ordering and grouping
+      'import/order': [
+        'error',
+        {
+          groups: [
+            'builtin', // e.g. react, react-native
+            'external', // e.g. @expo, @react-navigation
+            'internal', // e.g. @/hooks, @/constants
+            'parent',
+            'sibling',
+            'index',
+            'object',
+            'type',
+          ],
+          pathGroups: [
+            // ⚛️ React ecosystem (react, react-native, @react*)
+            {
+              pattern: '{react,react-native,@react*/**}',
+              group: 'builtin',
+              position: 'before',
+            },
+            // 🧩 Expo ecosystem
+            {
+              pattern: '@expo/**',
+              group: 'external',
+              position: 'after',
+            },
+            // 📦 Other external packages (e.g., lodash, date-fns, axios)
+            {
+              pattern: '**',
+              group: 'external',
+              position: 'after',
+            },
+            // 🏠 Internal project imports (@/)
+            {
+              pattern: '@/**',
+              group: 'internal',
+              position: 'after',
+            },
+          ],
+          pathGroupsExcludedImportTypes: ['builtin'],
+          alphabetize: { order: 'asc', caseInsensitive: true },
+          'newlines-between': 'always',
+        },
+      ],
     },
   },
 ]);
