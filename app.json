@@ -35,9 +35,15 @@
         "expo-splash-screen",
         {
           "image": "./assets/images/splash.png",
-          "resizeMode": "contain",
-          "backgroundColor": "#121212",
-          "imageWidth": 250
+          "resizeMode": "native",
+          "backgroundColor": "#E8D9B5",
+          "ios": {
+            "resizeMode": "contain",
+            "imageWidth": 250
+          },
+          "android": {
+            "imageWidth": 150
+          }
         }
       ],
       "expo-audio",
