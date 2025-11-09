@@ -11,7 +11,7 @@ import ParallaxScrollView from '@/components/parallax-scroll-view';
 import { ThemedText } from '@/components/themed-text';
 import { blurhash } from '@/constants/blur-hash';
 import { useThemeColor } from '@/hooks/use-theme-color';
-import { getCache, setCache, TTL } from '@/utilities/cache';
+import { getLargeCache, setLargeCache, TTL } from '@/utilities/cache';
 import { shareMarkdownAsPdf } from '@/utilities/share-markdown-as-pdf';
 
 type BibleChapterSummaryParams = {
@@ -39,7 +39,7 @@ export default function BibleChapterSummary({ book, chapter }: BibleChapterSumma
 
     try {
       // --- STEP 1: Try local cache ---
-      const cached = await getCache<string>(cacheKey);
+      const cached = await getLargeCache<string>(cacheKey);
       if (cached) {
         setSummary(cached);
         return;
@@ -53,7 +53,7 @@ export default function BibleChapterSummary({ book, chapter }: BibleChapterSumma
         if (fileResponse.ok) {
           const summaryText = await fileResponse.text();
           setSummary(summaryText);
-          await setCache(cacheKey, summaryText, TTL.MONTH);
+          await setLargeCache(cacheKey, summaryText, TTL.MONTH);
         }
       } catch (storageErr) {
         console.warn('Storage fetch failed:', storageErr);

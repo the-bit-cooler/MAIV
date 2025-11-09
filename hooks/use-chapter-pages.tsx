@@ -4,7 +4,7 @@ import { Dimensions, View } from 'react-native';
 import { VerseView } from '@/components/verse-view';
 import { useAppContext } from '@/hooks/use-app-context';
 import { Verse } from '@/types/verse';
-import { getCache, setCache } from '@/utilities/cache';
+import { getLargeCache, setLargeCache } from '@/utilities/cache';
 import { constructAPIUrl } from '@/utilities/construct-api-url';
 
 export type ViewableVersesPage = {
@@ -49,7 +49,7 @@ export function useChapterPages(version: string, book: string, chapter: number) 
       setHeights({});
 
       // Load cached pages if exists...
-      const cached = await getCache<ViewableVersesPage[]>(storageKey);
+      const cached = await getLargeCache<ViewableVersesPage[]>(storageKey);
       if (cached && isMounted) {
         setPages(cached);
         setLoading(false);
@@ -95,7 +95,7 @@ export function useChapterPages(version: string, book: string, chapter: number) 
       }
     });
 
-    setCache(storageKey, pages);
+    setLargeCache(storageKey, pages);
     setPages(pages);
     setLoading(false);
   }, [heights, safeViewHeight, storageKey, verses]);
