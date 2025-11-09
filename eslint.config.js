@@ -59,11 +59,11 @@ module.exports = defineConfig([
             {
               pattern: '{@expo/**,expo*,expo-*/**}',
               group: 'external',
-              position: 'after',
+              position: 'before',
             },
             // 📦 Other external packages (e.g., lodash, date-fns, axios)
             {
-              pattern: '**',
+              pattern: '{@*,[a-zA-Z]*,[a-zA-Z]*/*}',
               group: 'external',
               position: 'after',
             },
