@@ -1,13 +1,3 @@
-import { HorizontalThemedSeparator } from '@/components/themed-separator';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { AiModeValues } from '@/constants/ai-modes';
-import { Colors } from '@/constants/theme';
-import { useAppPreferences } from '@/hooks/use-app-preferences-provider';
-import { AppTheme, useAppTheme } from '@/hooks/use-app-theme-provider';
-import { useThemeColor } from '@/hooks/use-theme-color';
-import { clearCache } from '@/utilities/cache';
-import * as Application from 'expo-application';
 import {
   Alert,
   Button,
@@ -18,8 +8,19 @@ import {
   View,
 } from 'react-native';
 
+import * as Application from 'expo-application';
+
+import { HorizontalThemedSeparator } from '@/components/themed-separator';
+import { ThemedText } from '@/components/themed-text';
+import { ThemedView } from '@/components/themed-view';
+import { AiModeValues } from '@/constants/ai-modes';
+import { Colors } from '@/constants/theme';
+import { AppTheme, useAppContext } from '@/hooks/use-app-context';
+import { useThemeColor } from '@/hooks/use-theme-color';
+import { clearCache } from '@/utilities/cache';
+
 export default function SettingsModal() {
-  const { theme, setTheme } = useAppTheme();
+  const { theme, setTheme } = useAppContext();
   const backgroundColor = useThemeColor({}, 'cardBackground');
   const textColor = useThemeColor({}, 'text');
   const tintColor = useThemeColor({}, 'tint');
@@ -129,7 +130,7 @@ type AiModeSectionProps = {
 };
 
 const AiModeSection = ({ headerColor, optionColor, selectedColor }: AiModeSectionProps) => {
-  const { aiMode, setAiMode, allowAiThinkingSound, setAllowAiThinkingSound } = useAppPreferences();
+  const { aiMode, setAiMode, allowAiThinkingSound, setAllowAiThinkingSound } = useAppContext();
 
   return (
     <View style={{ marginTop: 10 }}>
