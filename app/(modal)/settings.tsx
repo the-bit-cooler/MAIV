@@ -17,7 +17,7 @@ import { AiModeValues } from '@/constants/ai-modes';
 import { Colors } from '@/constants/theme';
 import { AppTheme, useAppContext } from '@/hooks/use-app-context';
 import { useThemeColor } from '@/hooks/use-theme-color';
-import { clearCache } from '@/utilities/cache';
+import { clearCache, clearLargeCache } from '@/utilities/cache';
 
 export default function SettingsModal() {
   const { theme, setTheme } = useAppContext();
@@ -37,6 +37,7 @@ export default function SettingsModal() {
           onPress: async () => {
             try {
               await clearCache();
+              await clearLargeCache();
               Alert.alert('Cleared', 'All app data has been cleared.');
               setTheme('system'); // reset theme to system default
             } catch (err) {
