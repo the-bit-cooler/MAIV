@@ -9,7 +9,7 @@ import { Alert, Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import * as SecureStore from 'expo-secure-store';
 
-import { images } from '@/assets/images';
+import ContinueWithGoogleButton from '@/assets/images/google-sign-in-button';
 import { UserPreferences } from '@/constants/user-preferences';
 import { useAppContext } from '@/hooks/use-app-context';
 import { useSignIn } from '@/hooks/use-sign-in';
@@ -17,7 +17,7 @@ import { useThemeColor } from '@/hooks/use-theme-color';
 
 export default function SignInButton() {
   const [disabled, setDisabled] = useState(false);
-  const { sessionToken, setSessionToken } = useAppContext();
+  const { sessionToken, setSessionToken, theme } = useAppContext();
   const { signIn } = useSignIn();
 
   const backgroundColor = useThemeColor({}, 'background');
@@ -131,7 +131,7 @@ export default function SignInButton() {
           ]}>
           <View style={styles.imageWrapper}>
             <Image
-              source={images.ContinueWithGoogleButton}
+              source={ContinueWithGoogleButton[theme === 'dark' ? 'dark' : 'light']}
               style={styles.logo}
               resizeMode="contain"
             />

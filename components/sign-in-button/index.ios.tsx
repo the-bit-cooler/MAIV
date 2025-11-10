@@ -11,7 +11,7 @@ import { useThemeColor } from '@/hooks/use-theme-color';
 
 export default function SignInButton() {
   const [disabled, setDisabled] = useState(false);
-  const { sessionToken, setSessionToken } = useAppContext();
+  const { sessionToken, setSessionToken, theme } = useAppContext();
   const { signIn } = useSignIn();
 
   const backgroundColor = useThemeColor({}, 'background');
@@ -70,7 +70,11 @@ export default function SignInButton() {
   ) : (
     <AppleAuthentication.AppleAuthenticationButton
       buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
-      buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
+      buttonStyle={
+        theme === 'dark'
+          ? AppleAuthentication.AppleAuthenticationButtonStyle.BLACK
+          : AppleAuthentication.AppleAuthenticationButtonStyle.WHITE
+      }
       cornerRadius={24}
       style={{ width: '100%', height: 48, marginVertical: 6 }}
       aria-disabled={disabled}
