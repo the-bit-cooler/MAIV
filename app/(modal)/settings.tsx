@@ -14,6 +14,7 @@ import { HorizontalThemedSeparator } from '@/components/themed-separator';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { AiModeValues } from '@/constants/ai-modes';
+import { AppDefaults } from '@/constants/app-defaults';
 import { Colors } from '@/constants/theme';
 import { AppTheme, useAppContext } from '@/hooks/use-app-context';
 import { useThemeColor } from '@/hooks/use-theme-color';
@@ -39,7 +40,7 @@ export default function SettingsModal() {
               await clearCache();
               await clearLargeCache();
               Alert.alert('Cleared', 'All app data has been cleared.');
-              setTheme('system'); // reset theme to system default
+              setTheme(AppDefaults.theme); // reset theme to system default
             } catch (err) {
               Alert.alert('Error', 'Something went wrong! Pleas try again later.');
               console.error('Error clearing app data: ', err);

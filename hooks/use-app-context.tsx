@@ -60,7 +60,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const [allowAiThinkingSound, setAllowAiThinkingSoundState] = useState(
     AppDefaults.allowAiThinkingSound,
   );
-  const [theme, setThemeState] = useState<AppTheme>('sepia');
+  const [theme, setThemeState] = useState<AppTheme>(AppDefaults.theme);
   const [verseToPageMap, setVerseToPageMap] = useState<Record<number, number>>({});
   const [totalChapterVerseCount, setTotalChapterVerseCount] = useState<number>(0);
   const [isAppReady, setIsAppReady] = useState(false);
