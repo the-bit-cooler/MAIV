@@ -71,11 +71,12 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     (async () => {
       try {
         // Run all async loads in parallel
-        const [storedLoc, storedAiMode, storedSound, storedTheme] = await Promise.all([
+        const [storedLoc, storedAiMode, storedSound, storedTheme, storedToken] = await Promise.all([
           getCache<ReadingLocation>(UserPreferences.saved_reading_location),
           getCache<string>(UserPreferences.ai_mode),
           getCache<boolean>(UserPreferences.ai_thinking_sound),
           getCache<AppTheme>(UserPreferences.app_theme),
+          SecureStore.getItemAsync(UserPreferences.session_token),
         ]);
 
         if (storedLoc) setReadingLocationState(storedLoc);
@@ -83,8 +84,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         setAllowAiThinkingSoundState(storedSound ?? true);
         if (storedTheme) setThemeState(storedTheme);
 
-        // 🔹 Check for existing session token
-        const storedToken = await SecureStore.getItemAsync(UserPreferences.session_token);
+        // 🔹 Validate session token if it exists
         if (storedToken) {
           const apiUrl = constructAPIUrl(`validate-login-session`);
           const response = await fetch(apiUrl, {
