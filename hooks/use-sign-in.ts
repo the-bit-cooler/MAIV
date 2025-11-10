@@ -21,17 +21,18 @@ export function useSignIn() {
         });
 
         if (response.ok) {
-          const { sessionToken } = (await response.json()) as { sessionToken: string };
+          const { sessionToken, newUser } = (await response.json()) as {
+            sessionToken: string;
+            newUser: boolean;
+          };
           if (sessionToken) {
-            const existingToken = await SecureStore.getItemAsync(UserPreferences.session_token);
-
             setSessionToken(sessionToken);
             await SecureStore.setItemAsync(UserPreferences.session_token, sessionToken);
 
-            if (existingToken) {
-              Alert.alert('Welcome Back 👋', 'Your session has been securely refreshed.');
-            } else {
+            if (newUser) {
               Alert.alert('Welcome ✨', 'Your account has been created and verified successfully.');
+            } else {
+              Alert.alert('Welcome Back 👋', 'Your session has been securely refreshed.');
             }
           }
         } else if (response.status === 401) {
