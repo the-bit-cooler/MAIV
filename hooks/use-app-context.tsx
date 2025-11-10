@@ -1,6 +1,6 @@
 import { ThemeProvider as NavThemeProvider } from '@react-navigation/native';
-import { createContext, useContext, useEffect, useState } from 'react';
-import { Alert, Appearance } from 'react-native';
+import { createContext, useContext, useEffect, useRef, useState } from 'react';
+import { Alert, Appearance, AppState } from 'react-native';
 
 import { ActionSheetProvider } from '@expo/react-native-action-sheet';
 import * as SecureStore from 'expo-secure-store';
@@ -64,6 +64,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const [verseToPageMap, setVerseToPageMap] = useState<Record<number, number>>({});
   const [totalChapterVerseCount, setTotalChapterVerseCount] = useState<number>(0);
   const [isAppReady, setIsAppReady] = useState(false);
+  const isInitialMount = useRef(true);
 
   // === Load cached data and session ===
   useEffect(() => {
@@ -116,6 +117,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     })();
   }, []);
 
+  // === Hide splash screen when app context is ready ===
   useEffect(() => {
     if (isAppReady) {
       // Give the JS thread one frame to render the first view before hiding
@@ -124,6 +126,30 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       });
     }
   }, [isAppReady]);
+
+  // === Save user's reading location ===
+  useEffect(() => {
+    const saveReadingLocation = async () => {
+      if (readingLocation && !isInitialMount.current) {
+        try {
+          await setCache(UserPreferences.saved_reading_location, readingLocation);
+        } catch {}
+      }
+    };
+
+    const subscription = AppState.addEventListener('change', (state) => {
+      if (state === 'background') saveReadingLocation(); // Save when app is placed in background
+    });
+
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+    }
+
+    return () => {
+      subscription.remove();
+      saveReadingLocation(); // Save on unmount
+    };
+  }, [readingLocation]);
 
   // === Setters that persist ===
   const setReadingLocation = async (value: ReadingLocation) => {
