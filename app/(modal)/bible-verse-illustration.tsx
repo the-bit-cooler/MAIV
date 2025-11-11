@@ -133,7 +133,8 @@ export default function BibleVerseIllustrationModal() {
             </PlatformPressable>
           )}
         </>
-      }>
+      }
+    >
       <View style={styles.container}>
         {loading ? (
           <AiThinkingIndicator />

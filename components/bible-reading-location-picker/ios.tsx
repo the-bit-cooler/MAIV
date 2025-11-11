@@ -49,7 +49,8 @@ export default function BibleReadingLocationPicker({
       onSwipeComplete={() => setShowBibleReadingLocationPickerModal(false)}
       swipeDirection={['left', 'right']}
       animationIn="slideInDown"
-      animationOut="slideOutUp">
+      animationOut="slideOutUp"
+    >
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <View style={{ padding: 16, width: '80%' }}>
           <Picker
@@ -64,7 +65,8 @@ export default function BibleReadingLocationPicker({
               backgroundColor: modalBackgroundColor,
               fontWeight: 'bold',
               marginBottom: 30,
-            }}>
+            }}
+          >
             {getBibleBookList().map((bk) => (
               <Picker.Item key={bk} label={bk} value={bk} />
             ))}
@@ -83,7 +85,8 @@ export default function BibleReadingLocationPicker({
               color: modalPickerColor,
               backgroundColor: modalBackgroundColor,
               fontWeight: 'bold',
-            }}>
+            }}
+          >
             {Array.from(
               { length: getBibleBookChapterCount(readingLocation.bible.book) },
               (_, i) => i + 1,
@@ -111,7 +114,8 @@ export default function BibleReadingLocationPicker({
                 backgroundColor: modalBackgroundColor,
                 fontWeight: 'bold',
                 marginTop: 30,
-              }}>
+              }}
+            >
               {Array.from({ length: totalChapterVerseCount }, (_, i) => i + 1).map((vs) => (
                 <Picker.Item key={vs} label={`Verse ${vs}`} value={vs} />
               ))}

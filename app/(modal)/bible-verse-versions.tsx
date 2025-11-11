@@ -73,7 +73,8 @@ export default function BibleVerseVersionsModal() {
             </ThemedText>
           </View>
         </>
-      }>
+      }
+    >
       <ThemedText type="title" style={styles.title}>
         Compare Versions
       </ThemedText>

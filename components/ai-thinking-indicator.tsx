@@ -140,7 +140,8 @@ export default function AiThinkingIndicator() {
           marginTop: 15,
           marginBottom: 15,
           textAlign: 'center',
-        }}>
+        }}
+      >
         AI Thinking
       </ThemedText>
 
@@ -151,7 +152,8 @@ export default function AiThinkingIndicator() {
           justifyContent: 'center',
           alignItems: 'center',
           paddingVertical: 10,
-        }}>
+        }}
+      >
         {chars.map((c, i) => (
           <Animated.Text
             key={i}
@@ -164,7 +166,8 @@ export default function AiThinkingIndicator() {
               color: COLORS[(colorIndex + i) % COLORS.length],
               textShadowColor: COLORS[(colorIndex + i) % COLORS.length],
               textShadowRadius: 10,
-            }}>
+            }}
+          >
             {c}
           </Animated.Text>
         ))}

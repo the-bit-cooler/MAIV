@@ -114,7 +114,8 @@ const AppearanceSection = ({
               styles.optionButton,
               { borderColor: isSelected ? selectedColor : 'transparent' },
             ]}
-            onPress={() => setAppTheme(option)}>
+            onPress={() => setAppTheme(option)}
+          >
             <ThemedText style={{ color: isSelected ? selectedColor : optionColor }}>
               {themeOptionLabels[index]}
             </ThemedText>
@@ -148,7 +149,8 @@ const AiModeSection = ({ headerColor, optionColor, selectedColor }: AiModeSectio
               styles.optionButton,
               { borderColor: isSelected ? selectedColor : 'transparent' },
             ]}
-            onPress={() => setAiMode(option)}>
+            onPress={() => setAiMode(option)}
+          >
             <ThemedText style={{ color: isSelected ? selectedColor : optionColor }}>
               {option.charAt(0).toUpperCase() + option.slice(1)}
             </ThemedText>

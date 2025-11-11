@@ -48,7 +48,8 @@ export default function BibleReadingLocationPicker({
           <Text style={[styles.title, { color: textColor }]}>Select Reading Location</Text>
           <TouchableOpacity
             onPress={() => setShowBibleReadingLocationPickerModal(false)}
-            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          >
             <MaterialIcons name="close" size={22} color={textColor} />
           </TouchableOpacity>
         </View>
@@ -67,7 +68,8 @@ export default function BibleReadingLocationPicker({
                   ...readingLocation,
                   bible: { book: bk, chapter: 1, page: 0 },
                 })
-              }>
+              }
+            >
               {getBibleBookList().map((bk) => (
                 <Picker.Item key={bk} label={bk} value={bk} />
               ))}
@@ -87,7 +89,8 @@ export default function BibleReadingLocationPicker({
                   ...readingLocation,
                   bible: { ...readingLocation.bible, chapter: ch, page: 0 },
                 })
-              }>
+              }
+            >
               {Array.from(
                 { length: getBibleBookChapterCount(readingLocation.bible.book) },
                 (_, i) => i + 1,
@@ -115,7 +118,8 @@ export default function BibleReadingLocationPicker({
                       ...readingLocation,
                       bible: { ...readingLocation.bible, page: pageNumber },
                     });
-                  }}>
+                  }}
+                >
                   {Array.from({ length: totalChapterVerseCount }, (_, i) => i + 1).map((vs) => (
                     <Picker.Item key={vs} label={`Verse ${vs}`} value={vs} />
                   ))}

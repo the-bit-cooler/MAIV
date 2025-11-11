@@ -5,7 +5,8 @@ export default function ModalLayout() {
     <Stack
       screenOptions={{
         headerShown: false,
-      }}>
+      }}
+    >
       <Stack.Screen
         name="settings"
         options={{

@@ -172,7 +172,8 @@ export default function NewBibleVerseTranslationModal() {
             </PlatformPressable>
           )}
         </>
-      }>
+      }
+    >
       <View style={styles.container}>
         {loading ? (
           <AiThinkingIndicator />
@@ -212,7 +213,8 @@ export default function NewBibleVerseTranslationModal() {
                   padding: 8,
                   borderRadius: 8,
                 },
-              }}>
+              }}
+            >
               {translation || failedMarkdown}
             </Markdown>
           </>

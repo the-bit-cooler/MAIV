@@ -172,7 +172,8 @@ export default function BibleVerseExplanationModal() {
             </PlatformPressable>
           )}
         </>
-      }>
+      }
+    >
       <View style={styles.container}>
         {loading ? (
           <AiThinkingIndicator />
@@ -212,7 +213,8 @@ export default function BibleVerseExplanationModal() {
                   padding: 8,
                   borderRadius: 8,
                 },
-              }}>
+              }}
+            >
               {explanation || failedMarkdown}
             </Markdown>
           </>

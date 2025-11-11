@@ -25,7 +25,8 @@ export function HeaderTitleButton({ onPress }: Props) {
         borderRadius: 8,
         paddingHorizontal: 10,
         paddingVertical: 4,
-      }}>
+      }}
+    >
       <IconSymbol name="chevron.down" size={16} color="#666" style={{ marginRight: 6 }} />
       <ThemedText type="subtitle">{`${book} ${chapter}`}</ThemedText>
     </TouchableOpacity>

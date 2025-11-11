@@ -77,7 +77,8 @@ export default function SimilarBibleVersesModal() {
             </ThemedText>
           </View>
         </>
-      }>
+      }
+    >
       <ThemedText type="title" style={styles.title}>
         Similar Verses
       </ThemedText>
