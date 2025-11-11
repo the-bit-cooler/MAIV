@@ -45,7 +45,7 @@ export default function BibleReadingLocationPicker({
     <View style={styles.overlay}>
       <View style={[styles.card, { backgroundColor: cardBackground }]}>
         <View style={styles.header}>
-          <Text style={[styles.title, { color: textColor }]}>Select Reading Location</Text>
+          <Text style={[styles.title, { color: textColor }]}>Location</Text>
           <TouchableOpacity
             onPress={() => setShowBibleReadingLocationPickerModal(false)}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
@@ -56,7 +56,6 @@ export default function BibleReadingLocationPicker({
 
         <ScrollView style={{ width: '100%' }}>
           {/* 📖 Book Picker */}
-          <Text style={[styles.label, { color: accentColor }]}>Book</Text>
           <View style={[styles.pickerContainer, { borderColor: accentColor + '40' }]}>
             <Picker
               mode="dropdown"
@@ -66,7 +65,7 @@ export default function BibleReadingLocationPicker({
               onValueChange={(bk) =>
                 setReadingLocation({
                   ...readingLocation,
-                  bible: { book: bk, chapter: 1, page: 0 },
+                  bible: { book: bk, chapter: 1, page: 1 },
                 })
               }
             >
@@ -77,7 +76,6 @@ export default function BibleReadingLocationPicker({
           </View>
 
           {/* 📜 Chapter Picker */}
-          <Text style={[styles.label, { color: accentColor }]}>Chapter</Text>
           <View style={[styles.pickerContainer, { borderColor: accentColor + '40' }]}>
             <Picker
               mode="dropdown"
@@ -87,7 +85,7 @@ export default function BibleReadingLocationPicker({
               onValueChange={(ch) =>
                 setReadingLocation({
                   ...readingLocation,
-                  bible: { ...readingLocation.bible, chapter: ch, page: 0 },
+                  bible: { ...readingLocation.bible, chapter: ch, page: 1 },
                 })
               }
             >
@@ -103,7 +101,6 @@ export default function BibleReadingLocationPicker({
           {/* ✝️ Verse Picker */}
           {totalChapterVerseCount > 0 && (
             <>
-              <Text style={[styles.label, { color: accentColor }]}>Verse</Text>
               <View style={[styles.pickerContainer, { borderColor: accentColor + '40' }]}>
                 <Picker
                   mode="dropdown"
@@ -113,13 +110,14 @@ export default function BibleReadingLocationPicker({
                   onValueChange={(vs) => {
                     lastManualSelectionRef.current = vs;
                     setSelectedVerse(vs);
-                    const pageNumber = verseToPageMap?.[vs] ?? 0;
+                    const pageNumber = vs === 0 ? 1 : (verseToPageMap?.[vs] ?? 1);
                     setReadingLocation({
                       ...readingLocation,
                       bible: { ...readingLocation.bible, page: pageNumber },
                     });
                   }}
                 >
+                  <Picker.Item key={0} label={`Summary`} value={0} />
                   {Array.from({ length: totalChapterVerseCount }, (_, i) => i + 1).map((vs) => (
                     <Picker.Item key={vs} label={`Verse ${vs}`} value={vs} />
                   ))}

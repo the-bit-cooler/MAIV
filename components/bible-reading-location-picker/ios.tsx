@@ -57,7 +57,7 @@ export default function BibleReadingLocationPicker({
             style={{ opacity: 0.95 }}
             selectedValue={readingLocation.bible.book}
             onValueChange={(bk) => {
-              setReadingLocation({ ...readingLocation, bible: { book: bk, chapter: 1, page: 0 } });
+              setReadingLocation({ ...readingLocation, bible: { book: bk, chapter: 1, page: 1 } });
             }}
             itemStyle={{
               borderRadius: 200,
@@ -77,7 +77,7 @@ export default function BibleReadingLocationPicker({
             onValueChange={(ch) => {
               setReadingLocation({
                 ...readingLocation,
-                bible: { ...readingLocation.bible, chapter: ch, page: 0 },
+                bible: { ...readingLocation.bible, chapter: ch, page: 1 },
               });
             }}
             itemStyle={{
@@ -102,7 +102,7 @@ export default function BibleReadingLocationPicker({
               onValueChange={(vs) => {
                 lastManualSelectionRef.current = vs;
                 setSelectedVerse(vs); // update local value
-                const pageNumber = verseToPageMap?.[vs] ?? 0;
+                const pageNumber = vs === 0 ? 1 : (verseToPageMap?.[vs] ?? 1);
                 setReadingLocation({
                   ...readingLocation,
                   bible: { ...readingLocation.bible, page: pageNumber },
@@ -116,6 +116,7 @@ export default function BibleReadingLocationPicker({
                 marginTop: 30,
               }}
             >
+              <Picker.Item key={0} label={`Summary`} value={0} />
               {Array.from({ length: totalChapterVerseCount }, (_, i) => i + 1).map((vs) => (
                 <Picker.Item key={vs} label={`Verse ${vs}`} value={vs} />
               ))}
