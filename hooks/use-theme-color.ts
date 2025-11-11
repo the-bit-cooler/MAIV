@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { Appearance } from 'react-native';
 
 import { Colors } from '@/constants/theme';
@@ -8,13 +9,17 @@ export function useThemeColor(
   colorName: keyof typeof Colors.light & keyof typeof Colors.dark & keyof typeof Colors.sepia,
 ) {
   const { theme } = useAppContext();
+  const [systemColorScheme, setSystemColorScheme] = useState(Appearance.getColorScheme());
 
-  // map "system" to actual theme
-  const effectiveTheme =
-    theme === 'system' ? (Appearance.getColorScheme() === 'dark' ? 'dark' : 'light') : theme;
+  useEffect(() => {
+    const listener = Appearance.addChangeListener(({ colorScheme }) =>
+      setSystemColorScheme(colorScheme),
+    );
+    return () => listener.remove();
+  }, []);
 
-  const colorFromProps = props[effectiveTheme];
-  if (colorFromProps) return colorFromProps;
+  const effectiveTheme = theme === 'system' ? (systemColorScheme ?? 'light') : theme;
 
-  return Colors[effectiveTheme][colorName];
+  const colorFromProps = props[effectiveTheme as keyof typeof props];
+  return colorFromProps ?? Colors[effectiveTheme][colorName];
 }

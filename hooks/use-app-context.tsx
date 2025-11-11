@@ -63,8 +63,28 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const [theme, setThemeState] = useState<AppTheme>(AppDefaults.theme);
   const [verseToPageMap, setVerseToPageMap] = useState<Record<number, number>>({});
   const [totalChapterVerseCount, setTotalChapterVerseCount] = useState<number>(0);
+  const [systemColorScheme, setSystemColorScheme] = useState(Appearance.getColorScheme());
   const [isAppReady, setIsAppReady] = useState(false);
   const isInitialMount = useRef(true);
+
+  // === Listen for OS-level theme changes ===
+  useEffect(() => {
+    const listener = Appearance.addChangeListener(({ colorScheme }) => {
+      setSystemColorScheme(colorScheme);
+    });
+
+    return () => listener.remove();
+  }, []);
+
+  // === Listen for OS-level theme changes ===
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', (state) => {
+      if (state === 'active') {
+        setSystemColorScheme(Appearance.getColorScheme());
+      }
+    });
+    return () => sub.remove();
+  }, []);
 
   // === Load cached data and session ===
   useEffect(() => {
@@ -181,7 +201,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   // === Compute Navigation theme ===
   const effectiveTheme =
     theme === 'system'
-      ? Appearance.getColorScheme() === 'dark'
+      ? systemColorScheme === 'dark'
         ? DarkNavTheme
         : LightNavTheme
       : theme === 'dark'
