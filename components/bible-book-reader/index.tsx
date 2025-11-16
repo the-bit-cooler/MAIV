@@ -128,7 +128,7 @@ export function BibleBookReader({ version, timestamp }: BibleBookReaderProps) {
 
   const updateLocation = useCallback((book: string, chapter: number, page?: number) => {
     setLocation(`${book}:${chapter}`);
-    if (page) setPage(page);
+    if (page != null) setPage(page);
   }, []);
 
   const chapterCount = useMemo(() => getBibleBookChapterCount(book), [book]);
@@ -496,7 +496,6 @@ export function BibleBookReader({ version, timestamp }: BibleBookReaderProps) {
   useEffect(() => {
     function triggerPageJump() {
       if (!nativeRef.current) return;
-      if (page == null) return;
 
       try {
         // If user didn't manually drag, trigger programmatic jump
@@ -515,8 +514,6 @@ export function BibleBookReader({ version, timestamp }: BibleBookReaderProps) {
   }, [page, pages?.length]);
 
   useEffect(() => {
-    if (!verseToPageMap) return;
-
     function setPickerToFirstVerseOnPage() {
       // If user triggered the page change, do NOT override
       if (userSelectedVerse.current) {
@@ -674,7 +671,7 @@ export function BibleBookReader({ version, timestamp }: BibleBookReaderProps) {
                     onSelect={(vs: number) => {
                       userSelectedVerse.current = true;
                       setVerse(vs);
-                      updateLocation(book, chapter, vs === 0 ? 0 : (verseToPageMap?.[vs] ?? 1));
+                      updateLocation(book, chapter, vs === 0 ? 0 : (verseToPageMap[vs] ?? 1));
                     }}
                   />
                 </View>
