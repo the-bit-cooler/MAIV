@@ -133,7 +133,7 @@ type AiModeSectionProps = {
 };
 
 const AiModeSection = ({ headerColor, optionColor, selectedColor }: AiModeSectionProps) => {
-  const { aiMode, setAiMode, allowAiThinkingSound, setAllowAiThinkingSound } = useAppContext();
+  const { aiMode, setAiMode, aiThinkingSoundEnabled, setAiThinkingSoundEnabled } = useAppContext();
 
   return (
     <View style={{ marginTop: 10 }}>
@@ -160,8 +160,8 @@ const AiModeSection = ({ headerColor, optionColor, selectedColor }: AiModeSectio
       <View style={styles.soundToggleContainer}>
         <ThemedText style={styles.soundToggleLabel}>Enable Thinking Sound</ThemedText>
         <Switch
-          value={allowAiThinkingSound}
-          onValueChange={(value) => setAllowAiThinkingSound(value)}
+          value={aiThinkingSoundEnabled}
+          onValueChange={(value) => setAiThinkingSoundEnabled(value)}
         />
       </View>
     </View>
