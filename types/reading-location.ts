@@ -1,8 +1,10 @@
 export type ReadingLocation = {
   drawerSelection: string;
-  bible: {
-    book: string;
-    chapter: number;
-    page: number;
-  };
+  bible: ReadingLocationBible;
+};
+
+export type ReadingLocationBible = {
+  book: string;
+  chapter: number;
+  page: number;
 };
