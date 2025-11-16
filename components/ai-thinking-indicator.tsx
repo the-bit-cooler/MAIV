@@ -36,7 +36,7 @@ export default function AiThinkingIndicator() {
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const soundRef = useRef<AudioPlayer | null>(null);
-  const { allowAiThinkingSound } = useAppContext();
+  const { aiThinkingSoundEnabled } = useAppContext();
 
   // 🌀 Animated symbol flow
   useEffect(() => {
@@ -104,7 +104,7 @@ export default function AiThinkingIndicator() {
 
     const loadSound = async () => {
       try {
-        if (allowAiThinkingSound) {
+        if (aiThinkingSoundEnabled) {
           // Create and load sound
           player = createAudioPlayer();
           player.replace(require('../assets/ai-thinking.mp3'));
@@ -130,7 +130,7 @@ export default function AiThinkingIndicator() {
         player.remove();
       }
     };
-  }, [allowAiThinkingSound]);
+  }, [aiThinkingSoundEnabled]);
 
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
