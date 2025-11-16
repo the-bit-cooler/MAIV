@@ -64,7 +64,8 @@ export default function SignInButton() {
         borderColor: textColor,
         alignItems: 'center',
         justifyContent: 'center',
-      }}>
+      }}
+    >
       <Text style={{ color: textColor, fontSize: 16, fontWeight: '600' }}>Sign Out</Text>
     </Pressable>
   ) : (

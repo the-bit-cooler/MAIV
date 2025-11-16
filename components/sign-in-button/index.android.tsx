@@ -117,7 +117,8 @@ export default function SignInButton() {
             borderColor: textColor,
             alignItems: 'center',
             justifyContent: 'center',
-          }}>
+          }}
+        >
           <Text style={{ color: textColor, fontSize: 16, fontWeight: '600' }}>Sign Out</Text>
         </Pressable>
       ) : (
@@ -128,7 +129,8 @@ export default function SignInButton() {
             styles.button,
             pressed && styles.buttonPressed,
             disabled && styles.buttonDisabled,
-          ]}>
+          ]}
+        >
           <View style={styles.imageWrapper}>
             <Image
               source={ContinueWithGoogleButton[theme === 'dark' ? 'dark' : 'light']}
