@@ -1,89 +1,65 @@
+// ============================================================================
+// ⚛️ React packages
+// ============================================================================
+
 import { PlatformPressable } from '@react-navigation/elements';
 import { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Markdown from 'react-native-markdown-display';
 
+// ============================================================================
+// 🧩 Expo packages
+// ============================================================================
+
 import { Image } from 'expo-image';
+
+// ============================================================================
+// 🏠 Internal assets
+// ============================================================================
 
 import AiThinkingIndicator from '@/components/ai-thinking-indicator';
 import { IconSymbol } from '@/components/icon-symbol';
 import ParallaxScrollView from '@/components/parallax-scroll-view';
 import { ThemedText } from '@/components/themed-text';
 import { blurhash } from '@/constants/blur-hash';
+import { useAppContext } from '@/hooks/use-app-context';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { getLargeCache, setLargeCache, TTL } from '@/utilities/cache';
-import { shareMarkdownAsPdf } from '@/utilities/share-markdown-as-pdf';
+import { shareMarkdownPdf } from '@/utilities/shareMarkdownPdf';
 
-type BibleChapterSummaryParams = {
+// ============================================================================
+// ⚙️ Function Component & Props
+// ============================================================================
+
+type BibleChapterSummaryProps = {
   book: string;
   chapter: number;
 };
 
-export default function BibleChapterSummary({ book, chapter }: BibleChapterSummaryParams) {
-  const [summary, setSummary] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+export function BibleChapterSummary({ book, chapter }: BibleChapterSummaryProps) {
+  // ============================================================================
+  // 🪝 HOOKS (Derived Values)
+  // ============================================================================
 
-  // ✅ use theme defaults
+  const { constructStorageUrl, constructStorageKey } = useAppContext();
+
   const headerBackgroundColor = useThemeColor({}, 'cardBackground');
   const iconColor = useThemeColor({}, 'tint');
   const markdownBackgroundColor = useThemeColor({}, 'cardBackground');
   const markdownTextColor = useThemeColor({}, 'text');
 
-  const fetchBibleChapterSummary = useCallback(async () => {
-    setLoading(true);
+  // ============================================================================
+  // 🔄 STATE
+  // ============================================================================
 
-    const cacheKey = `${book}:${chapter}:Summary`;
+  const [loading, setLoading] = useState(true);
+  const [summary, setSummary] = useState<string | null>(null);
 
-    // Construct known storage URL
-    const storageUrl = `${process.env.EXPO_PUBLIC_AZURE_STORAGE_URL}summary/${book.replace(/ /g, '')}/${chapter}.txt`;
+  // ============================================================================
+  // 📐 CONSTANTS
+  // ============================================================================
 
-    try {
-      // --- STEP 1: Try local cache ---
-      const cached = await getLargeCache<string>(cacheKey);
-      if (cached) {
-        setSummary(cached);
-        return;
-      } else {
-        console.log('Summary cache expired or missing — refetching...');
-      }
-
-      // --- STEP 2: Try to fetch from Azure Storage directly ---
-      try {
-        const fileResponse = await fetch(storageUrl);
-        if (fileResponse.ok) {
-          const summaryText = await fileResponse.text();
-          setSummary(summaryText);
-          await setLargeCache(cacheKey, summaryText, TTL.MONTH);
-        }
-      } catch (storageErr) {
-        console.warn('Storage fetch failed:', storageErr);
-      }
-    } catch (err) {
-      console.warn('Error fetching summary:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, [book, chapter]);
-
-  useEffect(() => {
-    fetchBibleChapterSummary();
-  }, [fetchBibleChapterSummary]);
-
-  const imageUrl = `${process.env.EXPO_PUBLIC_AZURE_STORAGE_URL}summary/${book.replace(/ /g, '')}/${chapter}.png`;
-
-  const sharePdf = async () => {
-    if (summary)
-      await shareMarkdownAsPdf(
-        summary,
-        `Summary of ${book} ${chapter}`,
-        `${book} ${chapter}`,
-        undefined, // no ai mode
-        undefined, // no verse obj
-        imageUrl,
-      );
-  };
-
-  const failedMarkdown = `
+  const fallbackMarkdown = `
   \`\`\`
   So sorry! I failed to generate a summary for this chapter. 
   
@@ -91,8 +67,113 @@ export default function BibleChapterSummary({ book, chapter }: BibleChapterSumma
   \`\`\`
   `;
 
+  // ============================================================================
+  // 🧠 MEMOS & CALLBACKS (DERIVED LOGIC)
+  // ============================================================================
+
+  const imageUrl = constructStorageUrl({ type: 'summary', book, chapter, ext: 'png' });
+
+  const sharePdf = useCallback(async () => {
+    try {
+      if (summary) {
+        await shareMarkdownPdf(
+          summary,
+          `Summary of ${book} ${chapter}`,
+          `${book} ${chapter}`,
+          undefined, // no ai mode
+          undefined, // no verse obj
+          imageUrl,
+        );
+      }
+    } catch (error) {
+      console.error('BibleChapterSummary.sharePdf()', error);
+    }
+  }, [summary, book, chapter, imageUrl]);
+
+  // ============================================================================
+  // ⚡️ EFFECTS
+  // ============================================================================
+
+  useEffect(() => {
+    setLoading(true);
+
+    async function loadBibleChapterSummary() {
+      if (!book || !chapter) return;
+
+      // --- STEP 1: Try local cache ---
+      const storageKey = constructStorageKey({ book, chapter, suffix: 'summary' });
+
+      try {
+        const cached = await getLargeCache<string>(storageKey);
+        if (cached) {
+          setSummary(cached);
+          setLoading(false);
+
+          console.log(
+            'BibleChapterSummary.useEffect() => loadBibleChapterSummary() => getLargeCache()',
+            storageKey,
+            'found',
+          );
+
+          return;
+        } else {
+          console.warn(
+            'BibleChapterSummary.useEffect() => loadBibleChapterSummary() => getLargeCache()',
+            storageKey,
+            'expired or missing',
+          );
+        }
+      } catch (error) {
+        console.error(
+          'BibleChapterSummary.useEffect() => loadBibleChapterSummary() => getLargeCache()',
+          storageKey,
+          error,
+        );
+      }
+
+      // --- STEP 2: Try to fetch from Azure Storage directly ---
+      const storageUrl = constructStorageUrl({ type: 'summary', book, chapter, ext: 'txt' });
+
+      try {
+        const res = await fetch(storageUrl);
+        if (res.ok) {
+          const summaryText = await res.text();
+          setSummary(summaryText);
+          await setLargeCache(storageKey, summaryText, TTL.MONTH);
+
+          console.log(
+            'BibleChapterSummary.useEffect() => loadBibleChapterSummary() => fetch()',
+            storageUrl,
+            `HTTP STATUS ${res.status}: ${res.statusText || 'unknown'}`,
+          );
+        } else {
+          console.warn(
+            'BibleChapterSummary.useEffect() => loadBibleChapterSummary() => fetch()',
+            storageUrl,
+            `HTTP STATUS ${res.status}: ${res.statusText || 'unknown'}`,
+          );
+        }
+      } catch (error) {
+        console.error(
+          'BibleChapterSummary.useEffect() => loadBibleChapterSummary() => fetch()',
+          storageUrl,
+          error,
+        );
+      }
+
+      setLoading(false);
+    }
+
+    loadBibleChapterSummary();
+  }, [book, chapter, constructStorageKey, constructStorageUrl]);
+
+  // ============================================================================
+  // 👁️ RENDER
+  // ============================================================================
+
   return (
     <ParallaxScrollView
+      key={`summary-${book}-${chapter}`}
       headerBackgroundColor={{
         light: headerBackgroundColor,
         dark: headerBackgroundColor,
@@ -117,7 +198,8 @@ export default function BibleChapterSummary({ book, chapter }: BibleChapterSumma
             </PlatformPressable>
           )}
         </>
-      }>
+      }
+    >
       <View style={[styles.container]}>
         {loading ? (
           <AiThinkingIndicator />
@@ -157,8 +239,9 @@ export default function BibleChapterSummary({ book, chapter }: BibleChapterSumma
                   padding: 8,
                   borderRadius: 8,
                 },
-              }}>
-              {summary || failedMarkdown}
+              }}
+            >
+              {summary || fallbackMarkdown}
             </Markdown>
           </>
         )}
@@ -166,6 +249,10 @@ export default function BibleChapterSummary({ book, chapter }: BibleChapterSumma
     </ParallaxScrollView>
   );
 }
+
+// ============================================================================
+// 🎨 STYLES
+// ============================================================================
 
 const styles = StyleSheet.create({
   container: {
