@@ -1,34 +1,54 @@
-import { IconSymbol } from '@/components/icon-symbol';
-import SignInButton from '@/components/sign-in-button';
-import { ThemedText } from '@/components/themed-text';
-import { AppDefaults } from '@/constants/app-defaults';
-import { UserPreferences } from '@/constants/user-preferences';
-import { useThemeColor } from '@/hooks/use-theme-color';
-import { ReadingLocation } from '@/types/reading-location';
-import { getCacheSync } from '@/utilities/cache';
-import {
-  getBibleVersionDisplayName,
-  getKeyListOfSupportedBibleVersions,
-  getSupportedBibleVersions,
-} from '@/utilities/get-bible-version-info';
+// ============================================================================
+// ⚛️ React packages
+// ============================================================================
+
 import {
   DrawerContentComponentProps,
   DrawerContentScrollView,
   DrawerItem,
 } from '@react-navigation/drawer';
 import { PlatformPressable } from '@react-navigation/elements';
-import { NavigationRoute, ParamListBase } from '@react-navigation/native';
-import { useRouter } from 'expo-router';
-import { Drawer } from 'expo-router/drawer';
+import { useMemo } from 'react';
 import { View } from 'react-native';
 
+// ============================================================================
+// 🧩 Expo packages
+// ============================================================================
+
+import { useRouter } from 'expo-router';
+import { Drawer } from 'expo-router/drawer';
+
+// ============================================================================
+// 🏠 Internal assets
+// ============================================================================
+
+import { IconSymbol } from '@/components/icon-symbol';
+import SignInButton from '@/components/sign-in-button';
+import { ThemedText } from '@/components/themed-text';
+import { useAppContext } from '@/hooks/use-app-context';
+import { useThemeColor } from '@/hooks/use-theme-color';
+import {
+  getKeyListOfSupportedBibleVersions,
+  getSupportedBibleVersions,
+} from '@/utilities/get-bible-version-info';
+
+// ============================================================================
+// ⚙️ Function Component & Props
+// ============================================================================
+
 export default function DrawerLayout() {
+  // ============================================================================
+  // 🪝 HOOKS (Derived Values)
+  // ============================================================================
+
+  const { readingLocation } = useAppContext();
   const router = useRouter();
 
-  // Synchronously read before render
-  let drawerSelection =
-    getCacheSync<ReadingLocation>(UserPreferences.saved_reading_location)?.drawerSelection ??
-    AppDefaults.drawerSelection;
+  const tintColor = useThemeColor({}, 'tint');
+
+  // ============================================================================
+  // 👁️ RENDER
+  // ============================================================================
 
   return (
     <Drawer
@@ -38,6 +58,7 @@ export default function DrawerLayout() {
         drawerType: 'front',
         drawerStyle: { width: '85%' },
         headerTitle: '', // Default to empty; Drawer pages will override
+        headerTintColor: tintColor,
         headerRight: ({ tintColor }) => (
           <PlatformPressable onPress={() => router.push({ pathname: '/settings' })}>
             <IconSymbol
@@ -48,39 +69,56 @@ export default function DrawerLayout() {
             />
           </PlatformPressable>
         ),
-      }}>
-      <Drawer.Screen name="index" initialParams={{ drawerSelection }} />
+      }}
+    >
       <Drawer.Screen
-        data-maiv="MAIV"
-        name={AppDefaults.drawerSelection}
-        options={{ drawerLabel: getBibleVersionDisplayName(AppDefaults.drawerSelection) }}
+        name="index"
+        initialParams={{ drawerSelection: readingLocation.drawerSelection }}
       />
-      {getSupportedBibleVersions()
-        .filter((v) => v.key !== AppDefaults.drawerSelection)
-        .map((version) => (
-          <Drawer.Screen
-            key={version.key}
-            name={version.key} // points to your dynamic route file
-            options={{
-              drawerLabel: version.fullname, // you can map to full names if needed
-            }}
-          />
-        ))}
+      {getSupportedBibleVersions().map((version) => (
+        <Drawer.Screen
+          key={version.key}
+          name={version.key} // points to your dynamic route file
+          options={{
+            drawerLabel: version.fullname, // you can map to full names if needed
+          }}
+        />
+      ))}
     </Drawer>
   );
 }
 
+// ============================================================================
+// ⚙️ Function Component & Props
+// ============================================================================
+
 function CustomDrawerContent(props: DrawerContentComponentProps) {
+  // ============================================================================
+  // 🪝 HOOKS (Derived Values)
+  // ============================================================================
+
+  const { readingLocation, setReadingLocation } = useAppContext();
+
   const activeTintColor = useThemeColor({}, 'tint');
   const inactiveTintColor = useThemeColor({}, 'text');
+
+  // ============================================================================
+  // 📐 CONSTANTS
+  // ============================================================================
+
   const supportedBibleVersions = getKeyListOfSupportedBibleVersions();
 
-  const routeMap = new Map(
-    props.state.routes.map((route: NavigationRoute<ParamListBase, string>, index: number) => [
-      route.name,
-      { route, index },
-    ]),
-  );
+  // ============================================================================
+  // 🧠 MEMOS & CALLBACKS (DERIVED LOGIC)
+  // ============================================================================
+
+  const routeMap = useMemo(() => {
+    return new Map(props.state.routes.map((route, index) => [route.name, { route, index }]));
+  }, [props.state.routes]);
+
+  // ============================================================================
+  // 👁️ RENDER
+  // ============================================================================
 
   return (
     <DrawerContentScrollView {...props}>
@@ -96,7 +134,7 @@ function CustomDrawerContent(props: DrawerContentComponentProps) {
         </ThemedText>
       </View>
       {supportedBibleVersions.map((version: string) => {
-        const { route, index } = routeMap.get(version)!;
+        const { route } = routeMap.get(version)!;
         if (!route) return null;
         const descriptor = props.descriptors[route.key];
         const label =
@@ -110,12 +148,13 @@ function CustomDrawerContent(props: DrawerContentComponentProps) {
           <DrawerItem
             key={route.key}
             label={label}
-            focused={index === props.state.index}
+            focused={version === readingLocation.drawerSelection}
             activeTintColor={activeTintColor} // Customize active/inactive colors
             inactiveTintColor={inactiveTintColor}
-            onPress={
-              () => props.navigation.navigate(route.name, { timestamp: Date.now() }) // Match your custom navigation with timestamp
-            }
+            onPress={() => {
+              setReadingLocation({ drawerSelection: version });
+              props.navigation.navigate(version, { timestamp: Date.now() });
+            }}
           />
         );
       })}
