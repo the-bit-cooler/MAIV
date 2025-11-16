@@ -27,10 +27,7 @@ import SignInButton from '@/components/sign-in-button';
 import { ThemedText } from '@/components/themed-text';
 import { useAppContext } from '@/hooks/use-app-context';
 import { useThemeColor } from '@/hooks/use-theme-color';
-import {
-  getKeyListOfSupportedBibleVersions,
-  getSupportedBibleVersions,
-} from '@/utilities/get-bible-version-info';
+import { getKeyListOfSupportedBibleVersions, getSupportedBibleVersions } from '@/utilities/bible';
 
 // ============================================================================
 // ⚙️ Function Component & Props

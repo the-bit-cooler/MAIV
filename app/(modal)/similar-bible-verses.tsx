@@ -9,7 +9,7 @@ import { ThemedText } from '@/components/themed-text';
 import { useAppContext } from '@/hooks/use-app-context';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { Verse } from '@/types/verse';
-import { getBibleVersionDisplayName } from '@/utilities/get-bible-version-info';
+import { getBibleVersionDisplayName } from '@/utilities/bible';
 
 type SimilarBibleVerseRouteParams = {
   version: string;

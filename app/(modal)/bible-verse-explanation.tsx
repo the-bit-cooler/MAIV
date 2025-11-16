@@ -11,8 +11,8 @@ import ParallaxScrollView from '@/components/parallax-scroll-view';
 import { ThemedText } from '@/components/themed-text';
 import { useAppContext } from '@/hooks/use-app-context';
 import { useThemeColor } from '@/hooks/use-theme-color';
+import { getBibleVersionDisplayName } from '@/utilities/bible';
 import { getLargeCache, setLargeCache, TTL } from '@/utilities/cache';
-import { getBibleVersionDisplayName } from '@/utilities/get-bible-version-info';
 import { getUserDirective } from '@/utilities/getUserDirective';
 import { shareMarkdownPdf } from '@/utilities/shareMarkdownPdf';
 

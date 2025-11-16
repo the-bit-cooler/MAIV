@@ -12,7 +12,7 @@ import { ThemedText } from '@/components/themed-text';
 import { blurhash } from '@/constants/blur-hash';
 import { useAppContext } from '@/hooks/use-app-context';
 import { useThemeColor } from '@/hooks/use-theme-color';
-import { getBibleVersionDisplayName } from '@/utilities/get-bible-version-info';
+import { getBibleVersionDisplayName } from '@/utilities/bible';
 import { getUserDirective } from '@/utilities/getUserDirective';
 import { shareIllustrationPdf } from '@/utilities/shareIllustrationPdf';
 

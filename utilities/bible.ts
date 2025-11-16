@@ -1,4 +1,7 @@
+import bookChapterCounts from '@/assets/data/bible-book-chapter-counts.json';
 import bibleVersions from '@/assets/data/bible-versions.json';
+import newTestamentBooks from '@/assets/data/new-testament.json';
+import oldTestamentBooks from '@/assets/data/old-testament.json';
 
 // Types
 interface BibleVersions {
@@ -9,6 +12,10 @@ interface BibleVersion {
   key: string;
   fullname: string;
   shortname: string;
+}
+
+interface BibleBookChapterCount {
+  [key: string]: number;
 }
 
 const versions = bibleVersions as BibleVersions;
@@ -40,9 +47,11 @@ const FULLNAME_LOOKUP: Record<string, string> = Object.fromEntries(
   Object.entries(versions).map(([key, v]) => [key, v.fullname]),
 );
 
-// ---------------------------
-// Existing function signatures
-// ---------------------------
+const bibleBooks = oldTestamentBooks.concat(newTestamentBooks);
+
+// ----------------------------
+// Exported function signatures
+// ----------------------------
 
 export const getSupportedBibleVersions = (): BibleVersion[] => {
   return SUPPORTED_BIBLE_VERSIONS;
@@ -62,4 +71,20 @@ export const getSupportedBibleVersionFullnames = (): string[] => {
 
 export const getSupportedBibleVersionShortNames = (): string[] => {
   return SUPPORTED_SHORTNAMES;
+};
+
+export const getNewTestamentBibleBookList = (): string[] => {
+  return newTestamentBooks;
+};
+
+export const getOldTestamentBibleBookList = (): string[] => {
+  return oldTestamentBooks;
+};
+
+export const getBibleBookList = (): string[] => {
+  return bibleBooks;
+};
+
+export const getBibleBookChapterCount = (key: string): number => {
+  return (bookChapterCounts as BibleBookChapterCount)[key] || 0;
 };
