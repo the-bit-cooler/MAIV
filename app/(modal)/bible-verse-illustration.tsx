@@ -13,8 +13,8 @@ import { blurhash } from '@/constants/blur-hash';
 import { useAppContext } from '@/hooks/use-app-context';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { getBibleVersionDisplayName } from '@/utilities/get-bible-version-info';
-import { getUserDirective } from '@/utilities/get-user-directive';
-import { shareIllustrationPdf } from '@/utilities/share-illustration-pdf';
+import { getUserDirective } from '@/utilities/getUserDirective';
+import { shareIllustrationPdf } from '@/utilities/shareIllustrationPdf';
 
 type BibleVerseIllustrationRouteParams = {
   version: string;

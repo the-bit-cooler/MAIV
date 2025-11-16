@@ -13,8 +13,8 @@ import { useAppContext } from '@/hooks/use-app-context';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { getLargeCache, setLargeCache, TTL } from '@/utilities/cache';
 import { getBibleVersionDisplayName } from '@/utilities/get-bible-version-info';
-import { getUserDirective } from '@/utilities/get-user-directive';
-import { shareMarkdownAsPdf } from '@/utilities/share-markdown-as-pdf';
+import { getUserDirective } from '@/utilities/getUserDirective';
+import { shareMarkdownPdf } from '@/utilities/shareMarkdownPdf';
 
 type NewBibleVerseTranslationRouteParams = {
   version: string;
@@ -121,7 +121,7 @@ export default function NewBibleVerseTranslationModal() {
 
   const sharePdf = async () => {
     if (translation)
-      await shareMarkdownAsPdf(
+      await shareMarkdownPdf(
         translation,
         'New Translation',
         `${book} ${chapter}:${verse} (${version})`,

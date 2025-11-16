@@ -15,7 +15,7 @@ interface Verse {
   text: string;
 }
 
-export async function shareMarkdownAsPdf(
+export async function shareMarkdownPdf(
   markdown: string,
   title: string,
   verseReference: string,
