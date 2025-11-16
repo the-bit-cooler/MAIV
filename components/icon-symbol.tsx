@@ -26,6 +26,10 @@ const MAPPING = {
   'lightbulb.fill': 'lightbulb',
   'list.bullet.rectangle': 'summarize',
   'square.and.arrow.up': 'share',
+  'chevron.down': 'expand-more',
+  xmark: 'close',
+  'xmark.circle': 'cancel',
+  'xmark.circle.fill': 'cancel',
 } as IconMapping;
 
 /**
