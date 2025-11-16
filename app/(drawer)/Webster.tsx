@@ -1,5 +1,6 @@
-import BibleBookReader from '@/components/bible-book-reader';
 import { useLocalSearchParams } from 'expo-router';
+
+import { BibleBookReader } from '@/components/bible-book-reader';
 
 export default function Webster() {
   const { timestamp } = useLocalSearchParams<{ timestamp: string }>();
