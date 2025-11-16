@@ -1,5 +1,5 @@
 import { ThemeProvider as NavThemeProvider } from '@react-navigation/native';
-import { createContext, useContext, useEffect, useRef, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { Alert, Appearance, AppState } from 'react-native';
 
 import { ActionSheetProvider } from '@expo/react-native-action-sheet';
@@ -12,13 +12,12 @@ import { ThemeName } from '@/constants/theme';
 import { UserPreferences } from '@/constants/user-preferences';
 import { ReadingLocation } from '@/types/reading-location';
 import { getCache, setCache } from '@/utilities/cache';
-import { constructAPIUrl } from '@/utilities/construct-api-url';
 
 export type AppTheme = ThemeName | 'system';
 
 type AppContextType = {
   readingLocation: ReadingLocation;
-  setReadingLocation: (location: ReadingLocation) => Promise<void>;
+  setReadingLocation: (location: Partial<ReadingLocationUpdate>) => Promise<void>;
 
   sessionToken: string | null;
   setSessionToken: (token: string | null) => Promise<void>;
@@ -26,20 +25,40 @@ type AppContextType = {
   aiMode: string;
   setAiMode: (mode: string) => Promise<void>;
 
-  allowAiThinkingSound: boolean;
-  setAllowAiThinkingSound: (value: boolean) => Promise<void>;
+  aiThinkingSoundEnabled: boolean;
+  setAiThinkingSoundEnabled: (value: boolean) => Promise<void>;
 
   theme: AppTheme;
   setTheme: (theme: AppTheme) => Promise<void>;
 
-  verseToPageMap: Record<number, number>;
-  setVerseToPageMap: (map: Record<number, number>) => void;
+  isAppReady: boolean;
 
-  totalChapterVerseCount: number;
-  setTotalChapterVerseCount: (count: number) => void;
-
-  isAppReady: boolean; // 🔹 expose readiness state
+  constructAPIUrl: (path: string) => string;
+  constructStorageUrl: ({ type, version, book, chapter, verse, aiMode, ext }: StorageUrl) => string;
+  constructStorageKey: ({ version, book, chapter, verse, suffix }: StorageKey) => string;
 };
+
+type StorageUrl = {
+  type: 'summary' | 'explanation' | 'illustration' | 'translation';
+  version?: string;
+  book: string;
+  chapter: number;
+  verse?: number;
+  aiMode?: string;
+  ext: 'txt' | 'png';
+};
+
+type StorageKey = {
+  version?: string;
+  book?: string;
+  chapter?: number;
+  verse?: number;
+  suffix: 'pages' | 'summary' | 'explanation' | 'translation';
+};
+
+type ReadingLocationUpdate = {
+  bible?: Partial<ReadingLocation['bible']>;
+} & Partial<Omit<ReadingLocation, 'bible'>>;
 
 const defaultReadingLocation: ReadingLocation = {
   drawerSelection: AppDefaults.drawerSelection,
@@ -57,15 +76,48 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     useState<ReadingLocation>(defaultReadingLocation);
   const [sessionToken, setSessionTokenState] = useState<string | null>(null);
   const [aiMode, setAiModeState] = useState(AppDefaults.aiMode);
-  const [allowAiThinkingSound, setAllowAiThinkingSoundState] = useState(
-    AppDefaults.allowAiThinkingSound,
+  const [aiThinkingSoundEnabled, setAiThinkingSoundEnabledState] = useState(
+    AppDefaults.aiThinkingSoundEnabled,
   );
   const [theme, setThemeState] = useState<AppTheme>(AppDefaults.theme);
-  const [verseToPageMap, setVerseToPageMap] = useState<Record<number, number>>({});
-  const [totalChapterVerseCount, setTotalChapterVerseCount] = useState<number>(0);
   const [systemColorScheme, setSystemColorScheme] = useState(Appearance.getColorScheme());
   const [isAppReady, setIsAppReady] = useState(false);
   const isInitialMount = useRef(true);
+
+  // === Construct API URL (memoized) ===
+  const constructAPIUrl = useCallback(
+    (path: string) => {
+      return `${process.env.EXPO_PUBLIC_AZURE_FUNCTION_URL}${path}?code=${process.env.EXPO_PUBLIC_AZURE_FUNCTION_KEY}`;
+    },
+    [], // static, no dependencies
+  );
+
+  const constructStorageUrl = useCallback(
+    ({ type, version, book, chapter, verse, aiMode, ext }: StorageUrl) => {
+      const base = process.env.EXPO_PUBLIC_AZURE_STORAGE_URL!;
+      const cleanBook = book.replace(/ /g, '');
+
+      // Build ordered path pieces (skips undefined automatically)
+      const pieces = [type, version, cleanBook, chapter, verse, aiMode].filter(Boolean);
+
+      return `${base}${pieces.join('/')}.${ext}`;
+    },
+    [],
+  );
+
+  // === Construct Storage Key (memoized) ===
+  const constructStorageKey = useCallback(
+    ({ version, book, chapter, verse, suffix }: StorageKey) => {
+      const parts: (string | number | undefined)[] = [version, book, chapter, verse, suffix];
+
+      // Filter out undefined values
+      const compact = parts.filter(Boolean);
+
+      // Join with colon
+      return compact.join(':');
+    },
+    [],
+  );
 
   // === Listen for OS-level theme changes ===
   useEffect(() => {
@@ -88,20 +140,20 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   // === Load cached data and session ===
   useEffect(() => {
-    (async () => {
+    async function loadCachedState() {
       try {
         // Run all async loads in parallel
         const [storedLoc, storedAiMode, storedSound, storedTheme, storedToken] = await Promise.all([
-          getCache<ReadingLocation>(UserPreferences.saved_reading_location),
+          getCache<ReadingLocation>(UserPreferences.reading_location),
           getCache<string>(UserPreferences.ai_mode),
-          getCache<boolean>(UserPreferences.ai_thinking_sound),
+          getCache<boolean>(UserPreferences.ai_thinking_sound_enabled),
           getCache<AppTheme>(UserPreferences.app_theme),
           SecureStore.getItemAsync(UserPreferences.session_token),
         ]);
 
         if (storedLoc) setReadingLocationState(storedLoc);
         if (storedAiMode) setAiModeState(storedAiMode);
-        setAllowAiThinkingSoundState(storedSound ?? true);
+        if (storedSound) setAiThinkingSoundEnabledState(storedSound);
         if (storedTheme) setThemeState(storedTheme);
 
         // 🔹 Validate session token if it exists
@@ -126,7 +178,9 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
             );
           }
         }
-      } catch {
+      } catch (error) {
+        console.error('AppProvider.useEffect() => loadCachedState()', error);
+
         Alert.alert(
           'Connection Problem 🚫',
           'Unable to reach our servers. Please check your internet connection and try again.',
@@ -134,17 +188,27 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       } finally {
         setIsAppReady(true);
       }
-    })();
-  }, []);
+    }
+
+    loadCachedState();
+  }, [constructAPIUrl]);
 
   // === Hide splash screen when app context is ready ===
   useEffect(() => {
-    if (isAppReady) {
-      // Give the JS thread one frame to render the first view before hiding
-      requestAnimationFrame(async () => {
-        await SplashScreen.hideAsync();
-      });
+    async function hideSplashScreen() {
+      try {
+        if (isAppReady) {
+          // Give the JS thread one frame to render the first view before hiding
+          requestAnimationFrame(async () => {
+            await SplashScreen.hideAsync();
+          });
+        }
+      } catch (error) {
+        console.error('AppProvider.useEffect() => hideSplashScreen()', error);
+      }
     }
+
+    hideSplashScreen();
   }, [isAppReady]);
 
   // === Save user's reading location ===
@@ -152,8 +216,10 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     const saveReadingLocation = async () => {
       if (readingLocation && !isInitialMount.current) {
         try {
-          await setCache(UserPreferences.saved_reading_location, readingLocation);
-        } catch {}
+          await setCache(UserPreferences.reading_location, readingLocation);
+        } catch (error) {
+          console.error('AppProvider.useEffect() => saveReadingLocation()', error);
+        }
       }
     };
 
@@ -172,30 +238,94 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   }, [readingLocation]);
 
   // === Setters that persist ===
-  const setReadingLocation = async (value: ReadingLocation) => {
-    setReadingLocationState(value);
-    await setCache(UserPreferences.saved_reading_location, value);
+  const setReadingLocation = async (partial: Partial<ReadingLocationUpdate>) => {
+    try {
+      setReadingLocationState((prev) => {
+        const partialHasBible = partial.bible !== undefined;
+
+        const drawerSelectionChanged =
+          partialHasBible &&
+          partial.bible!.book !== undefined &&
+          partial.bible!.book !== prev.bible.book;
+
+        const bookChanged =
+          partialHasBible &&
+          partial.bible!.book !== undefined &&
+          partial.bible!.book !== prev.bible.book;
+
+        const chapterChanged =
+          partialHasBible &&
+          partial.bible!.chapter !== undefined &&
+          partial.bible!.chapter !== prev.bible.chapter;
+
+        const pageChanged =
+          partialHasBible &&
+          partial.bible!.page !== undefined &&
+          partial.bible!.page !== prev.bible.page;
+
+        const bookChangedByUserSwipingBack = bookChanged && partial.bible!.page === -1;
+
+        const chapterChangedByUserSwipingBack = chapterChanged && partial.bible!.page === -1;
+
+        let next: ReadingLocation = {
+          ...prev,
+        };
+
+        if (drawerSelectionChanged) {
+          next.drawerSelection = partial.drawerSelection!;
+        } else if (bookChanged) {
+          next.bible.book = partial.bible!.book!;
+          next.bible.chapter = 1;
+          next.bible.page = bookChangedByUserSwipingBack ? -1 : 0;
+        } else if (chapterChanged) {
+          next.bible.chapter = partial.bible!.chapter!;
+          next.bible.page = chapterChangedByUserSwipingBack ? -1 : 0;
+        } else if (pageChanged) {
+          next.bible.page = partial.bible!.page!;
+        }
+
+        return next;
+      });
+    } catch (err) {
+      console.error('AppProvider.setReadingLocation()', err);
+    }
   };
 
   const setSessionToken = async (token: string | null) => {
-    setSessionTokenState(token);
-    if (token) await SecureStore.setItemAsync(UserPreferences.session_token, token);
-    else await SecureStore.deleteItemAsync(UserPreferences.session_token);
+    try {
+      setSessionTokenState(token);
+      if (token) await SecureStore.setItemAsync(UserPreferences.session_token, token);
+      else await SecureStore.deleteItemAsync(UserPreferences.session_token);
+    } catch (error) {
+      console.error('AppProvider.setSessionToken()', error);
+    }
   };
 
   const setAiMode = async (mode: string) => {
-    setAiModeState(mode);
-    await setCache(UserPreferences.ai_mode, mode);
+    try {
+      setAiModeState(mode);
+      await setCache(UserPreferences.ai_mode, mode);
+    } catch (error) {
+      console.error('AppProvider.setAiMode()', error);
+    }
   };
 
-  const setAllowAiThinkingSound = async (value: boolean) => {
-    setAllowAiThinkingSoundState(value);
-    await setCache(UserPreferences.ai_thinking_sound, value);
+  const setAiThinkingSoundEnabled = async (value: boolean) => {
+    try {
+      setAiThinkingSoundEnabledState(value);
+      await setCache(UserPreferences.ai_thinking_sound_enabled, value);
+    } catch (error) {
+      console.error('AppProvider.setAiThinkingSoundEnabled()', error);
+    }
   };
 
   const setTheme = async (value: AppTheme) => {
-    setThemeState(value);
-    await setCache(UserPreferences.app_theme, value);
+    try {
+      setThemeState(value);
+      await setCache(UserPreferences.app_theme, value);
+    } catch (error) {
+      console.error('AppProvider.setTheme()', error);
+    }
   };
 
   // === Compute Navigation theme ===
@@ -217,15 +347,14 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     setSessionToken,
     aiMode,
     setAiMode,
-    allowAiThinkingSound,
-    setAllowAiThinkingSound,
+    aiThinkingSoundEnabled,
+    setAiThinkingSoundEnabled,
     theme,
     setTheme,
-    verseToPageMap,
-    setVerseToPageMap,
-    totalChapterVerseCount,
-    setTotalChapterVerseCount,
     isAppReady,
+    constructAPIUrl,
+    constructStorageUrl,
+    constructStorageKey,
   };
 
   return (
