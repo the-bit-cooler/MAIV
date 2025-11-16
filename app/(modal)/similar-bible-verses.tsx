@@ -9,7 +9,6 @@ import { ThemedText } from '@/components/themed-text';
 import { useAppContext } from '@/hooks/use-app-context';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { Verse } from '@/types/verse';
-import { constructAPIUrl } from '@/utilities/construct-api-url';
 import { getBibleVersionDisplayName } from '@/utilities/get-bible-version-info';
 
 type SimilarBibleVerseRouteParams = {
@@ -25,7 +24,7 @@ export default function SimilarBibleVersesModal() {
     useLocalSearchParams<SimilarBibleVerseRouteParams>();
   const [verses, setVerses] = useState<Verse[]>([]);
   const [loading, setLoading] = useState(true);
-  const { aiMode } = useAppContext();
+  const { aiMode, constructAPIUrl } = useAppContext();
 
   // ✅ use theme defaults
   const headerBackgroundColor = useThemeColor({}, 'cardBackground');
@@ -50,7 +49,7 @@ export default function SimilarBibleVersesModal() {
     } finally {
       setLoading(false);
     }
-  }, [version, book, chapter, verse, aiMode]);
+  }, [version, book, chapter, verse, aiMode, constructAPIUrl]);
 
   useEffect(() => {
     fetchSimilarBibleVerses();

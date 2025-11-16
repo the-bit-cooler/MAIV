@@ -12,7 +12,6 @@ import { ThemedText } from '@/components/themed-text';
 import { blurhash } from '@/constants/blur-hash';
 import { useAppContext } from '@/hooks/use-app-context';
 import { useThemeColor } from '@/hooks/use-theme-color';
-import { constructAPIUrl } from '@/utilities/construct-api-url';
 import { getBibleVersionDisplayName } from '@/utilities/get-bible-version-info';
 import { getUserDirective } from '@/utilities/get-user-directive';
 import { shareIllustrationPdf } from '@/utilities/share-illustration-pdf';
@@ -30,7 +29,7 @@ export default function BibleVerseIllustrationModal() {
     useLocalSearchParams<BibleVerseIllustrationRouteParams>();
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const { sessionToken } = useAppContext();
+  const { sessionToken, constructAPIUrl } = useAppContext();
 
   // ✅ use theme defaults
   const headerBackgroundColor = useThemeColor({}, 'cardBackground');
@@ -89,7 +88,7 @@ export default function BibleVerseIllustrationModal() {
     } finally {
       setLoading(false);
     }
-  }, [version, book, chapter, verse, sessionToken]);
+  }, [version, book, chapter, verse, sessionToken, constructAPIUrl]);
 
   useEffect(() => {
     fetchBibleVerseIllustration();

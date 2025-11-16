@@ -12,7 +12,6 @@ import { ThemedText } from '@/components/themed-text';
 import { useAppContext } from '@/hooks/use-app-context';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { getLargeCache, setLargeCache, TTL } from '@/utilities/cache';
-import { constructAPIUrl } from '@/utilities/construct-api-url';
 import { getBibleVersionDisplayName } from '@/utilities/get-bible-version-info';
 import { getUserDirective } from '@/utilities/get-user-directive';
 import { shareMarkdownAsPdf } from '@/utilities/share-markdown-as-pdf';
@@ -30,7 +29,7 @@ export default function BibleVerseExplanationModal() {
     useLocalSearchParams<BibleVerseExplanationRouteParams>();
   const [explanation, setExplanation] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const { aiMode, sessionToken } = useAppContext();
+  const { aiMode, sessionToken, constructAPIUrl } = useAppContext();
 
   // ✅ use theme defaults
   const headerBackgroundColor = useThemeColor({}, 'cardBackground');
@@ -114,7 +113,7 @@ export default function BibleVerseExplanationModal() {
     } finally {
       setLoading(false);
     }
-  }, [aiMode, version, book, chapter, verse, sessionToken]);
+  }, [aiMode, version, book, chapter, verse, sessionToken, constructAPIUrl]);
 
   useEffect(() => {
     fetchBibleVerseExplanation();

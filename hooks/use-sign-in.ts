@@ -5,10 +5,9 @@ import * as SecureStore from 'expo-secure-store';
 
 import { UserPreferences } from '@/constants/user-preferences';
 import { useAppContext } from '@/hooks/use-app-context';
-import { constructAPIUrl } from '@/utilities/construct-api-url';
 
 export function useSignIn() {
-  const { setSessionToken } = useAppContext();
+  const { setSessionToken, constructAPIUrl } = useAppContext();
   const signIn = useCallback(
     async (params: { provider: 'apple' | 'google'; idToken: string }) => {
       try {
@@ -58,7 +57,7 @@ export function useSignIn() {
         );
       }
     },
-    [setSessionToken],
+    [setSessionToken, constructAPIUrl],
   );
 
   return { signIn };

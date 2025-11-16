@@ -6,9 +6,9 @@ import { useLocalSearchParams } from 'expo-router';
 import AiThinkingIndicator from '@/components/ai-thinking-indicator';
 import ParallaxScrollView from '@/components/parallax-scroll-view';
 import { ThemedText } from '@/components/themed-text';
+import { useAppContext } from '@/hooks/use-app-context';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { Verse } from '@/types/verse';
-import { constructAPIUrl } from '@/utilities/construct-api-url';
 import { getBibleVersionDisplayName } from '@/utilities/get-bible-version-info';
 
 type BibleVersVersionsRouteParams = {
@@ -20,6 +20,7 @@ type BibleVersVersionsRouteParams = {
 };
 
 export default function BibleVerseVersionsModal() {
+  const { constructAPIUrl } = useAppContext();
   const { version, book, chapter, verse, text } =
     useLocalSearchParams<BibleVersVersionsRouteParams>();
   const [verses, setVerses] = useState<Verse[]>([]);
@@ -46,7 +47,7 @@ export default function BibleVerseVersionsModal() {
     } finally {
       setLoading(false);
     }
-  }, [version, book, chapter, verse]);
+  }, [version, book, chapter, verse, constructAPIUrl]);
 
   useEffect(() => {
     fetchBibleVerseVersions();
