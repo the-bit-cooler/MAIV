@@ -6,6 +6,6 @@ export const AppDefaults = {
   drawerSelection: 'MAIV',
   bibleBook: 'Genesis',
   aiMode: AiModes.devotional,
-  allowAiThinkingSound: true,
+  aiThinkingSoundEnabled: true,
   theme: 'sepia' as ThemeName,
 };
