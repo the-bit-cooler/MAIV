@@ -42,7 +42,8 @@ module.exports = defineConfig([
           pathGroups: [
             // ⚛️ React ecosystem (react, react-native, @react*)
             {
-              pattern: '{react,react-native,react-native-*,react-native-*/**,@react*/**}',
+              pattern:
+                '{react,react-native,react-native-*,react-native-*/**,react-native/*/**,@react*/**}',
               group: 'builtin',
               position: 'before',
             },
