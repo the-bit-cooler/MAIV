@@ -1,7 +1,7 @@
 export const UserPreferences = {
-  app_theme: 'app-theme',
-  saved_reading_location: 'saved_reading_location_v1',
-  ai_mode: 'ai-mode',
-  ai_thinking_sound: 'ai-thinking-sound',
+  app_theme: 'app_theme',
+  reading_location: 'reading_location',
+  ai_mode: 'ai_mode',
+  ai_thinking_sound_enabled: 'ai_thinking_sound_enabled',
   session_token: 'session_token',
 };
