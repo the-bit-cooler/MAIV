@@ -11,9 +11,7 @@ import ParallaxScrollView from '@/components/parallax-scroll-view';
 import { ThemedText } from '@/components/themed-text';
 import { blurhash } from '@/constants';
 import { useAppContext, useThemeColor } from '@/hooks';
-import { getBibleVersionDisplayName } from '@/utilities/bible';
-import { getUserDirective } from '@/utilities/getUserDirective';
-import { shareIllustrationPdf } from '@/utilities/shareIllustrationPdf';
+import { getBibleVersionDisplayName, getUserDirective, shareIllustrationPdf } from '@/utilities';
 
 type BibleVerseIllustrationRouteParams = {
   version: string;

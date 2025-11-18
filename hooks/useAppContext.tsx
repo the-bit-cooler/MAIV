@@ -15,7 +15,7 @@ import {
   UserPreferences,
 } from '@/constants';
 import type { ReadingLocation } from '@/types';
-import { getCache, setCache } from '@/utilities/cache';
+import { getCache, setCache } from '@/utilities';
 
 export type AppTheme = ThemeName | 'system';
 

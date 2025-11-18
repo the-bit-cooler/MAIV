@@ -43,8 +43,12 @@ import { IconSymbol } from '@/components/icon-symbol';
 import { ThemedText } from '@/components/themed-text';
 import { useAppContext, useThemeColor, useVerseContextMenu } from '@/hooks';
 import type { BibleChapterPage, PageState, Verse } from '@/types';
-import { getBibleBookChapterCount, getBibleBookList } from '@/utilities/bible';
-import { getLargeCache, setLargeCache } from '@/utilities/cache';
+import {
+  getBibleBookChapterCount,
+  getBibleBookList,
+  getLargeCache,
+  setLargeCache,
+} from '@/utilities';
 
 // ============================================================================
 // ⚙️ Function Component & Props

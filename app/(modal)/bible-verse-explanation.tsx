@@ -10,10 +10,14 @@ import { IconSymbol } from '@/components/icon-symbol';
 import ParallaxScrollView from '@/components/parallax-scroll-view';
 import { ThemedText } from '@/components/themed-text';
 import { useAppContext, useThemeColor } from '@/hooks';
-import { getBibleVersionDisplayName } from '@/utilities/bible';
-import { getLargeCache, setLargeCache, TTL } from '@/utilities/cache';
-import { getUserDirective } from '@/utilities/getUserDirective';
-import { shareMarkdownPdf } from '@/utilities/shareMarkdownPdf';
+import {
+  getBibleVersionDisplayName,
+  getLargeCache,
+  getUserDirective,
+  setLargeCache,
+  shareMarkdownPdf,
+  TTL,
+} from '@/utilities';
 
 type BibleVerseExplanationRouteParams = {
   version: string;

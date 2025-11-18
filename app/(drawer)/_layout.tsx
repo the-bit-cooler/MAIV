@@ -26,7 +26,7 @@ import { IconSymbol } from '@/components/icon-symbol';
 import SignInButton from '@/components/sign-in-button';
 import { ThemedText } from '@/components/themed-text';
 import { useAppContext, useThemeColor } from '@/hooks';
-import { getKeyListOfSupportedBibleVersions, getSupportedBibleVersions } from '@/utilities/bible';
+import { getKeyListOfSupportedBibleVersions, getSupportedBibleVersions } from '@/utilities';
 
 // ============================================================================
 // ⚙️ Function Component & Props

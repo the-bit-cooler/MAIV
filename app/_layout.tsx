@@ -6,7 +6,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 
 import { AppProvider, useThemeColor } from '@/hooks';
-import { purgeExpiredCache, purgeExpiredLargeCache } from '@/utilities/cache';
+import { purgeExpiredCache, purgeExpiredLargeCache } from '@/utilities';
 
 // Instruct SplashScreen not to hide yet, we want to do this manually
 SplashScreen.preventAutoHideAsync().catch(() => {

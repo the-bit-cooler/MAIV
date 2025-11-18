@@ -65,7 +65,7 @@ export const getKeyListOfSupportedBibleVersions = (): string[] => {
   return SUPPORTED_KEYS;
 };
 
-export const getSupportedBibleVersionFullnames = (): string[] => {
+export const getSupportedBibleVersionFullNames = (): string[] => {
   return SUPPORTED_FULLNAMES;
 };
 

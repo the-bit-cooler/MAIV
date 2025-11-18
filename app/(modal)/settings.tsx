@@ -15,7 +15,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { AiModeValues, AppDefaults, Colors } from '@/constants';
 import { AppTheme, useAppContext, useThemeColor } from '@/hooks';
-import { clearCache, clearLargeCache } from '@/utilities/cache';
+import { clearCache, clearLargeCache } from '@/utilities';
 
 export default function SettingsModal() {
   const { theme, setTheme } = useAppContext();
