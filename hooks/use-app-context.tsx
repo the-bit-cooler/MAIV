@@ -10,7 +10,7 @@ import { AppDefaults } from '@/constants/app-defaults';
 import { DarkNavTheme, LightNavTheme, SepiaNavTheme } from '@/constants/navigation-theme';
 import { ThemeName } from '@/constants/theme';
 import { UserPreferences } from '@/constants/user-preferences';
-import { ReadingLocation } from '@/types/reading-location';
+import type { ReadingLocation } from '@/types';
 import { getCache, setCache } from '@/utilities/cache';
 
 export type AppTheme = ThemeName | 'system';
