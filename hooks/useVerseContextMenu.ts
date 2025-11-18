@@ -5,7 +5,7 @@ import { useActionSheet } from '@expo/react-native-action-sheet';
 import * as Clipboard from 'expo-clipboard';
 import { useRouter } from 'expo-router';
 
-import { Verse } from '@/types/verse';
+import { Verse } from '@/types';
 
 export function useVerseContextMenu() {
   const router = useRouter();

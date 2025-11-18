@@ -7,7 +7,7 @@ import AiThinkingIndicator from '@/components/ai-thinking-indicator';
 import ParallaxScrollView from '@/components/parallax-scroll-view';
 import { ThemedText } from '@/components/themed-text';
 import { useAppContext, useThemeColor } from '@/hooks';
-import { Verse } from '@/types/verse';
+import { Verse } from '@/types';
 import { getBibleVersionDisplayName } from '@/utilities/bible';
 
 type SimilarBibleVerseRouteParams = {
