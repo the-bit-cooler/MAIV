@@ -7,10 +7,7 @@ import {
 import { useEffect, useState } from 'react';
 import { Alert, Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
-import * as SecureStore from 'expo-secure-store';
-
 import ContinueWithGoogleButton from '@/assets/images/google-sign-in-button';
-import { UserPreferences } from '@/constants';
 import { useAppContext, useThemeColor, useSignIn } from '@/hooks';
 
 export function SignInButton() {
@@ -32,8 +29,7 @@ export function SignInButton() {
       setDisabled(true);
       await GoogleSignin.signOut();
       // Clear your local session data
-      await SecureStore.deleteItemAsync(UserPreferences.session_token);
-      setSessionToken(null);
+      await setSessionToken(null);
       Alert.alert('Signed Out 👋', 'You have been securely signed out.');
     } catch (error) {
       console.error('Error during sign-out:', error);

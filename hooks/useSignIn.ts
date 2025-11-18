@@ -1,9 +1,6 @@
 import { useCallback } from 'react';
 import { Alert } from 'react-native';
 
-import * as SecureStore from 'expo-secure-store';
-
-import { UserPreferences } from '@/constants';
 import { useAppContext } from '@/hooks/useAppContext';
 
 export function useSignIn() {
@@ -25,8 +22,7 @@ export function useSignIn() {
             newUser: boolean;
           };
           if (sessionToken) {
-            setSessionToken(sessionToken);
-            await SecureStore.setItemAsync(UserPreferences.session_token, sessionToken);
+            await setSessionToken(sessionToken);
 
             if (newUser) {
               Alert.alert('Welcome ✨', 'Your account has been created and verified successfully.');

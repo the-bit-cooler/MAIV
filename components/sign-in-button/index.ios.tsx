@@ -2,9 +2,7 @@ import { useState } from 'react';
 import { Alert, Pressable, Text } from 'react-native';
 
 import * as AppleAuthentication from 'expo-apple-authentication';
-import * as SecureStore from 'expo-secure-store';
 
-import { UserPreferences } from '@/constants';
 import { useAppContext, useThemeColor, useSignIn } from '@/hooks';
 
 export function SignInButton() {
@@ -19,8 +17,7 @@ export function SignInButton() {
     try {
       setDisabled(true);
       // Clear your local session data
-      await SecureStore.deleteItemAsync(UserPreferences.session_token);
-      setSessionToken(null);
+      await setSessionToken(null);
       Alert.alert('Signed Out 👋', 'You have been securely signed out.');
     } catch (error) {
       console.error('Error during sign-out:', error);

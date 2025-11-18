@@ -172,10 +172,11 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
           });
 
           if (response.ok) {
+            // Just set state, no need to store again
             setSessionTokenState(storedToken);
           } else if (response.status === 401) {
-            await SecureStore.deleteItemAsync(UserPreferences.session_token);
-            setSessionTokenState(null);
+            // Clear state and stored token
+            await setSessionToken(null);
             Alert.alert(
               'Session Expired ⏰',
               'Your secure MAIV session has expired. Please sign in again.',
