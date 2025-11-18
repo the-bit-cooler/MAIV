@@ -65,7 +65,7 @@ const defaultReadingLocation: ReadingLocation = {
   bible: {
     book: AppDefaults.bibleBook,
     chapter: 1,
-    page: 0,
+    page: 1,
   },
 };
 

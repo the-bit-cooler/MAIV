@@ -7,7 +7,6 @@ import type * as ReactNative from 'react-native';
 import {
   Animated,
   I18nManager,
-  Platform,
   StyleSheet,
   TouchableOpacity,
   useWindowDimensions,
@@ -34,7 +33,6 @@ import { FlashList, FlashListRef } from '@shopify/flash-list';
 import { bookCovers } from '@/assets/images/book-covers';
 import RNCViewPager, {
   Commands as BibleBookReaderNativeCommands,
-  OnPageScrollEventData,
   OnPageScrollStateChangedEventData,
   OnPageSelectedEventData,
 } from '@/components/bible-book-reader/native-component';
@@ -46,7 +44,7 @@ import { ThemedText } from '@/components/themed-text';
 import { useAppContext } from '@/hooks/use-app-context';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { useVerseContextMenu } from '@/hooks/use-verse-context-menu';
-import type { BibleChapterPage, Verse } from '@/types';
+import type { BibleChapterPage, PageState, Verse } from '@/types';
 import { getBibleBookChapterCount, getBibleBookList } from '@/utilities/bible';
 import { getLargeCache, setLargeCache } from '@/utilities/cache';
 
@@ -82,11 +80,15 @@ export function BibleBookReader({ version, timestamp }: BibleBookReaderProps) {
   // ============================================================================
 
   const [loading, setLoading] = useState(true);
+  const [isPagerReady, setIsPagerReady] = useState(false);
   const [location, setLocation] = useState<string>(
     `${savedReadingLocation.bible.book}:${savedReadingLocation.bible.chapter}`,
   );
-  const [page, setPage] = useState<number>(savedReadingLocation.bible.page);
-  const [verse, setVerse] = useState(savedReadingLocation.bible.page);
+  const [page, setPage] = useState<PageState>({
+    location: location,
+    at: savedReadingLocation.bible.page,
+  });
+  const [verse, setVerse] = useState(0);
   const [verses, setVerses] = useState<Verse[] | null>(null);
   const [pages, setPages] = useState<BibleChapterPage[] | null>(null);
   const [heights, setHeights] = useState<Record<number, number>>({});
@@ -99,12 +101,11 @@ export function BibleBookReader({ version, timestamp }: BibleBookReaderProps) {
   // ============================================================================
 
   const nativeRef = useRef<any>(null);
+  const isFirstMount = useRef(true);
   const isScrollingRef = useRef(false);
-  const prevScrollState = useRef<'idle' | 'dragging' | 'settling'>('idle');
-  const userSelectedVerse = useRef(false);
+  const userSelectedVerseRef = useRef(false);
   const flashListRef = useRef<FlashListRef<Verse>>(null);
-  const fadeAnim = useRef(new Animated.Value(1)).current;
-  // const lastManualSelectionRef = useRef<number | null>(null);
+  const fadeAnimRef = useRef(new Animated.Value(1)).current;
 
   // ============================================================================
   // 📐 CONSTANTS
@@ -126,12 +127,13 @@ export function BibleBookReader({ version, timestamp }: BibleBookReaderProps) {
 
   const { book, chapter } = useMemo(() => getBookChapter(location), [location, getBookChapter]);
 
-  const updateLocation = useCallback((book: string, chapter: number, page?: number) => {
-    setLocation(`${book}:${chapter}`);
-    if (page != null) setPage(page);
-  }, []);
+  const chapterCount = getBibleBookChapterCount(book);
 
-  const chapterCount = useMemo(() => getBibleBookChapterCount(book), [book]);
+  const updateLocation = useCallback((book: string, chapter: number, page?: number) => {
+    const newLocation = `${book}:${chapter}`;
+    setLocation(newLocation);
+    setPage({ location: newLocation, at: page ?? 0 });
+  }, []);
 
   const resolvedLayoutDirection = useMemo(() => {
     return I18nManager.isRTL ? 'rtl' : 'ltr';
@@ -143,17 +145,12 @@ export function BibleBookReader({ version, timestamp }: BibleBookReaderProps) {
   }, []);
 
   const totalChapterVerseCount = useMemo(() => {
-    try {
-      if (verses) return verses.length;
-      if (pages) return pages.reduce((sum, p) => sum + p.verses.length, 0);
-    } catch (error) {
-      console.error('ViewableVersesPage.useMemo() => totalChapterVerseCount()', error);
-    }
-    return 0;
-  }, [verses, pages]);
+    if (!pages?.length) return 0;
+    return pages.reduce((sum, p) => sum + p.verses.length, 0);
+  }, [pages]);
 
   const verseToPageMap = useMemo(() => {
-    if (!pages) return {};
+    if (!pages?.length) return {};
 
     const map: Record<number, number> = {};
 
@@ -166,24 +163,33 @@ export function BibleBookReader({ version, timestamp }: BibleBookReaderProps) {
     return map;
   }, [pages]);
 
-  const handlePagingTransition = useCallback(
-    (transition: 'NEXT_PAGE' | 'PREV_PAGE') => {
-      const chapterCount = getBibleBookChapterCount(book);
+  // ============================================================================
+  // 🎛 HANDLERS
+  // ============================================================================
 
-      // Going NEXT
-      if (transition === 'NEXT_PAGE') {
-        if (chapter < chapterCount) {
-          updateLocation(book, chapter + 1);
-        } else {
-          const bookIndex = bibleBooks.indexOf(book);
-          if (bookIndex < bibleBooks.length - 1) {
-            updateLocation(bibleBooks[bookIndex + 1], chapter);
-          }
-        }
+  const onPageTurnStateChanged = useCallback(
+    ({
+      nativeEvent: { pageScrollState },
+    }: ReactNative.NativeSyntheticEvent<OnPageScrollStateChangedEventData>) => {
+      if (pageScrollState === 'dragging') {
+        isScrollingRef.current = true;
       }
+    },
+    [],
+  );
 
-      // Going PREVIOUS
-      if (transition === 'PREV_PAGE') {
+  const onPageTurned = useCallback(
+    ({ nativeEvent: { position } }: ReactNative.NativeSyntheticEvent<OnPageSelectedEventData>) => {
+      if (!isScrollingRef.current || !pages?.length) return;
+
+      const totalPages = 1 + pages.length + 2; // summary + verse pages + 2 placeholders
+      const lastIndex = totalPages - 1;
+
+      const book = pages[0].verses[0].book;
+      const chapter = pages[0].verses[0].chapter;
+
+      // <-- PREVIOUS Chapter or Book-->
+      if (position === 0) {
         if (chapter > 1) {
           updateLocation(book, chapter - 1, -1);
         } else {
@@ -195,115 +201,22 @@ export function BibleBookReader({ version, timestamp }: BibleBookReaderProps) {
           }
         }
       }
-    },
-    [book, chapter, updateLocation, bibleBooks],
-  );
 
-  const measureView = useMemo(() => {
-    if (!verses || pages) return null;
-    // console.log(`PROFILING LOG: Measuring Chapter ${chapter} Pages: Render`);
-    return (
-      <>
-        <CenteredActivityIndicator hint="Loading Chapter" size="large" />
-        <View
-          style={{
-            position: 'absolute',
-            opacity: 0,
-            pointerEvents: 'none',
-          }}
-        >
-          {verses.map((verse, i) => (
-            <View
-              key={verse.verse}
-              onLayout={(e) => {
-                try {
-                  const { height } = e.nativeEvent.layout;
-                  setHeights((prev) => ({
-                    ...prev,
-                    [i]: height,
-                  }));
-                } catch (error) {
-                  console.error(
-                    'ViewableVersesPage.useMemo() => measureView() => onLayout()',
-                    error,
-                  );
-                }
-              }}
-            >
-              <View style={{ marginVertical: 7, paddingHorizontal: 16 }}>
-                <ThemedText type="subtitle">
-                  <ThemedText type="defaultSemiBold" style={{ fontWeight: 'bold', color: '#000' }}>
-                    {'     '}
-                    {verse.verse}
-                    {'   '}
-                  </ThemedText>
-                  {verse.text}
-                </ThemedText>
-              </View>
-            </View>
-          ))}
-        </View>
-      </>
-    );
-  }, [verses, pages]);
-
-  // ============================================================================
-  // 🎛 HANDLERS
-  // ============================================================================
-
-  const onPageTurn = useCallback(
-    ({
-      nativeEvent: { position, offset },
-    }: ReactNative.NativeSyntheticEvent<OnPageScrollEventData>) => {
-      if (!isScrollingRef.current) return;
-
-      // Overscroll at end → next chapter or next book
-      if (position >= (pages?.length ?? 0) && offset > 0) {
-        handlePagingTransition('NEXT_PAGE');
-      }
-
-      // Overscroll at beginning → previous chapter/book
-      if (position < 0 && offset > 0) {
-        handlePagingTransition('PREV_PAGE');
-      }
-    },
-    [pages?.length, handlePagingTransition],
-  );
-
-  const onPageTurnStateChanged = useCallback(
-    (e: ReactNative.NativeSyntheticEvent<OnPageScrollStateChangedEventData>) => {
-      const { pageScrollState } = e.nativeEvent;
-      isScrollingRef.current = pageScrollState === 'dragging';
-
-      if (Platform.OS === 'android') {
-        if (prevScrollState.current === 'dragging' && pageScrollState === 'idle') {
-          const currentPosition = page;
-          const totalVersePages = pages?.length ?? 0;
-          const totalPages = 1 + totalVersePages; // summary + verse pages
-
-          // Overscroll at beginning → previous chapter/book
-          if (currentPosition === 0) {
-            handlePagingTransition('PREV_PAGE');
-          }
-
-          // Overscroll at end → next chapter or next book
-          else if (currentPosition === totalPages - 1) {
-            handlePagingTransition('NEXT_PAGE');
+      // <-- NEXT Chapter or Book -->
+      else if (position === lastIndex) {
+        if (chapter < chapterCount) {
+          updateLocation(book, chapter + 1);
+        } else {
+          const bookIndex = bibleBooks.indexOf(book);
+          if (bookIndex < bibleBooks.length - 1) {
+            updateLocation(bibleBooks[bookIndex + 1], 1);
           }
         }
       }
 
-      prevScrollState.current = pageScrollState; // NEW: Update previous state
+      isScrollingRef.current = false;
     },
-    [page, pages?.length, handlePagingTransition],
-  );
-
-  const onPageTurned = useCallback(
-    (e: ReactNative.NativeSyntheticEvent<OnPageSelectedEventData>) => {
-      if (!isScrollingRef.current) return;
-      setPage(e.nativeEvent.position);
-    },
-    [],
+    [pages, bibleBooks, chapterCount, updateLocation],
   );
 
   const onShouldCapture = useCallback(() => {
@@ -315,10 +228,15 @@ export function BibleBookReader({ version, timestamp }: BibleBookReaderProps) {
   // ============================================================================
 
   useEffect(() => {
+    // --- Reset state for new chapter/book ---
+    setIsPagerReady(false);
+    setPages(null);
+    setVerses(null);
+    setHeights({});
     setLoading(true);
 
     async function loadBibleChapterVerses() {
-      if (!version || !book || !chapter) return;
+      const { book, chapter } = getBookChapter(location);
 
       // --- STEP 1: Try local cache ---
       const storageKey = constructStorageKey({
@@ -333,15 +251,6 @@ export function BibleBookReader({ version, timestamp }: BibleBookReaderProps) {
         if (cached) {
           setPages(cached);
           setLoading(false);
-          setVerses(null);
-          setHeights({});
-
-          console.log(
-            'BibleBookReader.useEffect() => loadBibleChapterVerses() => getLargeCache()',
-            storageKey,
-            'found',
-          );
-
           return;
         } else {
           console.warn(
@@ -366,12 +275,6 @@ export function BibleBookReader({ version, timestamp }: BibleBookReaderProps) {
         if (res.ok) {
           const verses = (await res.json()) as Verse[];
           setVerses(verses);
-
-          console.log(
-            'BibleBookReader.useEffect() => loadBibleChapterVerses() => fetch()',
-            apiUrl,
-            `HTTP STATUS ${res.status}: ${res.statusText || 'unknown'}`,
-          );
         } else {
           console.warn(
             'BibleBookReader.useEffect() => loadBibleChapterVerses() => fetch()',
@@ -389,9 +292,11 @@ export function BibleBookReader({ version, timestamp }: BibleBookReaderProps) {
     }
 
     loadBibleChapterVerses();
-  }, [version, book, chapter, constructStorageKey, constructAPIUrl]);
+  }, [version, location, getBookChapter, constructStorageKey, constructAPIUrl]);
 
   useEffect(() => {
+    const { book, chapter } = getBookChapter(location);
+
     navigation.setOptions({
       headerTitle: () => (
         <TouchableOpacity
@@ -416,7 +321,7 @@ export function BibleBookReader({ version, timestamp }: BibleBookReaderProps) {
         </TouchableOpacity>
       ),
     });
-  }, [navigation, book, chapter, accentColor]);
+  }, [navigation, location, accentColor, getBookChapter]);
 
   useEffect(() => {
     let timer = 0;
@@ -425,11 +330,11 @@ export function BibleBookReader({ version, timestamp }: BibleBookReaderProps) {
       try {
         // Reset state whenever timestamp changes
         setCoverVisible(true);
-        fadeAnim.setValue(1);
+        fadeAnimRef.setValue(1);
 
         // Fade out after 1.5 seconds
         timer = setTimeout(() => {
-          Animated.timing(fadeAnim, {
+          Animated.timing(fadeAnimRef, {
             toValue: 0,
             duration: 2000,
             useNativeDriver: true,
@@ -443,19 +348,18 @@ export function BibleBookReader({ version, timestamp }: BibleBookReaderProps) {
     showBookCover();
 
     return () => clearTimeout(timer);
-  }, [fadeAnim, timestamp]);
+  }, [fadeAnimRef, timestamp]);
 
   useEffect(() => {
     function measureChapterPages() {
       try {
-        if (!verses || Object.keys(heights).length !== verses.length) return;
+        if (!verses?.length || Object.keys(heights).length !== verses.length) return;
 
-        // console.log(`PROFILING LOG: Measuring Chapter ${chapter} Pages: useEffect`);
         const pages: BibleChapterPage[] = [];
         let currentPage: Verse[] = [];
         let totalHeight = 0;
         let pageNumber = 1; // (verses actually start on index 1 of pager view)
-        let startsAt = verses[0]?.verse ?? 1;
+        let startsAt = verses[0].verse;
 
         verses.forEach((verse, i) => {
           totalHeight += heights[i];
@@ -477,8 +381,8 @@ export function BibleBookReader({ version, timestamp }: BibleBookReaderProps) {
 
         const storageKey = constructStorageKey({
           version,
-          book,
-          chapter,
+          book: verses[0].book,
+          chapter: verses[0].chapter,
           suffix: 'pages',
         });
 
@@ -491,19 +395,42 @@ export function BibleBookReader({ version, timestamp }: BibleBookReaderProps) {
     }
 
     measureChapterPages();
-  }, [version, book, chapter, heights, safeViewHeight, verses, constructStorageKey]);
+  }, [version, heights, safeViewHeight, verses, constructStorageKey]);
+
+  useEffect(() => {
+    if (!pages?.length) return;
+
+    requestAnimationFrame(() => {
+      setIsPagerReady(true);
+    });
+  }, [pages]);
 
   useEffect(() => {
     function triggerPageJump() {
+      if (!isPagerReady) return;
       if (!nativeRef.current) return;
+      if (!pages?.length) return;
+
+      // abort the very first mount — pager is already naturally at correct position
+      if (isFirstMount.current) {
+        isFirstMount.current = false;
+        return;
+      }
+
+      const book = pages[0].verses[0].book;
+      const chapter = pages[0].verses[0].chapter;
+      const currentLocation = `${book}:${chapter}`;
+
+      // Only jump if location matches
+      if (page.location !== currentLocation) return;
 
       try {
         // If user didn't manually drag, trigger programmatic jump
         if (!isScrollingRef.current) {
-          const goToPage = page === -1 ? (pages?.length ?? 0) : page;
-          requestAnimationFrame(() =>
-            BibleBookReaderNativeCommands.setPageWithoutAnimation(nativeRef.current, goToPage),
-          );
+          const goToPage = page.at === -1 ? pages.length + 1 : page.at + 1; // account for summary + placeholder pages
+          requestAnimationFrame(() => {
+            BibleBookReaderNativeCommands.setPageWithoutAnimation(nativeRef.current, goToPage);
+          });
         }
       } catch (error) {
         console.error('BibleBookReader.useEffect() => triggerPageJump()', error);
@@ -511,17 +438,17 @@ export function BibleBookReader({ version, timestamp }: BibleBookReaderProps) {
     }
 
     triggerPageJump();
-  }, [page, pages?.length]);
+  }, [isPagerReady, page, pages]);
 
   useEffect(() => {
     function setPickerToFirstVerseOnPage() {
       // If user triggered the page change, do NOT override
-      if (userSelectedVerse.current) {
-        userSelectedVerse.current = false;
+      if (userSelectedVerseRef.current) {
+        userSelectedVerseRef.current = false;
         return;
       }
 
-      setVerse(getFirstVerseOnPage(page, verseToPageMap));
+      setVerse(getFirstVerseOnPage(page.at, verseToPageMap));
     }
 
     setPickerToFirstVerseOnPage();
@@ -534,49 +461,92 @@ export function BibleBookReader({ version, timestamp }: BibleBookReaderProps) {
   return (
     <View style={styles.container}>
       {coverVisible && (
-        <Animated.View style={[styles.bookCoverContainer, { opacity: fadeAnim }]}>
+        <Animated.View style={[styles.bookCoverContainer, { opacity: fadeAnimRef }]}>
           <Image style={styles.bookCover} source={bookCovers[version]} contentFit="fill" />
         </Animated.View>
       )}
+      {/* Measuring view (always renders when needed, independent of ViewPager) */}
+      {verses?.length && !pages?.length && (
+        <View
+          style={{
+            position: 'absolute',
+            opacity: 0,
+            pointerEvents: 'none',
+          }}
+        >
+          {verses.map((verse, i) => (
+            <View
+              key={verse.verse}
+              onLayout={(e) => {
+                try {
+                  const { height } = e.nativeEvent.layout;
+                  setHeights((prev) => ({
+                    ...prev,
+                    [i]: height,
+                  }));
+                } catch (error) {
+                  console.error('BibleBookReader.render() => measureView => onLayout()', error);
+                }
+              }}
+            >
+              <View style={{ marginVertical: 7, paddingHorizontal: 16 }}>
+                <ThemedText type="subtitle">
+                  <ThemedText type="defaultSemiBold" style={{ fontWeight: 'bold', color: '#000' }}>
+                    {'     '}
+                    {verse.verse}
+                    {'   '}
+                  </ThemedText>
+                  {verse.text}
+                </ThemedText>
+              </View>
+            </View>
+          ))}
+        </View>
+      )}
       <RNCViewPager
         ref={nativeRef}
-        initialPage={page}
-        overdrag={true} // iOS
-        overScrollMode="always" // Android
+        initialPage={page.at}
+        overdrag={false} // iOS
+        overScrollMode="never" // Android
         layoutDirection={resolvedLayoutDirection}
-        onPageScroll={onPageTurn}
         onPageScrollStateChanged={onPageTurnStateChanged}
         onPageSelected={onPageTurned}
         onMoveShouldSetResponderCapture={onShouldCapture}
         style={styles.pager}
       >
-        {useMemo(
-          () => (
-            <View
-              key={`summary-${book}-${chapter}`}
-              style={[StyleSheet.absoluteFill, styles.page]}
-              collapsable={false}
-            >
-              <BibleChapterSummary book={book} chapter={chapter} />
-            </View>
-          ),
-          [book, chapter],
-        )}
-        {useMemo(() => {
-          // CASE 1 — loading or no data → render placeholder as PAGE 0
-          if (loading || !pages) {
-            return [
+        {/* Start placeholder page used to help track swipes back beyond the first page */}
+        <View
+          key={`start-placeholder`}
+          style={[StyleSheet.absoluteFill, styles.page]}
+          collapsable={false}
+        >
+          <CenteredActivityIndicator hint="Loading Chapter" size="large" />
+        </View>
+        {/* Summary page */}
+        <View
+          key={`summary-${book}-${chapter}`}
+          style={[StyleSheet.absoluteFill, styles.page]}
+          collapsable={false}
+        >
+          <BibleChapterSummary book={book} chapter={chapter} />
+        </View>
+        {/* Verse pages */}
+        {(() => {
+          if (loading || !pages?.length) {
+            return (
               <View
-                key={`measuring-verses-${book}-${chapter}`}
+                key="loading-verses"
                 style={[StyleSheet.absoluteFill, styles.page]}
                 collapsable={false}
               >
-                {measureView}
-              </View>,
-            ];
+                <CenteredActivityIndicator hint="Loading Verses" size="large" />
+              </View>
+            );
           }
 
-          // CASE 2 — render actual pages
+          const book = pages[0].verses[0].book;
+          const chapter = pages[0].verses[0].chapter;
+
           return pages.map((page, index) => (
             <View
               key={`verses-${book}-${chapter}-${index}`}
@@ -586,7 +556,7 @@ export function BibleBookReader({ version, timestamp }: BibleBookReaderProps) {
               <FlashList
                 ref={flashListRef}
                 data={page.verses}
-                keyExtractor={(v) => `${book}-${chapter}-${v.verse.toString()}`}
+                keyExtractor={(v) => `${book}-${chapter}-${v.verse}`}
                 renderItem={({ item }) => (
                   <TouchableOpacity onLongPress={() => onContextMenu(item)}>
                     <View style={{ marginVertical: 7, paddingHorizontal: 16 }}>
@@ -607,10 +577,18 @@ export function BibleBookReader({ version, timestamp }: BibleBookReaderProps) {
               />
             </View>
           ));
-        }, [loading, pages, book, chapter, measureView, verseNumberColor, onContextMenu])}
+        })()}
+        {/* End placeholder page used to help track swipes beyond the last page */}
+        <View
+          key={`end-placeholder`}
+          style={[StyleSheet.absoluteFill, styles.page]}
+          collapsable={false}
+        >
+          <CenteredActivityIndicator hint="Loading Chapter" size="large" />
+        </View>
       </RNCViewPager>
       {showPicker && (
-        <View style={modalStyles.overlay}>
+        <View key={`modal-${book}-${chapter}`} style={modalStyles.overlay}>
           <View style={[modalStyles.card, { backgroundColor: cardBackground }]}>
             {/* HEADER */}
             <View style={modalStyles.header}>
@@ -669,7 +647,7 @@ export function BibleBookReader({ version, timestamp }: BibleBookReaderProps) {
                     ]}
                     selectedValue={verse}
                     onSelect={(vs: number) => {
-                      userSelectedVerse.current = true;
+                      userSelectedVerseRef.current = true;
                       setVerse(vs);
                       updateLocation(book, chapter, vs === 0 ? 0 : (verseToPageMap[vs] ?? 1));
                     }}
