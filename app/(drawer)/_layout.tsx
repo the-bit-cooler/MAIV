@@ -91,7 +91,7 @@ function CustomDrawerContent(props: DrawerContentComponentProps) {
   // 🪝 HOOKS (Derived Values)
   // ============================================================================
 
-  const { readingLocation, setReadingLocation } = useAppContext();
+  const { setReadingLocation } = useAppContext();
 
   const activeTintColor = useThemeColor({}, 'tint');
   const inactiveTintColor = useThemeColor({}, 'text');
@@ -138,11 +138,13 @@ function CustomDrawerContent(props: DrawerContentComponentProps) {
               ? descriptor.options.title
               : route.name;
 
+        const isFocused = props.state.routes[props.state.index].name === version;
+
         return (
           <DrawerItem
             key={route.key}
             label={label}
-            focused={version === readingLocation.drawerSelection}
+            focused={isFocused}
             activeTintColor={activeTintColor} // Customize active/inactive colors
             inactiveTintColor={inactiveTintColor}
             onPress={async () => {
