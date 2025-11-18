@@ -12,7 +12,7 @@ import {
   LightNavTheme,
   SepiaNavTheme,
   ThemeName,
-  UserPreferences,
+  CacheKeys,
 } from '@/constants';
 import type { ReadingLocation } from '@/types';
 import { getCache, setCache } from '@/utilities';
@@ -148,11 +148,11 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       try {
         // Run all async loads in parallel
         const [storedLoc, storedAiMode, storedSound, storedTheme, storedToken] = await Promise.all([
-          getCache<ReadingLocation>(UserPreferences.reading_location),
-          getCache<string>(UserPreferences.ai_mode),
-          getCache<boolean>(UserPreferences.ai_thinking_sound_enabled),
-          getCache<AppTheme>(UserPreferences.app_theme),
-          SecureStore.getItemAsync(UserPreferences.session_token),
+          getCache<ReadingLocation>(CacheKeys.reading_location),
+          getCache<string>(CacheKeys.ai_mode),
+          getCache<boolean>(CacheKeys.ai_thinking_sound_enabled),
+          getCache<AppTheme>(CacheKeys.app_theme),
+          SecureStore.getItemAsync(CacheKeys.session_token),
         ]);
 
         if (storedLoc) setReadingLocationState(storedLoc);
@@ -221,7 +221,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     const saveReadingLocation = async () => {
       if (readingLocation && !isInitialMount.current) {
         try {
-          await setCache(UserPreferences.reading_location, readingLocation);
+          await setCache(CacheKeys.reading_location, readingLocation);
         } catch (error) {
           console.error('AppProvider.useEffect() => saveReadingLocation()', error);
         }
@@ -299,8 +299,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const setSessionToken = async (token: string | null) => {
     try {
       setSessionTokenState(token);
-      if (token) await SecureStore.setItemAsync(UserPreferences.session_token, token);
-      else await SecureStore.deleteItemAsync(UserPreferences.session_token);
+      if (token) await SecureStore.setItemAsync(CacheKeys.session_token, token);
+      else await SecureStore.deleteItemAsync(CacheKeys.session_token);
     } catch (error) {
       console.error('AppProvider.setSessionToken()', error);
     }
@@ -309,7 +309,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const setAiMode = async (mode: string) => {
     try {
       setAiModeState(mode);
-      await setCache(UserPreferences.ai_mode, mode);
+      await setCache(CacheKeys.ai_mode, mode);
     } catch (error) {
       console.error('AppProvider.setAiMode()', error);
     }
@@ -318,7 +318,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const setAiThinkingSoundEnabled = async (value: boolean) => {
     try {
       setAiThinkingSoundEnabledState(value);
-      await setCache(UserPreferences.ai_thinking_sound_enabled, value);
+      await setCache(CacheKeys.ai_thinking_sound_enabled, value);
     } catch (error) {
       console.error('AppProvider.setAiThinkingSoundEnabled()', error);
     }
@@ -327,7 +327,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const setTheme = async (value: AppTheme) => {
     try {
       setThemeState(value);
-      await setCache(UserPreferences.app_theme, value);
+      await setCache(CacheKeys.app_theme, value);
     } catch (error) {
       console.error('AppProvider.setTheme()', error);
     }

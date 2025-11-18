@@ -1,4 +1,4 @@
-export const UserPreferences = {
+export const CacheKeys = {
   app_theme: 'app_theme',
   reading_location: 'reading_location',
   ai_mode: 'ai_mode',
