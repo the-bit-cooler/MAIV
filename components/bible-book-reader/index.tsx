@@ -31,12 +31,12 @@ import { FlashList, FlashListRef } from '@shopify/flash-list';
 // ============================================================================
 
 import { bookCovers } from '@/assets/images/book-covers';
+import { BibleChapterSummary } from '@/components/bible-book-reader/bible-chapter-summary';
 import RNCViewPager, {
   Commands as BibleBookReaderNativeCommands,
   OnPageScrollStateChangedEventData,
   OnPageSelectedEventData,
 } from '@/components/bible-book-reader/native-component';
-import { BibleChapterSummary } from '@/components/bible-chapter-summary';
 import { CenteredActivityIndicator } from '@/components/centered-activity-indicator';
 import { Dropdown } from '@/components/dropdown';
 import { IconSymbol } from '@/components/icon-symbol';
