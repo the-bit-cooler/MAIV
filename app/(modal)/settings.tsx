@@ -35,7 +35,7 @@ export default function SettingsModal() {
               await clearCache();
               await clearLargeCache();
               Alert.alert('Cleared', 'All app data has been cleared.');
-              setTheme(AppDefaults.theme); // reset theme to system default
+              await setTheme(AppDefaults.theme); // reset theme to system default
             } catch (err) {
               Alert.alert('Error', 'Something went wrong! Pleas try again later.');
               console.error('Error clearing app data: ', err);
@@ -144,7 +144,7 @@ const AiModeSection = ({ headerColor, optionColor, selectedColor }: AiModeSectio
               styles.optionButton,
               { borderColor: isSelected ? selectedColor : 'transparent' },
             ]}
-            onPress={() => setAiMode(option)}
+            onPress={async () => await setAiMode(option)}
           >
             <ThemedText style={{ color: isSelected ? selectedColor : optionColor }}>
               {option.charAt(0).toUpperCase() + option.slice(1)}
@@ -156,7 +156,7 @@ const AiModeSection = ({ headerColor, optionColor, selectedColor }: AiModeSectio
         <ThemedText style={styles.soundToggleLabel}>Enable Thinking Sound</ThemedText>
         <Switch
           value={aiThinkingSoundEnabled}
-          onValueChange={(value) => setAiThinkingSoundEnabled(value)}
+          onValueChange={async (value) => await setAiThinkingSoundEnabled(value)}
         />
       </View>
     </View>

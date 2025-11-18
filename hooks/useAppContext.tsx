@@ -228,8 +228,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       }
     };
 
-    const subscription = AppState.addEventListener('change', (state) => {
-      if (state === 'background') saveReadingLocation(); // Save when app is placed in background
+    const subscription = AppState.addEventListener('change', async (state) => {
+      if (state === 'background') await saveReadingLocation(); // Save when app is placed in background
     });
 
     if (isInitialMount.current) {

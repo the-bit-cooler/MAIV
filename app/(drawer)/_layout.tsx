@@ -145,8 +145,8 @@ function CustomDrawerContent(props: DrawerContentComponentProps) {
             focused={version === readingLocation.drawerSelection}
             activeTintColor={activeTintColor} // Customize active/inactive colors
             inactiveTintColor={inactiveTintColor}
-            onPress={() => {
-              setReadingLocation({ drawerSelection: version });
+            onPress={async () => {
+              await setReadingLocation({ drawerSelection: version });
               props.navigation.navigate(version, { timestamp: Date.now() });
             }}
           />
