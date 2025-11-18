@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type * as ReactNative from 'react-native';
 import {
   Animated,
+  AppState,
   I18nManager,
   StyleSheet,
   TouchableOpacity,
@@ -65,6 +66,7 @@ export function BibleBookReader({ version, timestamp }: BibleBookReaderProps) {
   // ============================================================================
   const {
     readingLocation: savedReadingLocation,
+    setReadingLocation,
     constructStorageKey,
     constructAPIUrl,
   } = useAppContext();
@@ -406,6 +408,33 @@ export function BibleBookReader({ version, timestamp }: BibleBookReaderProps) {
       setIsPagerReady(true);
     });
   }, [pages]);
+
+  useEffect(() => {
+    const saveReadingLocation = async () => {
+      if (book && chapter && page && !isFirstMount.current) {
+        try {
+          await setReadingLocation({
+            bible: {
+              book,
+              chapter,
+              page: page.at,
+            },
+          });
+        } catch (error) {
+          console.error('BibleBookReader.useEffect() => saveReadingLocation()', error);
+        }
+      }
+    };
+
+    const subscription = AppState.addEventListener('change', async (state) => {
+      if (state === 'background') await saveReadingLocation(); // Save when app is placed in background
+    });
+
+    return () => {
+      subscription.remove();
+      saveReadingLocation(); // Save on unmount
+    };
+  }, [book, chapter, page, setReadingLocation]);
 
   useEffect(() => {
     function triggerPageJump() {
