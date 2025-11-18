@@ -4,7 +4,7 @@ import {
   Theme,
 } from '@react-navigation/native';
 
-import { Colors } from '@/constants';
+import { Colors } from '@/constants/theme';
 
 export const LightNavTheme: Theme = {
   ...NavDefaultTheme, // ✅ brings in fonts + other defaults

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Appearance } from 'react-native';
 
 import { Colors } from '@/constants';
-import { useAppContext } from '@/hooks';
+import { useAppContext } from '@/hooks/useAppContext';
 
 export function useThemeColor(
   props: { light?: string; dark?: string; sepia?: string; error?: string },

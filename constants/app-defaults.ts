@@ -1,6 +1,5 @@
-import { AiModes } from '@/constants';
-
-import { ThemeName } from './theme';
+import { AiModes } from '@/constants/ai-modes';
+import { ThemeName } from '@/constants/theme';
 
 export const AppDefaults = {
   drawerSelection: 'MAIV',
