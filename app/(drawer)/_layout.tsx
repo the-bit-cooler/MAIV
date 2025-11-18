@@ -25,8 +25,7 @@ import { Drawer } from 'expo-router/drawer';
 import { IconSymbol } from '@/components/icon-symbol';
 import SignInButton from '@/components/sign-in-button';
 import { ThemedText } from '@/components/themed-text';
-import { useAppContext } from '@/hooks/use-app-context';
-import { useThemeColor } from '@/hooks/use-theme-color';
+import { useAppContext, useThemeColor } from '@/hooks';
 import { getKeyListOfSupportedBibleVersions, getSupportedBibleVersions } from '@/utilities/bible';
 
 // ============================================================================

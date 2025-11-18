@@ -16,8 +16,7 @@ import { ThemedView } from '@/components/themed-view';
 import { AiModeValues } from '@/constants/ai-modes';
 import { AppDefaults } from '@/constants/app-defaults';
 import { Colors } from '@/constants/theme';
-import { AppTheme, useAppContext } from '@/hooks/use-app-context';
-import { useThemeColor } from '@/hooks/use-theme-color';
+import { AppTheme, useAppContext, useThemeColor } from '@/hooks';
 import { clearCache, clearLargeCache } from '@/utilities/cache';
 
 export default function SettingsModal() {

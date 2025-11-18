@@ -5,9 +5,7 @@ import * as AppleAuthentication from 'expo-apple-authentication';
 import * as SecureStore from 'expo-secure-store';
 
 import { UserPreferences } from '@/constants/user-preferences';
-import { useAppContext } from '@/hooks/use-app-context';
-import { useSignIn } from '@/hooks/use-sign-in';
-import { useThemeColor } from '@/hooks/use-theme-color';
+import { useAppContext, useThemeColor, useSignIn } from '@/hooks';
 
 export default function SignInButton() {
   const [disabled, setDisabled] = useState(false);

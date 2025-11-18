@@ -4,7 +4,7 @@ import { Animated, Easing, View } from 'react-native';
 import { AudioPlayer, createAudioPlayer } from 'expo-audio';
 
 import { ThemedText } from '@/components/themed-text';
-import { useAppContext } from '@/hooks/use-app-context';
+import { useAppContext } from '@/hooks';
 
 const SYMBOLS = [
   'α',

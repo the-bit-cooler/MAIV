@@ -41,9 +41,7 @@ import { CenteredActivityIndicator } from '@/components/centered-activity-indica
 import { Dropdown } from '@/components/dropdown';
 import { IconSymbol } from '@/components/icon-symbol';
 import { ThemedText } from '@/components/themed-text';
-import { useAppContext } from '@/hooks/use-app-context';
-import { useThemeColor } from '@/hooks/use-theme-color';
-import { useVerseContextMenu } from '@/hooks/use-verse-context-menu';
+import { useAppContext, useThemeColor, useVerseContextMenu } from '@/hooks';
 import type { BibleChapterPage, PageState, Verse } from '@/types';
 import { getBibleBookChapterCount, getBibleBookList } from '@/utilities/bible';
 import { getLargeCache, setLargeCache } from '@/utilities/cache';

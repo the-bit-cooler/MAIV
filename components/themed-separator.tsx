@@ -1,6 +1,6 @@
 import { View } from 'react-native';
 
-import { useThemeColor } from '@/hooks/use-theme-color';
+import { useThemeColor } from '@/hooks';
 
 export function HorizontalThemedSeparator({ marginVertical }: { marginVertical?: number }) {
   const borderColor = useThemeColor({}, 'border');

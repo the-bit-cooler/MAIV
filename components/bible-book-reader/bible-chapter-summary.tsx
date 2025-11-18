@@ -22,8 +22,7 @@ import { IconSymbol } from '@/components/icon-symbol';
 import ParallaxScrollView from '@/components/parallax-scroll-view';
 import { ThemedText } from '@/components/themed-text';
 import { blurhash } from '@/constants/blur-hash';
-import { useAppContext } from '@/hooks/use-app-context';
-import { useThemeColor } from '@/hooks/use-theme-color';
+import { useAppContext, useThemeColor } from '@/hooks';
 import { getLargeCache, setLargeCache, TTL } from '@/utilities/cache';
 import { shareMarkdownPdf } from '@/utilities/shareMarkdownPdf';
 

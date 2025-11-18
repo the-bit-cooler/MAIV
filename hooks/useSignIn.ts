@@ -4,7 +4,7 @@ import { Alert } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 
 import { UserPreferences } from '@/constants/user-preferences';
-import { useAppContext } from '@/hooks/use-app-context';
+import { useAppContext } from '@/hooks';
 
 export function useSignIn() {
   const { setSessionToken, constructAPIUrl } = useAppContext();

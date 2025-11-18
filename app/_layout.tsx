@@ -5,8 +5,7 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 
-import { AppProvider } from '@/hooks/use-app-context';
-import { useThemeColor } from '@/hooks/use-theme-color';
+import { AppProvider, useThemeColor } from '@/hooks';
 import { purgeExpiredCache, purgeExpiredLargeCache } from '@/utilities/cache';
 
 // Instruct SplashScreen not to hide yet, we want to do this manually
