@@ -4,7 +4,7 @@ import { Alert, Pressable, Text } from 'react-native';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import * as SecureStore from 'expo-secure-store';
 
-import { UserPreferences } from '@/constants/user-preferences';
+import { UserPreferences } from '@/constants';
 import { useAppContext, useThemeColor, useSignIn } from '@/hooks';
 
 export default function SignInButton() {

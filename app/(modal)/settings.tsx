@@ -13,9 +13,7 @@ import * as Application from 'expo-application';
 import { HorizontalThemedSeparator } from '@/components/themed-separator';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { AiModeValues } from '@/constants/ai-modes';
-import { AppDefaults } from '@/constants/app-defaults';
-import { Colors } from '@/constants/theme';
+import { AiModeValues, AppDefaults, Colors } from '@/constants';
 import { AppTheme, useAppContext, useThemeColor } from '@/hooks';
 import { clearCache, clearLargeCache } from '@/utilities/cache';
 

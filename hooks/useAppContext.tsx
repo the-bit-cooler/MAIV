@@ -6,10 +6,14 @@ import { ActionSheetProvider } from '@expo/react-native-action-sheet';
 import * as SecureStore from 'expo-secure-store';
 import * as SplashScreen from 'expo-splash-screen';
 
-import { AppDefaults } from '@/constants/app-defaults';
-import { DarkNavTheme, LightNavTheme, SepiaNavTheme } from '@/constants/navigation-theme';
-import { ThemeName } from '@/constants/theme';
-import { UserPreferences } from '@/constants/user-preferences';
+import {
+  AppDefaults,
+  DarkNavTheme,
+  LightNavTheme,
+  SepiaNavTheme,
+  ThemeName,
+  UserPreferences,
+} from '@/constants';
 import type { ReadingLocation } from '@/types';
 import { getCache, setCache } from '@/utilities/cache';
 

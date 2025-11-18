@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Appearance } from 'react-native';
 
-import { Colors } from '@/constants/theme';
+import { Colors } from '@/constants';
 import { useAppContext } from '@/hooks';
 
 export function useThemeColor(

@@ -3,7 +3,7 @@ import { Alert } from 'react-native';
 
 import * as SecureStore from 'expo-secure-store';
 
-import { UserPreferences } from '@/constants/user-preferences';
+import { UserPreferences } from '@/constants';
 import { useAppContext } from '@/hooks';
 
 export function useSignIn() {

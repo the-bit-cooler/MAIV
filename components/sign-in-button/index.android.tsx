@@ -10,7 +10,7 @@ import { Alert, Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 
 import ContinueWithGoogleButton from '@/assets/images/google-sign-in-button';
-import { UserPreferences } from '@/constants/user-preferences';
+import { UserPreferences } from '@/constants';
 import { useAppContext, useThemeColor, useSignIn } from '@/hooks';
 
 export default function SignInButton() {

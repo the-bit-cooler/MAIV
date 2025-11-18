@@ -9,7 +9,7 @@ import AiThinkingIndicator from '@/components/ai-thinking-indicator';
 import { IconSymbol } from '@/components/icon-symbol';
 import ParallaxScrollView from '@/components/parallax-scroll-view';
 import { ThemedText } from '@/components/themed-text';
-import { blurhash } from '@/constants/blur-hash';
+import { blurhash } from '@/constants';
 import { useAppContext, useThemeColor } from '@/hooks';
 import { getBibleVersionDisplayName } from '@/utilities/bible';
 import { getUserDirective } from '@/utilities/getUserDirective';
