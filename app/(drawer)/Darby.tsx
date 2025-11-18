@@ -1,6 +1,6 @@
 import { useLocalSearchParams } from 'expo-router';
 
-import { BibleBookReader } from '@/components/bible-book-reader';
+import { BibleBookReader } from '@/components';
 
 export default function Darby() {
   const { timestamp } = useLocalSearchParams<{ timestamp: string }>();

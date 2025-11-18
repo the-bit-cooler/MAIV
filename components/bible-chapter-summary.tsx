@@ -17,9 +17,9 @@ import { Image } from 'expo-image';
 // 🏠 Internal assets
 // ============================================================================
 
-import AiThinkingIndicator from '@/components/ai-thinking-indicator';
+import { AiThinkingIndicator } from '@/components/ai-thinking-indicator';
 import { IconSymbol } from '@/components/icon-symbol';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
+import { ParallaxScrollView } from '@/components/parallax-scroll-view';
 import { ThemedText } from '@/components/themed-text';
 import { blurhash } from '@/constants';
 import { useAppContext, useThemeColor } from '@/hooks';
@@ -106,13 +106,6 @@ export function BibleChapterSummary({ book, chapter }: BibleChapterSummaryProps)
         if (cached) {
           setSummary(cached);
           setLoading(false);
-
-          console.log(
-            'BibleChapterSummary.useEffect() => loadBibleChapterSummary() => getLargeCache()',
-            storageKey,
-            'found',
-          );
-
           return;
         } else {
           console.warn(
@@ -138,12 +131,6 @@ export function BibleChapterSummary({ book, chapter }: BibleChapterSummaryProps)
           const summaryText = await res.text();
           setSummary(summaryText);
           await setLargeCache(storageKey, summaryText, TTL.MONTH);
-
-          console.log(
-            'BibleChapterSummary.useEffect() => loadBibleChapterSummary() => fetch()',
-            storageUrl,
-            `HTTP STATUS ${res.status}: ${res.statusText || 'unknown'}`,
-          );
         } else {
           console.warn(
             'BibleChapterSummary.useEffect() => loadBibleChapterSummary() => fetch()',

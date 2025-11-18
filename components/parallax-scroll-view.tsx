@@ -23,11 +23,7 @@ type Props = PropsWithChildren<{
   };
 }>;
 
-export default function ParallaxScrollView({
-  children,
-  headerImage,
-  headerBackgroundColor,
-}: Props) {
+export function ParallaxScrollView({ children, headerImage, headerBackgroundColor }: Props) {
   const backgroundColor = useThemeColor({}, 'background');
   const { theme } = useAppContext();
   const colorScheme = theme ?? 'light';

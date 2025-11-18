@@ -30,7 +30,7 @@ const SYMBOLS = [
 ];
 const COLORS = ['#1E3A5F', '#2E5A7F', '#3B6B99', '#1A4566', '#2C5C80'];
 
-export default function AiThinkingIndicator() {
+export function AiThinkingIndicator() {
   const [chars, setChars] = useState<string[]>([]);
   const [colorIndex, setColorIndex] = useState(0);
   const fadeAnim = useRef(new Animated.Value(1)).current;

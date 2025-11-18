@@ -3,9 +3,7 @@ import { Platform, StyleSheet, View } from 'react-native';
 
 import { useLocalSearchParams } from 'expo-router';
 
-import AiThinkingIndicator from '@/components/ai-thinking-indicator';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
+import { AiThinkingIndicator, ParallaxScrollView, ThemedText } from '@/components';
 import { useAppContext, useThemeColor } from '@/hooks';
 import { Verse } from '@/types';
 import { getBibleVersionDisplayName } from '@/utilities';

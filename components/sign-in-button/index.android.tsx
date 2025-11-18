@@ -13,7 +13,7 @@ import ContinueWithGoogleButton from '@/assets/images/google-sign-in-button';
 import { UserPreferences } from '@/constants';
 import { useAppContext, useThemeColor, useSignIn } from '@/hooks';
 
-export default function SignInButton() {
+export function SignInButton() {
   const [disabled, setDisabled] = useState(false);
   const { sessionToken, setSessionToken, theme } = useAppContext();
   const { signIn } = useSignIn();

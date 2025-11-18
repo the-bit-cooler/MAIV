@@ -31,15 +31,15 @@ import { FlashList, FlashListRef } from '@shopify/flash-list';
 // ============================================================================
 
 import { bookCovers } from '@/assets/images/book-covers';
-import { BibleChapterSummary } from '@/components/bible-book-reader/bible-chapter-summary';
+import { BibleChapterSummary } from '@/components/bible-chapter-summary';
+import { CenteredActivityIndicator } from '@/components/centered-activity-indicator';
+import { Dropdown } from '@/components/dropdown';
+import { IconSymbol } from '@/components/icon-symbol';
 import RNCViewPager, {
   Commands as BibleBookReaderNativeCommands,
   OnPageScrollStateChangedEventData,
   OnPageSelectedEventData,
-} from '@/components/bible-book-reader/native-component';
-import { CenteredActivityIndicator } from '@/components/centered-activity-indicator';
-import { Dropdown } from '@/components/dropdown';
-import { IconSymbol } from '@/components/icon-symbol';
+} from '@/components/pager-view';
 import { ThemedText } from '@/components/themed-text';
 import { useAppContext, useThemeColor, useVerseContextMenu } from '@/hooks';
 import type { BibleChapterPage, PageState, Verse } from '@/types';

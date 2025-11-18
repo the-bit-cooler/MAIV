@@ -5,10 +5,7 @@ import Markdown from 'react-native-markdown-display';
 
 import { useLocalSearchParams } from 'expo-router';
 
-import AiThinkingIndicator from '@/components/ai-thinking-indicator';
-import { IconSymbol } from '@/components/icon-symbol';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
+import { AiThinkingIndicator, IconSymbol, ParallaxScrollView, ThemedText } from '@/components';
 import { useAppContext, useThemeColor } from '@/hooks';
 import {
   getBibleVersionDisplayName,

@@ -22,9 +22,7 @@ import { Drawer } from 'expo-router/drawer';
 // 🏠 Internal assets
 // ============================================================================
 
-import { IconSymbol } from '@/components/icon-symbol';
-import SignInButton from '@/components/sign-in-button';
-import { ThemedText } from '@/components/themed-text';
+import { IconSymbol, SignInButton, ThemedText } from '@/components';
 import { useAppContext, useThemeColor } from '@/hooks';
 import { getKeyListOfSupportedBibleVersions, getSupportedBibleVersions } from '@/utilities';
 
