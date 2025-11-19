@@ -1,7 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 
-import { ThemedText } from '@/components';
+import { ThemedText } from '@/components/themed-text';
 import { useThemeColor } from '@/hooks';
 import { getBibleVersionMeta } from '@/utilities';
 
