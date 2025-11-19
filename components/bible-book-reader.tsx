@@ -93,6 +93,7 @@ export function BibleBookReader({ version, timestamp }: BibleBookReaderProps) {
   const [page, setPage] = useState<PageState>({
     location: location,
     at: savedReadingLocation.bible.page,
+    userDragged: false,
   });
   const [verse, setVerse] = useState(0);
   const [verses, setVerses] = useState<Verse[] | null>(null);
@@ -109,6 +110,7 @@ export function BibleBookReader({ version, timestamp }: BibleBookReaderProps) {
   const nativeRef = useRef<any>(null);
   const isFirstMount = useRef(true);
   const isScrollingRef = useRef(false);
+  const userDraggedRef = useRef(false);
   const userSelectedVerseRef = useRef(false);
   const flashListRef = useRef<FlashListRef<Verse>>(null);
   const fadeAnimRef = useRef(new Animated.Value(1)).current;
@@ -139,19 +141,19 @@ export function BibleBookReader({ version, timestamp }: BibleBookReaderProps) {
 
   const isEndOfBible = book === 'Revelation' && chapter === chapterCount;
 
-  const updateLocation = useCallback((book: string, chapter: number, page?: number) => {
-    const newLocation = `${book}:${chapter}`;
-    setLocation(newLocation);
-    setPage({ location: newLocation, at: page ?? 0 });
-  }, []);
+  const updateLocation = useCallback(
+    (book: string, chapter?: number, page?: number, verse?: number) => {
+      console.log('BibleBookReader.updateLocation()', { book, chapter, page, verse });
+      const newLocation = `${book}:${chapter ?? 1}`;
+      setLocation(newLocation);
+      setPage({ location: newLocation, at: page ?? 1, userDragged: false });
+      setVerse(verse ?? 0);
+    },
+    [],
+  );
 
   const resolvedLayoutDirection = useMemo(() => {
     return I18nManager.isRTL ? 'rtl' : 'ltr';
-  }, []);
-
-  const getFirstVerseOnPage = useCallback((pageNumber: number, map: Record<number, number>) => {
-    const found = Object.entries(map).find(([_, page]) => page === pageNumber);
-    return found ? Number(found[0]) : 0;
   }, []);
 
   const totalChapterVerseCount = useMemo(() => {
@@ -159,19 +161,46 @@ export function BibleBookReader({ version, timestamp }: BibleBookReaderProps) {
     return pages.reduce((sum, p) => sum + p.verses.length, 0);
   }, [pages]);
 
-  const verseToPageMap = useMemo(() => {
-    if (!pages?.length) return {};
+  const { verseToPageMap, firstVerseMap, maxPage } = useMemo(() => {
+    if (!pages?.length) {
+      return { verseToPageMap: {}, firstVerseMap: {}, maxPage: 0 };
+    }
 
-    const map: Record<number, number> = {};
+    const vToP: Record<number, number> = {}; // verse → page
+    const pToV: Record<number, number> = {}; // page → firstVerse
+    let max = 0;
 
     for (const p of pages) {
+      const pageNum = p.pageNumber;
+
+      // Track max
+      if (pageNum > max) max = pageNum;
+
+      // Save first verse on page
+      pToV[pageNum] = p.verses[0]?.verse ?? 0;
+
+      // Map each verse to this page
       for (const v of p.verses) {
-        map[v.verse] = p.pageNumber;
+        vToP[v.verse] = pageNum;
       }
     }
 
-    return map;
+    return {
+      verseToPageMap: vToP,
+      firstVerseMap: pToV,
+      maxPage: max,
+    };
   }, [pages]);
+
+  const getFirstVerseOnPage = useCallback(
+    (pageNumber: number) => {
+      if (pageNumber < 0) return firstVerseMap[maxPage] ?? 0;
+      if (firstVerseMap[pageNumber] != null) return firstVerseMap[pageNumber];
+      if (pageNumber > maxPage) return firstVerseMap[maxPage] ?? 0;
+      return 0;
+    },
+    [firstVerseMap, maxPage],
+  );
 
   // ============================================================================
   // 🎛 HANDLERS
@@ -181,8 +210,9 @@ export function BibleBookReader({ version, timestamp }: BibleBookReaderProps) {
     ({
       nativeEvent: { pageScrollState },
     }: ReactNative.NativeSyntheticEvent<OnPageScrollStateChangedEventData>) => {
+      isScrollingRef.current = pageScrollState === 'dragging';
       if (pageScrollState === 'dragging') {
-        isScrollingRef.current = true;
+        userDraggedRef.current = true;
       }
     },
     [],
@@ -190,14 +220,13 @@ export function BibleBookReader({ version, timestamp }: BibleBookReaderProps) {
 
   const onPageTurned = useCallback(
     ({ nativeEvent: { position } }: ReactNative.NativeSyntheticEvent<OnPageSelectedEventData>) => {
-      if (!isScrollingRef.current || !pages?.length) return;
+      if (!userDraggedRef.current || !pages?.length) return;
 
       const totalPages = 1 + pages.length + 2; // summary + verse pages + 2 placeholders
       const lastIndex = totalPages - 1;
 
       const book = pages[0].verses[0].book;
       const chapter = pages[0].verses[0].chapter;
-      const chapterCount = getBibleBookChapterCount(book);
       const isStartOfBible = book === 'Genesis';
       const isEndOfBible = book === 'Revelation';
 
@@ -206,7 +235,6 @@ export function BibleBookReader({ version, timestamp }: BibleBookReaderProps) {
         if (chapter > 1) {
           updateLocation(book, chapter - 1, -1);
         } else if (!isStartOfBible) {
-          console.log('GO TO PREV BOOK');
           const bookIndex = bibleBooks.indexOf(book);
           if (bookIndex > 0) {
             const prevBook = bibleBooks[bookIndex - 1];
@@ -218,18 +246,27 @@ export function BibleBookReader({ version, timestamp }: BibleBookReaderProps) {
 
       // <-- NEXT Chapter or Book -->
       else if (position === lastIndex) {
+        const chapterCount = getBibleBookChapterCount(book);
         if (chapter < chapterCount) {
           updateLocation(book, chapter + 1);
         } else if (!isEndOfBible) {
-          console.log('GO TO NEXT BOOK');
           const bookIndex = bibleBooks.indexOf(book);
           if (bookIndex < bibleBooks.length - 1) {
-            updateLocation(bibleBooks[bookIndex + 1], 1);
+            updateLocation(bibleBooks[bookIndex + 1]);
           }
         }
       }
 
-      isScrollingRef.current = false;
+      // <-- SAME Page -->
+      else {
+        setPage((prev) => ({
+          ...prev,
+          at: position,
+          userDragged: true,
+        }));
+      }
+
+      userDraggedRef.current = false;
     },
     [pages, bibleBooks, updateLocation],
   );
@@ -373,7 +410,7 @@ export function BibleBookReader({ version, timestamp }: BibleBookReaderProps) {
         const pages: BibleChapterPage[] = [];
         let currentPage: Verse[] = [];
         let totalHeight = 0;
-        let pageNumber = 1; // (verses actually start on index 1 of pager view)
+        let pageNumber = 2; // (verses actually start on index 2 of pager view)
         let startsAt = verses[0].verse;
 
         verses.forEach((verse, i) => {
@@ -422,6 +459,11 @@ export function BibleBookReader({ version, timestamp }: BibleBookReaderProps) {
 
   useEffect(() => {
     const saveReadingLocation = async () => {
+      if (isFirstMount.current) {
+        isFirstMount.current = false;
+        return;
+      }
+
       if (book && chapter && page && !isFirstMount.current) {
         try {
           const readingLocation: ReadingLocation = {
@@ -429,7 +471,7 @@ export function BibleBookReader({ version, timestamp }: BibleBookReaderProps) {
             bible: {
               book,
               chapter,
-              page: page.at > 0 ? page.at : 1,
+              page: page.at === 0 ? 1 : page.at,
             },
           };
           await setCache(CacheKeys.reading_location, readingLocation);
@@ -451,15 +493,11 @@ export function BibleBookReader({ version, timestamp }: BibleBookReaderProps) {
 
   useEffect(() => {
     function triggerPageJump() {
+      // console.log('BibleBookReader.useEffect() => triggerPageJump()', page);
       if (!isPagerReady) return;
       if (!nativeRef.current) return;
       if (!pages?.length) return;
-
-      // abort the very first mount — pager is already naturally at correct position
-      if (isFirstMount.current) {
-        isFirstMount.current = false;
-        return;
-      }
+      if (page.userDragged) return;
 
       const book = pages[0].verses[0].book;
       const chapter = pages[0].verses[0].chapter;
@@ -469,13 +507,10 @@ export function BibleBookReader({ version, timestamp }: BibleBookReaderProps) {
       if (page.location !== currentLocation) return;
 
       try {
-        // If user didn't manually drag, trigger programmatic jump
-        if (!isScrollingRef.current) {
-          const goToPage = page.at === -1 ? pages.length + 1 : page.at + 1; // account for summary + placeholder pages
-          requestAnimationFrame(() => {
-            BibleBookReaderNativeCommands.setPageWithoutAnimation(nativeRef.current, goToPage);
-          });
-        }
+        const goToPage = page.at === -1 ? pages.length + 1 : page.at; // account for summary + placeholder pages
+        requestAnimationFrame(() => {
+          BibleBookReaderNativeCommands.setPageWithoutAnimation(nativeRef.current, goToPage);
+        });
       } catch (error) {
         console.error('BibleBookReader.useEffect() => triggerPageJump()', error);
       }
@@ -492,11 +527,11 @@ export function BibleBookReader({ version, timestamp }: BibleBookReaderProps) {
         return;
       }
 
-      setVerse(getFirstVerseOnPage(page.at, verseToPageMap));
+      setVerse(getFirstVerseOnPage(page.at));
     }
 
     setPickerToFirstVerseOnPage();
-  }, [page, verseToPageMap, getFirstVerseOnPage]);
+  }, [page, getFirstVerseOnPage]);
 
   // ============================================================================
   // 👁️ RENDER
@@ -549,7 +584,6 @@ export function BibleBookReader({ version, timestamp }: BibleBookReaderProps) {
       )}
       <RNCViewPager
         ref={nativeRef}
-        initialPage={page.at}
         overdrag={false} // iOS
         overScrollMode="never" // Android
         layoutDirection={resolvedLayoutDirection}
@@ -676,7 +710,7 @@ export function BibleBookReader({ version, timestamp }: BibleBookReaderProps) {
                   setActiveDropdown={setActiveDropdown}
                   items={getBibleBookList().map((bk) => ({ label: bk, value: bk }))}
                   selectedValue={book}
-                  onSelect={(bk: string) => updateLocation(bk, chapter)}
+                  onSelect={(bk: string) => updateLocation(bk)}
                 />
               </View>
 
@@ -712,8 +746,7 @@ export function BibleBookReader({ version, timestamp }: BibleBookReaderProps) {
                     selectedValue={verse}
                     onSelect={(vs: number) => {
                       userSelectedVerseRef.current = true;
-                      setVerse(vs);
-                      updateLocation(book, chapter, vs === 0 ? 0 : (verseToPageMap[vs] ?? 1));
+                      updateLocation(book, chapter, vs === 0 ? 1 : (verseToPageMap[vs] ?? 1), vs);
                     }}
                   />
                 </View>
