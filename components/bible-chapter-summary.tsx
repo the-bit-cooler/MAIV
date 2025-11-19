@@ -21,9 +21,9 @@ import { AiThinkingIndicator } from '@/components/ai-thinking-indicator';
 import { IconSymbol } from '@/components/icon-symbol';
 import { ParallaxScrollView } from '@/components/parallax-scroll-view';
 import { ThemedText } from '@/components/themed-text';
-import { blurhash } from '@/constants';
+import { blurhash, TTL } from '@/constants';
 import { useAppContext, useThemeColor } from '@/hooks';
-import { getLargeCache, setLargeCache, shareMarkdownPdf, TTL } from '@/utilities';
+import { getLargeCache, setLargeCache, shareMarkdownPdf } from '@/utilities';
 
 // ============================================================================
 // ⚙️ Function Component & Props

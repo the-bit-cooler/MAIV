@@ -6,6 +6,7 @@ import Markdown from 'react-native-markdown-display';
 import { useLocalSearchParams } from 'expo-router';
 
 import { AiThinkingIndicator, IconSymbol, ParallaxScrollView, ThemedText } from '@/components';
+import { TTL } from '@/constants';
 import { useAppContext, useThemeColor } from '@/hooks';
 import {
   getBibleVersionDisplayName,
@@ -13,7 +14,6 @@ import {
   getUserDirective,
   setLargeCache,
   shareMarkdownPdf,
-  TTL,
 } from '@/utilities';
 
 type BibleVerseExplanationRouteParams = {

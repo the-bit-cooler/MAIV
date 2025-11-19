@@ -6,13 +6,6 @@ import { CacheItem } from '@/types';
 
 export const CACHE_VERSION = 'v1'; // Increment this whenever you change cache structure
 
-export const TTL = {
-  HOUR: 3600,
-  DAY: 86400,
-  WEEK: 604800,
-  MONTH: 2592000,
-};
-
 // ==================================================
 //  ASYNCSTORAGE VERSION (lightweight user prefs, etc.)
 // ==================================================

@@ -25,7 +25,6 @@ export {
   setCache,
   setLargeCache,
   CACHE_VERSION,
-  TTL,
 } from '@/utilities/cache';
 export { getUserDirective } from '@/utilities/getUserDirective';
 export { shareIllustrationPdf } from '@/utilities/shareIllustrationPdf';
