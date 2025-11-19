@@ -10,7 +10,7 @@ import { blurhash } from '@/constants';
 import { useAppContext, useThemeColor } from '@/hooks';
 import { getBibleVersionDisplayName, getUserDirective, shareIllustrationPdf } from '@/utilities';
 
-type BibleVerseIllustrationRouteParams = {
+type LocalSearchParams = {
   version: string;
   book: string;
   chapter: string;
@@ -19,8 +19,7 @@ type BibleVerseIllustrationRouteParams = {
 };
 
 export default function BibleVerseIllustrationModal() {
-  const { version, book, chapter, verse, text } =
-    useLocalSearchParams<BibleVerseIllustrationRouteParams>();
+  const { version, book, chapter, verse, text } = useLocalSearchParams<LocalSearchParams>();
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const { sessionToken, constructAPIUrl } = useAppContext();

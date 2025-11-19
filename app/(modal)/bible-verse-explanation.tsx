@@ -16,7 +16,7 @@ import {
   shareMarkdownPdf,
 } from '@/utilities';
 
-type BibleVerseExplanationRouteParams = {
+type LocalSearchParams = {
   version: string;
   book: string;
   chapter: string;
@@ -25,8 +25,7 @@ type BibleVerseExplanationRouteParams = {
 };
 
 export default function BibleVerseExplanationModal() {
-  const { version, book, chapter, verse, text } =
-    useLocalSearchParams<BibleVerseExplanationRouteParams>();
+  const { version, book, chapter, verse, text } = useLocalSearchParams<LocalSearchParams>();
   const [explanation, setExplanation] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const { aiMode, sessionToken, constructAPIUrl } = useAppContext();

@@ -8,7 +8,7 @@ import { useAppContext, useThemeColor } from '@/hooks';
 import { Verse } from '@/types';
 import { getBibleVersionDisplayName } from '@/utilities';
 
-type SimilarBibleVerseRouteParams = {
+type LocalSearchParams = {
   version: string;
   book: string;
   chapter: string;
@@ -17,8 +17,7 @@ type SimilarBibleVerseRouteParams = {
 };
 
 export default function SimilarBibleVersesModal() {
-  const { version, book, chapter, verse, text } =
-    useLocalSearchParams<SimilarBibleVerseRouteParams>();
+  const { version, book, chapter, verse, text } = useLocalSearchParams<LocalSearchParams>();
   const [verses, setVerses] = useState<Verse[]>([]);
   const [loading, setLoading] = useState(true);
   const { aiMode, constructAPIUrl } = useAppContext();

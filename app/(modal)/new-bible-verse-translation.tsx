@@ -16,7 +16,7 @@ import {
   shareMarkdownPdf,
 } from '@/utilities';
 
-type NewBibleVerseTranslationRouteParams = {
+type LocalSearchParams = {
   version: string;
   book: string;
   chapter: string;
@@ -25,8 +25,7 @@ type NewBibleVerseTranslationRouteParams = {
 };
 
 export default function NewBibleVerseTranslationModal() {
-  const { version, book, chapter, verse, text } =
-    useLocalSearchParams<NewBibleVerseTranslationRouteParams>();
+  const { version, book, chapter, verse, text } = useLocalSearchParams<LocalSearchParams>();
   const [translation, setTranslation] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const { aiMode, sessionToken, constructAPIUrl } = useAppContext();

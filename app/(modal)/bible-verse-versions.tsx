@@ -8,7 +8,7 @@ import { useAppContext, useThemeColor } from '@/hooks';
 import { Verse } from '@/types';
 import { getBibleVersionDisplayName } from '@/utilities';
 
-type BibleVersVersionsRouteParams = {
+type LocalSearchParams = {
   version: string;
   book: string;
   chapter: string;
@@ -18,8 +18,7 @@ type BibleVersVersionsRouteParams = {
 
 export default function BibleVerseVersionsModal() {
   const { constructAPIUrl } = useAppContext();
-  const { version, book, chapter, verse, text } =
-    useLocalSearchParams<BibleVersVersionsRouteParams>();
+  const { version, book, chapter, verse, text } = useLocalSearchParams<LocalSearchParams>();
   const [verses, setVerses] = useState<Verse[]>([]);
   const [loading, setLoading] = useState(true);
 
