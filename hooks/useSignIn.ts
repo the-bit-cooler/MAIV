@@ -4,12 +4,12 @@ import { Alert } from 'react-native';
 import { useAppContext } from '@/hooks/useAppContext';
 
 export function useSignIn() {
-  const { setSessionToken, constructAPIUrl } = useAppContext();
+  const { setSessionToken, constructApiUrl } = useAppContext();
   const signIn = useCallback(
     async (params: { provider: 'apple' | 'google'; idToken: string }) => {
       try {
         const { provider, idToken } = params;
-        const apiUrl = constructAPIUrl(`auth-sign-in/${provider}`);
+        const apiUrl = constructApiUrl({ segments: [`auth-sign-in`, provider] });
         const response = await fetch(apiUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -53,7 +53,7 @@ export function useSignIn() {
         );
       }
     },
-    [setSessionToken, constructAPIUrl],
+    [setSessionToken, constructApiUrl],
   );
 
   return { signIn };

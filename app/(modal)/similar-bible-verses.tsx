@@ -38,7 +38,7 @@ export default function SimilarBibleVersesModal() {
   // ============================================================================
 
   const { version, book, chapter, verse, text } = useLocalSearchParams<LocalSearchParams>();
-  const { aiMode, constructAPIUrl } = useAppContext();
+  const { aiMode, constructApiUrl } = useAppContext();
 
   const headerBackgroundColor = useThemeColor({}, 'cardBackground');
 
@@ -58,9 +58,9 @@ export default function SimilarBibleVersesModal() {
     setLoading(true);
 
     try {
-      const apiUrl = constructAPIUrl(
-        `bible/${version}/${book}/${chapter}/${verse}/similar/${aiMode}`,
-      );
+      const apiUrl = constructApiUrl({
+        segments: ['bible', version, book, chapter, verse, 'similar', aiMode],
+      });
       const response = await fetch(apiUrl);
 
       if (!response.ok) {
@@ -73,7 +73,7 @@ export default function SimilarBibleVersesModal() {
     } finally {
       setLoading(false);
     }
-  }, [version, book, chapter, verse, aiMode, constructAPIUrl]);
+  }, [version, book, chapter, verse, aiMode, constructApiUrl]);
 
   // ============================================================================
   // ⚡️ EFFECTS

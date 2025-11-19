@@ -39,7 +39,7 @@ export function BibleChapterSummary({ book, chapter }: BibleChapterSummaryProps)
   // 🪝 HOOKS (Derived Values)
   // ============================================================================
 
-  const { constructStorageUrl, constructStorageKey } = useAppContext();
+  const { constructStorageKey, constructStorageUrl } = useAppContext();
 
   const headerBackgroundColor = useThemeColor({}, 'cardBackground');
   const iconColor = useThemeColor({}, 'tint');
@@ -99,7 +99,7 @@ export function BibleChapterSummary({ book, chapter }: BibleChapterSummaryProps)
       if (!book || !chapter) return;
 
       // --- STEP 1: Try local cache ---
-      const storageKey = constructStorageKey({ book, chapter, suffix: 'summary' });
+      const storageKey = constructStorageKey({ type: 'summary', book, chapter });
 
       try {
         const cached = await getLargeCache<string>(storageKey);

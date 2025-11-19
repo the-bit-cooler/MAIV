@@ -70,7 +70,7 @@ export function BibleBookReader({ version, timestamp }: BibleBookReaderProps) {
   const {
     readingLocation: savedReadingLocation,
     constructStorageKey,
-    constructAPIUrl,
+    constructApiUrl,
   } = useAppContext();
   const navigation = useNavigation();
   const onContextMenu = useVerseContextMenu();
@@ -143,7 +143,6 @@ export function BibleBookReader({ version, timestamp }: BibleBookReaderProps) {
 
   const updateLocation = useCallback(
     (book: string, chapter?: number, page?: number, verse?: number) => {
-      console.log('BibleBookReader.updateLocation()', { book, chapter, page, verse });
       const newLocation = `${book}:${chapter ?? 1}`;
       setLocation(newLocation);
       setPage({ location: newLocation, at: page ?? 1, userDragged: false });
@@ -292,10 +291,10 @@ export function BibleBookReader({ version, timestamp }: BibleBookReaderProps) {
 
       // --- STEP 1: Try local cache ---
       const storageKey = constructStorageKey({
+        type: 'pages',
         version,
         book,
         chapter,
-        suffix: 'pages',
       });
 
       try {
@@ -320,7 +319,7 @@ export function BibleBookReader({ version, timestamp }: BibleBookReaderProps) {
       }
 
       // --- STEP 2: Try to fetch from Azure Storage directly ---
-      const apiUrl = constructAPIUrl(`bible/${version}/${book}/${chapter}`);
+      const apiUrl = constructApiUrl({ segments: [`bible`, version, book, chapter] });
 
       try {
         const res = await fetch(apiUrl);
@@ -344,7 +343,7 @@ export function BibleBookReader({ version, timestamp }: BibleBookReaderProps) {
     }
 
     loadBibleChapterVerses();
-  }, [version, location, getBookChapter, constructStorageKey, constructAPIUrl]);
+  }, [version, location, getBookChapter, constructStorageKey, constructApiUrl]);
 
   useEffect(() => {
     const { book, chapter } = getBookChapter(location);
@@ -432,10 +431,10 @@ export function BibleBookReader({ version, timestamp }: BibleBookReaderProps) {
         });
 
         const storageKey = constructStorageKey({
+          type: 'pages',
           version,
           book: verses[0].book,
           chapter: verses[0].chapter,
-          suffix: 'pages',
         });
 
         setPages(pages);
@@ -493,7 +492,6 @@ export function BibleBookReader({ version, timestamp }: BibleBookReaderProps) {
 
   useEffect(() => {
     function triggerPageJump() {
-      // console.log('BibleBookReader.useEffect() => triggerPageJump()', page);
       if (!isPagerReady) return;
       if (!nativeRef.current) return;
       if (!pages?.length) return;
@@ -595,7 +593,7 @@ export function BibleBookReader({ version, timestamp }: BibleBookReaderProps) {
         {/* Start placeholder page used to help track swipes back beyond the first page */}
         {isStartOfBible ? (
           <View
-            key={`book-coverr`}
+            key={`book-cover`}
             style={[StyleSheet.absoluteFill, styles.page]}
             collapsable={false}
           >

@@ -46,7 +46,8 @@ export default function NewBibleVerseTranslationModal() {
   // ============================================================================
 
   const { version, book, chapter, verse, text } = useLocalSearchParams<LocalSearchParams>();
-  const { aiMode, sessionToken, constructAPIUrl } = useAppContext();
+  const { aiMode, sessionToken, constructStorageKey, constructStorageUrl, constructApiUrl } =
+    useAppContext();
 
   const headerBackgroundColor = useThemeColor({}, 'cardBackground');
   const iconColor = useThemeColor({}, 'tint');
@@ -80,10 +81,24 @@ export default function NewBibleVerseTranslationModal() {
     if (!aiMode) return;
     setLoading(true);
 
-    const cacheKey = `${version}:${book}:${chapter}:${verse}:Translation:${aiMode}`;
+    const cacheKey = constructStorageKey({
+      type: 'translation',
+      version,
+      book,
+      chapter,
+      verse,
+      aiMode,
+    });
 
-    // Construct known storage URL
-    const storageUrl = `${process.env.EXPO_PUBLIC_AZURE_STORAGE_URL}translation/${version}/${book.replace(/ /g, '')}/${chapter}/${verse}/${aiMode}.txt`;
+    const storageUrl = constructStorageUrl({
+      type: 'translation',
+      version,
+      book,
+      chapter,
+      verse,
+      aiMode,
+      ext: 'txt',
+    });
 
     try {
       // --- STEP 1: Try local cache ---
@@ -109,9 +124,9 @@ export default function NewBibleVerseTranslationModal() {
       }
 
       // --- STEP 3: Fallback to Azure Function (generates & stores) ---
-      const apiUrl = constructAPIUrl(
-        `bible/${version}/${book}/${chapter}/${verse}/translate/${aiMode}`,
-      );
+      const apiUrl = constructApiUrl({
+        segments: ['bible', version, book, chapter, verse, 'translate', aiMode],
+      });
       const response = await fetch(apiUrl, {
         method: 'GET',
         headers: {
@@ -152,7 +167,17 @@ export default function NewBibleVerseTranslationModal() {
     } finally {
       setLoading(false);
     }
-  }, [version, book, chapter, verse, aiMode, sessionToken, constructAPIUrl]);
+  }, [
+    version,
+    book,
+    chapter,
+    verse,
+    aiMode,
+    sessionToken,
+    constructStorageKey,
+    constructStorageUrl,
+    constructApiUrl,
+  ]);
 
   // ============================================================================
   // ⚡️ EFFECTS

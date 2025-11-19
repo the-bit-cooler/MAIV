@@ -40,7 +40,7 @@ export default function BibleVerseIllustrationModal() {
   // ============================================================================
 
   const { version, book, chapter, verse, text } = useLocalSearchParams<LocalSearchParams>();
-  const { sessionToken, constructAPIUrl } = useAppContext();
+  const { sessionToken, constructStorageUrl, constructApiUrl } = useAppContext();
 
   const headerBackgroundColor = useThemeColor({}, 'cardBackground');
   const iconColor = useThemeColor({}, 'tint');
@@ -59,8 +59,14 @@ export default function BibleVerseIllustrationModal() {
   const fetchBibleVerseIllustration = useCallback(async () => {
     setLoading(true);
 
-    // Construct known storage URL
-    const storageUrl = `${process.env.EXPO_PUBLIC_AZURE_STORAGE_URL}illustration/${version}/${book.replace(/ /g, '')}/${chapter}/${verse}.png`;
+    const storageUrl = constructStorageUrl({
+      type: 'illustration',
+      version,
+      book,
+      chapter,
+      verse,
+      ext: 'png',
+    });
 
     try {
       // --- STEP 1: Check if the image exists in storage ---
@@ -77,7 +83,9 @@ export default function BibleVerseIllustrationModal() {
       }
 
       // --- STEP 2: Fallback to Azure Function (generates & stores) ---
-      const apiUrl = constructAPIUrl(`bible/${version}/${book}/${chapter}/${verse}/illustrate`);
+      const apiUrl = constructApiUrl({
+        segments: ['bible', version, book, chapter, verse, 'illustrate'],
+      });
       const response = await fetch(apiUrl, {
         method: 'GET',
         headers: {
@@ -109,7 +117,7 @@ export default function BibleVerseIllustrationModal() {
     } finally {
       setLoading(false);
     }
-  }, [version, book, chapter, verse, sessionToken, constructAPIUrl]);
+  }, [version, book, chapter, verse, sessionToken, constructStorageUrl, constructApiUrl]);
 
   // ============================================================================
   // ⚡️ EFFECTS

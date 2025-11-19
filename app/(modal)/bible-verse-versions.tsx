@@ -38,7 +38,7 @@ export default function BibleVerseVersionsModal() {
   // ============================================================================
 
   const { version, book, chapter, verse, text } = useLocalSearchParams<LocalSearchParams>();
-  const { constructAPIUrl } = useAppContext();
+  const { constructApiUrl } = useAppContext();
 
   // ✅ use theme defaults
   const headerBackgroundColor = useThemeColor({}, 'cardBackground');
@@ -58,7 +58,9 @@ export default function BibleVerseVersionsModal() {
     setLoading(true);
 
     try {
-      const apiUrl = constructAPIUrl(`bible/${version}/${book}/${chapter}/${verse}/versions`);
+      const apiUrl = constructApiUrl({
+        segments: ['bible', version, book, chapter, verse, 'versions'],
+      });
       const response = await fetch(apiUrl);
 
       if (!response.ok) {
@@ -72,7 +74,7 @@ export default function BibleVerseVersionsModal() {
     } finally {
       setLoading(false);
     }
-  }, [version, book, chapter, verse, constructAPIUrl]);
+  }, [version, book, chapter, verse, constructApiUrl]);
 
   // ============================================================================
   // ⚡️ EFFECTS

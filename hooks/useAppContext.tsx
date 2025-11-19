@@ -37,27 +37,32 @@ type AppContextType = {
 
   isAppReady: boolean;
 
-  constructAPIUrl: (path: string) => string;
+  constructApiUrl: ({ segments }: ApiUrl) => string;
   constructStorageUrl: ({ type, version, book, chapter, verse, aiMode, ext }: StorageUrl) => string;
-  constructStorageKey: ({ version, book, chapter, verse, suffix }: StorageKey) => string;
+  constructStorageKey: ({ type, version, book, chapter, verse, aiMode }: StorageKey) => string;
+};
+
+type ApiUrl = {
+  segments: (string | number | undefined)[];
 };
 
 type StorageUrl = {
   type: 'summary' | 'explanation' | 'illustration' | 'translation';
   version?: string;
   book: string;
-  chapter: number;
-  verse?: number;
+  chapter: number | string;
+  verse?: number | string;
   aiMode?: string;
   ext: 'txt' | 'png';
 };
 
 type StorageKey = {
+  type: 'pages' | 'summary' | 'explanation' | 'translation';
   version?: string;
   book?: string;
-  chapter?: number;
-  verse?: number;
-  suffix: 'pages' | 'summary' | 'explanation' | 'translation';
+  chapter?: number | string;
+  verse?: number | string;
+  aiMode?: string;
 };
 
 type ReadingLocationUpdate = {
@@ -87,13 +92,14 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const [systemColorScheme, setSystemColorScheme] = useState(Appearance.getColorScheme());
   const [isAppReady, setIsAppReady] = useState(false);
 
-  // === Construct API URL (memoized) ===
-  const constructAPIUrl = useCallback(
-    (path: string) => {
-      return `${process.env.EXPO_PUBLIC_AZURE_FUNCTION_URL}${path}?code=${process.env.EXPO_PUBLIC_AZURE_FUNCTION_KEY}`;
-    },
-    [], // static, no dependencies
-  );
+  const constructApiUrl = useCallback(({ segments }: ApiUrl) => {
+    const base = process.env.EXPO_PUBLIC_AZURE_FUNCTION_URL!;
+    const fnKey = process.env.EXPO_PUBLIC_AZURE_FUNCTION_KEY!;
+
+    const path = segments.filter(Boolean).join('/');
+
+    return `${base}${path}?code=${fnKey}`;
+  }, []);
 
   const constructStorageUrl = useCallback(
     ({ type, version, book, chapter, verse, aiMode, ext }: StorageUrl) => {
@@ -108,10 +114,9 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     [],
   );
 
-  // === Construct Storage Key (memoized) ===
   const constructStorageKey = useCallback(
-    ({ version, book, chapter, verse, suffix }: StorageKey) => {
-      const parts: (string | number | undefined)[] = [version, book, chapter, verse, suffix];
+    ({ type, version, book, chapter, verse, aiMode }: StorageKey) => {
+      const parts: (string | number | undefined)[] = [type, version, book, chapter, verse, aiMode];
 
       // Filter out undefined values
       const compact = parts.filter(Boolean);
@@ -161,7 +166,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
         // 🔹 Validate session token if it exists
         if (storedToken) {
-          const apiUrl = constructAPIUrl(`validate-login-session`);
+          const apiUrl = constructApiUrl({ segments: [`validate-login-session`] });
           const response = await fetch(apiUrl, {
             method: 'POST',
             headers: {
@@ -195,7 +200,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     }
 
     loadCachedState();
-  }, [constructAPIUrl]);
+  }, [constructApiUrl]);
 
   // === Hide splash screen when app context is ready ===
   useEffect(() => {
@@ -330,7 +335,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     theme,
     setTheme,
     isAppReady,
-    constructAPIUrl,
+    constructApiUrl,
     constructStorageUrl,
     constructStorageKey,
   };
