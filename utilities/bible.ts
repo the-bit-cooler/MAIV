@@ -5,13 +5,21 @@ import oldTestamentBooks from '@/assets/data/old-testament.json';
 
 // Types
 interface BibleVersions {
-  [key: string]: { fullname: string; shortname: string; supported: boolean };
+  [key: string]: {
+    fullname: string;
+    shortname: string;
+    supported: boolean;
+    description: string;
+    copyright: string;
+  };
 }
 
 interface BibleVersion {
   key: string;
   fullname: string;
   shortname: string;
+  description: string;
+  copyright: string;
 }
 
 interface BibleBookChapterCount {
@@ -31,6 +39,8 @@ const SUPPORTED_BIBLE_VERSIONS: BibleVersion[] = Object.entries(versions)
     key,
     fullname: v.fullname,
     shortname: v.shortname,
+    description: v.description,
+    copyright: v.copyright,
   }));
 
 // Supported keys only
@@ -87,4 +97,20 @@ export const getBibleBookList = (): string[] => {
 
 export const getBibleBookChapterCount = (key: string): number => {
   return (bookChapterCounts as BibleBookChapterCount)[key] || 0;
+};
+
+export const getBibleVersionMeta = (version: string) => {
+  const supported = getSupportedBibleVersions();
+  const entry = supported.find((v) => v.key === version);
+
+  if (!entry) {
+    return {
+      fullname: version,
+      shortname: version,
+      description: '',
+      copyright: '',
+    };
+  }
+
+  return entry;
 };

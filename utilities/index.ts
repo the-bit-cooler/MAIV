@@ -2,6 +2,7 @@ export {
   getBibleBookChapterCount,
   getBibleBookList,
   getBibleVersionDisplayName,
+  getBibleVersionMeta,
   getKeyListOfSupportedBibleVersions,
   getNewTestamentBibleBookList,
   getOldTestamentBibleBookList,

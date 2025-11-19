@@ -33,6 +33,7 @@ import { FlashList, FlashListRef } from '@shopify/flash-list';
 
 import { bookCovers } from '@/assets/images/book-covers';
 import { BibleChapterSummary } from '@/components/bible-chapter-summary';
+import { BibleCopyrightPage } from '@/components/bible-version-copyright';
 import { CenteredActivityIndicator } from '@/components/centered-activity-indicator';
 import { Dropdown } from '@/components/dropdown';
 import { IconSymbol } from '@/components/icon-symbol';
@@ -133,6 +134,10 @@ export function BibleBookReader({ version, timestamp }: BibleBookReaderProps) {
 
   const chapterCount = getBibleBookChapterCount(book);
 
+  const isStartOfBible = book === 'Genesis' && chapter === 1;
+
+  const isEndOfBible = book === 'Revelation' && chapter === chapterCount;
+
   const updateLocation = useCallback((book: string, chapter: number, page?: number) => {
     const newLocation = `${book}:${chapter}`;
     setLocation(newLocation);
@@ -191,12 +196,16 @@ export function BibleBookReader({ version, timestamp }: BibleBookReaderProps) {
 
       const book = pages[0].verses[0].book;
       const chapter = pages[0].verses[0].chapter;
+      const chapterCount = getBibleBookChapterCount(book);
+      const isStartOfBible = book === 'Genesis';
+      const isEndOfBible = book === 'Revelation';
 
       // <-- PREVIOUS Chapter or Book-->
       if (position === 0) {
         if (chapter > 1) {
           updateLocation(book, chapter - 1, -1);
-        } else {
+        } else if (!isStartOfBible) {
+          console.log('GO TO PREV BOOK');
           const bookIndex = bibleBooks.indexOf(book);
           if (bookIndex > 0) {
             const prevBook = bibleBooks[bookIndex - 1];
@@ -210,7 +219,8 @@ export function BibleBookReader({ version, timestamp }: BibleBookReaderProps) {
       else if (position === lastIndex) {
         if (chapter < chapterCount) {
           updateLocation(book, chapter + 1);
-        } else {
+        } else if (!isEndOfBible) {
+          console.log('GO TO NEXT BOOK');
           const bookIndex = bibleBooks.indexOf(book);
           if (bookIndex < bibleBooks.length - 1) {
             updateLocation(bibleBooks[bookIndex + 1], 1);
@@ -220,7 +230,7 @@ export function BibleBookReader({ version, timestamp }: BibleBookReaderProps) {
 
       isScrollingRef.current = false;
     },
-    [pages, bibleBooks, chapterCount, updateLocation],
+    [pages, bibleBooks, updateLocation],
   );
 
   const onShouldCapture = useCallback(() => {
@@ -546,13 +556,23 @@ export function BibleBookReader({ version, timestamp }: BibleBookReaderProps) {
         style={styles.pager}
       >
         {/* Start placeholder page used to help track swipes back beyond the first page */}
-        <View
-          key={`start-placeholder`}
-          style={[StyleSheet.absoluteFill, styles.page]}
-          collapsable={false}
-        >
-          <CenteredActivityIndicator hint="Loading Chapter" size="large" />
-        </View>
+        {isStartOfBible ? (
+          <View
+            key={`book-coverr`}
+            style={[StyleSheet.absoluteFill, styles.page]}
+            collapsable={false}
+          >
+            <Image style={styles.bookCover} source={bookCovers[version]} contentFit="fill" />
+          </View>
+        ) : (
+          <View
+            key={`start-placeholder`}
+            style={[StyleSheet.absoluteFill, styles.page]}
+            collapsable={false}
+          >
+            <CenteredActivityIndicator hint="Loading Chapter" size="large" />
+          </View>
+        )}
         {/* Summary page */}
         <View
           key={`summary-${book}-${chapter}`}
@@ -610,13 +630,23 @@ export function BibleBookReader({ version, timestamp }: BibleBookReaderProps) {
           ));
         })()}
         {/* End placeholder page used to help track swipes beyond the last page */}
-        <View
-          key={`end-placeholder`}
-          style={[StyleSheet.absoluteFill, styles.page]}
-          collapsable={false}
-        >
-          <CenteredActivityIndicator hint="Loading Chapter" size="large" />
-        </View>
+        {isEndOfBible ? (
+          <View
+            key={`copyright-page`}
+            style={[StyleSheet.absoluteFill, styles.page]}
+            collapsable={false}
+          >
+            <BibleCopyrightPage version={version} />
+          </View>
+        ) : (
+          <View
+            key={`end-placeholder`}
+            style={[StyleSheet.absoluteFill, styles.page]}
+            collapsable={false}
+          >
+            <CenteredActivityIndicator hint="Loading Chapter" size="large" />
+          </View>
+        )}
       </RNCViewPager>
       {showPicker && (
         <View key={`modal-${book}-${chapter}`} style={modalStyles.overlay}>
