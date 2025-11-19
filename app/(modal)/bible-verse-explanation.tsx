@@ -1,9 +1,21 @@
+// ============================================================================
+// ⚛️ React packages
+// ============================================================================
+
 import { PlatformPressable } from '@react-navigation/elements';
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, StyleSheet, View } from 'react-native';
 import Markdown from 'react-native-markdown-display';
 
+// ============================================================================
+// 🧩 Expo packages
+// ============================================================================
+
 import { useLocalSearchParams } from 'expo-router';
+
+// ============================================================================
+// 🏠 Internal assets
+// ============================================================================
 
 import { AiThinkingIndicator, IconSymbol, ParallaxScrollView, ThemedText } from '@/components';
 import { TTL } from '@/constants';
@@ -16,6 +28,10 @@ import {
   shareMarkdownPdf,
 } from '@/utilities';
 
+// ============================================================================
+// ⚙️ Function Component & Props
+// ============================================================================
+
 type LocalSearchParams = {
   version: string;
   book: string;
@@ -25,16 +41,40 @@ type LocalSearchParams = {
 };
 
 export default function BibleVerseExplanationModal() {
+  // ============================================================================
+  // 🪝 HOOKS (Derived Values)
+  // ============================================================================
+
   const { version, book, chapter, verse, text } = useLocalSearchParams<LocalSearchParams>();
-  const [explanation, setExplanation] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
   const { aiMode, sessionToken, constructAPIUrl } = useAppContext();
 
-  // ✅ use theme defaults
   const headerBackgroundColor = useThemeColor({}, 'cardBackground');
   const iconColor = useThemeColor({}, 'tint');
   const markdownBackgroundColor = useThemeColor({}, 'cardBackground');
   const markdownTextColor = useThemeColor({}, 'text');
+
+  // ============================================================================
+  // 🔄 STATE
+  // ============================================================================
+
+  const [explanation, setExplanation] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  // ============================================================================
+  // 📐 CONSTANTS
+  // ============================================================================
+
+  const failedMarkdown = `
+  \`\`\`
+  So sorry! I failed to generate an explanation for this verse. 
+  
+  I will try again later.
+  \`\`\`
+  `;
+
+  // ============================================================================
+  // 🧠 MEMOS & CALLBACKS (DERIVED LOGIC)
+  // ============================================================================
 
   const fetchBibleVerseExplanation = useCallback(async () => {
     if (!aiMode) return;
@@ -114,9 +154,17 @@ export default function BibleVerseExplanationModal() {
     }
   }, [aiMode, version, book, chapter, verse, sessionToken, constructAPIUrl]);
 
+  // ============================================================================
+  // ⚡️ EFFECTS
+  // ============================================================================
+
   useEffect(() => {
     fetchBibleVerseExplanation();
   }, [fetchBibleVerseExplanation]);
+
+  // ============================================================================
+  // 🎛 HANDLERS
+  // ============================================================================
 
   const sharePdf = async () => {
     if (explanation)
@@ -135,13 +183,9 @@ export default function BibleVerseExplanationModal() {
       );
   };
 
-  const failedMarkdown = `
-  \`\`\`
-  So sorry! I failed to generate an explanation for this verse. 
-  
-  I will try again later.
-  \`\`\`
-  `;
+  // ============================================================================
+  // 👁️ RENDER
+  // ============================================================================
 
   return (
     <ParallaxScrollView
@@ -221,6 +265,10 @@ export default function BibleVerseExplanationModal() {
     </ParallaxScrollView>
   );
 }
+
+// ============================================================================
+// 🎨 STYLES
+// ============================================================================
 
 const styles = StyleSheet.create({
   container: {

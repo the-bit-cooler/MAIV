@@ -1,12 +1,28 @@
+// ============================================================================
+// ⚛️ React packages
+// ============================================================================
+
 import { useCallback, useEffect, useState } from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
 
+// ============================================================================
+// 🧩 Expo packages
+// ============================================================================
+
 import { useLocalSearchParams } from 'expo-router';
+
+// ============================================================================
+// 🏠 Internal assets
+// ============================================================================
 
 import { AiThinkingIndicator, ParallaxScrollView, ThemedText } from '@/components';
 import { useAppContext, useThemeColor } from '@/hooks';
 import { Verse } from '@/types';
 import { getBibleVersionDisplayName } from '@/utilities';
+
+// ============================================================================
+// ⚙️ Function Component & Props
+// ============================================================================
 
 type LocalSearchParams = {
   version: string;
@@ -17,13 +33,26 @@ type LocalSearchParams = {
 };
 
 export default function BibleVerseVersionsModal() {
-  const { constructAPIUrl } = useAppContext();
+  // ============================================================================
+  // 🪝 HOOKS (Derived Values)
+  // ============================================================================
+
   const { version, book, chapter, verse, text } = useLocalSearchParams<LocalSearchParams>();
-  const [verses, setVerses] = useState<Verse[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { constructAPIUrl } = useAppContext();
 
   // ✅ use theme defaults
   const headerBackgroundColor = useThemeColor({}, 'cardBackground');
+
+  // ============================================================================
+  // 🔄 STATE
+  // ============================================================================
+
+  const [verses, setVerses] = useState<Verse[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // ============================================================================
+  // 🧠 MEMOS & CALLBACKS (DERIVED LOGIC)
+  // ============================================================================
 
   const fetchBibleVerseVersions = useCallback(async () => {
     setLoading(true);
@@ -45,9 +74,17 @@ export default function BibleVerseVersionsModal() {
     }
   }, [version, book, chapter, verse, constructAPIUrl]);
 
+  // ============================================================================
+  // ⚡️ EFFECTS
+  // ============================================================================
+
   useEffect(() => {
     fetchBibleVerseVersions();
   }, [fetchBibleVerseVersions]);
+
+  // ============================================================================
+  // 👁️ RENDER
+  // ============================================================================
 
   return (
     <ParallaxScrollView
@@ -101,6 +138,10 @@ export default function BibleVerseVersionsModal() {
     </ParallaxScrollView>
   );
 }
+
+// ============================================================================
+// 🎨 STYLES
+// ============================================================================
 
 const styles = StyleSheet.create({
   container: {

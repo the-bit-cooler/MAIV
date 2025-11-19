@@ -1,12 +1,28 @@
+// ============================================================================
+// ⚛️ React packages
+// ============================================================================
+
 import { useCallback, useEffect, useState } from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
 
+// ============================================================================
+// 🧩 Expo packages
+// ============================================================================
+
 import { useLocalSearchParams } from 'expo-router';
+
+// ============================================================================
+// 🏠 Internal assets
+// ============================================================================
 
 import { AiThinkingIndicator, ParallaxScrollView, ThemedText } from '@/components';
 import { useAppContext, useThemeColor } from '@/hooks';
 import { Verse } from '@/types';
 import { getBibleVersionDisplayName } from '@/utilities';
+
+// ============================================================================
+// ⚙️ Function Component & Props
+// ============================================================================
 
 type LocalSearchParams = {
   version: string;
@@ -17,13 +33,25 @@ type LocalSearchParams = {
 };
 
 export default function SimilarBibleVersesModal() {
+  // ============================================================================
+  // 🪝 HOOKS (Derived Values)
+  // ============================================================================
+
   const { version, book, chapter, verse, text } = useLocalSearchParams<LocalSearchParams>();
-  const [verses, setVerses] = useState<Verse[]>([]);
-  const [loading, setLoading] = useState(true);
   const { aiMode, constructAPIUrl } = useAppContext();
 
-  // ✅ use theme defaults
   const headerBackgroundColor = useThemeColor({}, 'cardBackground');
+
+  // ============================================================================
+  // 🔄 STATE
+  // ============================================================================
+
+  const [verses, setVerses] = useState<Verse[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // ============================================================================
+  // 🧠 MEMOS & CALLBACKS (DERIVED LOGIC)
+  // ============================================================================
 
   const fetchSimilarBibleVerses = useCallback(async () => {
     if (!aiMode) return;
@@ -47,9 +75,17 @@ export default function SimilarBibleVersesModal() {
     }
   }, [version, book, chapter, verse, aiMode, constructAPIUrl]);
 
+  // ============================================================================
+  // ⚡️ EFFECTS
+  // ============================================================================
+
   useEffect(() => {
     fetchSimilarBibleVerses();
   }, [fetchSimilarBibleVerses]);
+
+  // ============================================================================
+  // 👁️ RENDER
+  // ============================================================================
 
   return (
     <ParallaxScrollView
@@ -103,6 +139,10 @@ export default function SimilarBibleVersesModal() {
     </ParallaxScrollView>
   );
 }
+
+// ============================================================================
+// 🎨 STYLES
+// ============================================================================
 
 const styles = StyleSheet.create({
   container: {

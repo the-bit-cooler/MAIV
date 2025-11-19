@@ -1,14 +1,30 @@
+// ============================================================================
+// ⚛️ React packages
+// ============================================================================
+
 import { PlatformPressable } from '@react-navigation/elements';
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, Platform, StyleSheet, View } from 'react-native';
 
+// ============================================================================
+// 🧩 Expo packages
+// ============================================================================
+
 import { Image } from 'expo-image';
 import { useLocalSearchParams } from 'expo-router';
+
+// ============================================================================
+// 🏠 Internal assets
+// ============================================================================
 
 import { AiThinkingIndicator, IconSymbol, ParallaxScrollView, ThemedText } from '@/components';
 import { blurhash } from '@/constants';
 import { useAppContext, useThemeColor } from '@/hooks';
 import { getBibleVersionDisplayName, getUserDirective, shareIllustrationPdf } from '@/utilities';
+
+// ============================================================================
+// ⚙️ Function Component & Props
+// ============================================================================
 
 type LocalSearchParams = {
   version: string;
@@ -19,14 +35,26 @@ type LocalSearchParams = {
 };
 
 export default function BibleVerseIllustrationModal() {
+  // ============================================================================
+  // 🪝 HOOKS (Derived Values)
+  // ============================================================================
+
   const { version, book, chapter, verse, text } = useLocalSearchParams<LocalSearchParams>();
-  const [imageUri, setImageUri] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
   const { sessionToken, constructAPIUrl } = useAppContext();
 
-  // ✅ use theme defaults
   const headerBackgroundColor = useThemeColor({}, 'cardBackground');
   const iconColor = useThemeColor({}, 'tint');
+
+  // ============================================================================
+  // 🔄 STATE
+  // ============================================================================
+
+  const [imageUri, setImageUri] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  // ============================================================================
+  // 🧠 MEMOS & CALLBACKS (DERIVED LOGIC)
+  // ============================================================================
 
   const fetchBibleVerseIllustration = useCallback(async () => {
     setLoading(true);
@@ -83,9 +111,17 @@ export default function BibleVerseIllustrationModal() {
     }
   }, [version, book, chapter, verse, sessionToken, constructAPIUrl]);
 
+  // ============================================================================
+  // ⚡️ EFFECTS
+  // ============================================================================
+
   useEffect(() => {
     fetchBibleVerseIllustration();
   }, [fetchBibleVerseIllustration]);
+
+  // ============================================================================
+  // 🎛 HANDLERS
+  // ============================================================================
 
   const sharePdf = async () => {
     if (imageUri)
@@ -97,6 +133,10 @@ export default function BibleVerseIllustrationModal() {
         text,
       });
   };
+
+  // ============================================================================
+  // 👁️ RENDER
+  // ============================================================================
 
   return (
     <ParallaxScrollView
@@ -153,6 +193,10 @@ export default function BibleVerseIllustrationModal() {
     </ParallaxScrollView>
   );
 }
+
+// ============================================================================
+// 🎨 STYLES
+// ============================================================================
 
 const styles = StyleSheet.create({
   container: {

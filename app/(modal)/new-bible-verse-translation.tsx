@@ -1,9 +1,21 @@
+// ============================================================================
+// ⚛️ React packages
+// ============================================================================
+
 import { PlatformPressable } from '@react-navigation/elements';
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, StyleSheet, View } from 'react-native';
 import Markdown from 'react-native-markdown-display';
 
+// ============================================================================
+// 🧩 Expo packages
+// ============================================================================
+
 import { useLocalSearchParams } from 'expo-router';
+
+// ============================================================================
+// 🏠 Internal assets
+// ============================================================================
 
 import { AiThinkingIndicator, IconSymbol, ParallaxScrollView, ThemedText } from '@/components';
 import { TTL } from '@/constants';
@@ -16,6 +28,10 @@ import {
   shareMarkdownPdf,
 } from '@/utilities';
 
+// ============================================================================
+// ⚙️ Function Component & Props
+// ============================================================================
+
 type LocalSearchParams = {
   version: string;
   book: string;
@@ -25,16 +41,40 @@ type LocalSearchParams = {
 };
 
 export default function NewBibleVerseTranslationModal() {
+  // ============================================================================
+  // 🪝 HOOKS (Derived Values)
+  // ============================================================================
+
   const { version, book, chapter, verse, text } = useLocalSearchParams<LocalSearchParams>();
-  const [translation, setTranslation] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
   const { aiMode, sessionToken, constructAPIUrl } = useAppContext();
 
-  // ✅ use theme defaults
   const headerBackgroundColor = useThemeColor({}, 'cardBackground');
   const iconColor = useThemeColor({}, 'tint');
   const markdownBackgroundColor = useThemeColor({}, 'cardBackground');
   const markdownTextColor = useThemeColor({}, 'text');
+
+  // ============================================================================
+  // 🔄 STATE
+  // ============================================================================
+
+  const [translation, setTranslation] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  // ============================================================================
+  // 📐 CONSTANTS
+  // ============================================================================
+
+  const failedMarkdown = `
+  \`\`\`
+  So sorry! I failed to generate a new translation for this verse. 
+  
+  I will try again later.
+  \`\`\`
+  `;
+
+  // ============================================================================
+  // 🧠 MEMOS & CALLBACKS (DERIVED LOGIC)
+  // ============================================================================
 
   const fetchNewBibleVerseTranslation = useCallback(async () => {
     if (!aiMode) return;
@@ -114,9 +154,17 @@ export default function NewBibleVerseTranslationModal() {
     }
   }, [version, book, chapter, verse, aiMode, sessionToken, constructAPIUrl]);
 
+  // ============================================================================
+  // ⚡️ EFFECTS
+  // ============================================================================
+
   useEffect(() => {
     fetchNewBibleVerseTranslation();
   }, [fetchNewBibleVerseTranslation]);
+
+  // ============================================================================
+  // 🎛 HANDLERS
+  // ============================================================================
 
   const sharePdf = async () => {
     if (translation)
@@ -135,13 +183,9 @@ export default function NewBibleVerseTranslationModal() {
       );
   };
 
-  const failedMarkdown = `
-  \`\`\`
-  So sorry! I failed to generate a new translation for this verse. 
-  
-  I will try again later.
-  \`\`\`
-  `;
+  // ============================================================================
+  // 👁️ RENDER
+  // ============================================================================
 
   return (
     <ParallaxScrollView
@@ -221,6 +265,10 @@ export default function NewBibleVerseTranslationModal() {
     </ParallaxScrollView>
   );
 }
+
+// ============================================================================
+// 🎨 STYLES
+// ============================================================================
 
 const styles = StyleSheet.create({
   container: {
