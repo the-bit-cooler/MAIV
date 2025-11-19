@@ -1,3 +1,7 @@
+// ============================================================================
+// ⚛️ React packages
+// ============================================================================
+
 import {
   Alert,
   Button,
@@ -8,18 +12,47 @@ import {
   View,
 } from 'react-native';
 
+// ============================================================================
+// 🧩 Expo packages
+// ============================================================================
+
 import * as Application from 'expo-application';
+
+// ============================================================================
+// 🏠 Internal assets
+// ============================================================================
 
 import { HorizontalThemedSeparator, ThemedText, ThemedView } from '@/components';
 import { AiModeValues, AppDefaults, Colors } from '@/constants';
-import { AppTheme, useAppContext, useThemeColor } from '@/hooks';
+import { useAppContext, useThemeColor } from '@/hooks';
 import { clearCache, clearLargeCache } from '@/utilities';
 
+// ============================================================================
+// ⚙️ Function Component & Props
+// ============================================================================
+
 export default function SettingsModal() {
-  const { theme, setTheme } = useAppContext();
+  // ============================================================================
+  // 🪝 HOOKS (Derived Values)
+  // ============================================================================
+
+  const { theme, setTheme, aiMode, setAiMode, aiThinkingSoundEnabled, setAiThinkingSoundEnabled } =
+    useAppContext();
+
   const backgroundColor = useThemeColor({}, 'cardBackground');
   const textColor = useThemeColor({}, 'text');
   const tintColor = useThemeColor({}, 'tint');
+
+  // ============================================================================
+  // 📐 CONSTANTS
+  // ============================================================================
+
+  const themeOptions = ['light', 'dark', 'sepia', 'system'] as const;
+  const themeOptionLabels = ['Light Mode', 'Dark Mode', 'Reading Mode', 'System Default'] as const;
+
+  // ============================================================================
+  // 🎛 HANDLERS
+  // ============================================================================
 
   const clearStorage = async () => {
     Alert.alert(
@@ -53,18 +86,65 @@ export default function SettingsModal() {
     );
   };
 
+  // ============================================================================
+  // 👁️ RENDER
+  // ============================================================================
+
   return (
     <ThemedView style={[styles.container, { backgroundColor }]}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <AppearanceSection
-          appTheme={theme}
-          headerColor={textColor}
-          optionColor={textColor}
-          selectedColor={tintColor}
-          setAppTheme={setTheme}
-        />
+        <View>
+          <ThemedText type="subtitle" style={[styles.header, { color: textColor }]}>
+            Appearance
+          </ThemedText>
+          {themeOptions.map((option, index) => {
+            const isSelected = theme === option;
+            return (
+              <TouchableOpacity
+                key={option}
+                style={[
+                  styles.optionButton,
+                  { borderColor: isSelected ? tintColor : 'transparent' },
+                ]}
+                onPress={() => setTheme(option)}
+              >
+                <ThemedText style={{ color: isSelected ? tintColor : textColor }}>
+                  {themeOptionLabels[index]}
+                </ThemedText>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
         <HorizontalThemedSeparator />
-        <AiModeSection headerColor={textColor} optionColor={textColor} selectedColor={tintColor} />
+        <View style={{ marginTop: 10 }}>
+          <ThemedText type="subtitle" style={[styles.header, { color: textColor }]}>
+            AI Mode
+          </ThemedText>
+          {AiModeValues.map((option) => {
+            const isSelected = aiMode === option;
+            return (
+              <TouchableOpacity
+                key={option}
+                style={[
+                  styles.optionButton,
+                  { borderColor: isSelected ? tintColor : 'transparent' },
+                ]}
+                onPress={async () => await setAiMode(option)}
+              >
+                <ThemedText style={{ color: isSelected ? tintColor : textColor }}>
+                  {option.charAt(0).toUpperCase() + option.slice(1)}
+                </ThemedText>
+              </TouchableOpacity>
+            );
+          })}
+          <View style={styles.soundToggleContainer}>
+            <ThemedText style={styles.soundToggleLabel}>Enable Thinking Sound</ThemedText>
+            <Switch
+              value={aiThinkingSoundEnabled}
+              onValueChange={async (value) => await setAiThinkingSoundEnabled(value)}
+            />
+          </View>
+        </View>
         <HorizontalThemedSeparator />
         <View style={{ marginTop: 10, alignSelf: 'center', width: 200 }}>
           <Button title="Clear App Data" color={Colors.error.text} onPress={clearStorage} />
@@ -77,91 +157,9 @@ export default function SettingsModal() {
   );
 }
 
-type AppearanceSectionProps = {
-  appTheme: AppTheme;
-  headerColor: string;
-  optionColor: string;
-  selectedColor: string;
-  setAppTheme: (theme: AppTheme) => void;
-};
-
-const AppearanceSection = ({
-  appTheme,
-  headerColor,
-  optionColor,
-  selectedColor,
-  setAppTheme,
-}: AppearanceSectionProps) => {
-  const themeOptions = ['light', 'dark', 'sepia', 'system'] as const;
-  const themeOptionLabels = ['Light Mode', 'Dark Mode', 'Reading Mode', 'System Default'] as const;
-
-  return (
-    <>
-      <ThemedText type="subtitle" style={[styles.header, { color: headerColor }]}>
-        Appearance
-      </ThemedText>
-      {themeOptions.map((option, index) => {
-        const isSelected = appTheme === option;
-        return (
-          <TouchableOpacity
-            key={option}
-            style={[
-              styles.optionButton,
-              { borderColor: isSelected ? selectedColor : 'transparent' },
-            ]}
-            onPress={() => setAppTheme(option)}
-          >
-            <ThemedText style={{ color: isSelected ? selectedColor : optionColor }}>
-              {themeOptionLabels[index]}
-            </ThemedText>
-          </TouchableOpacity>
-        );
-      })}
-    </>
-  );
-};
-
-type AiModeSectionProps = {
-  headerColor: string;
-  optionColor: string;
-  selectedColor: string;
-};
-
-const AiModeSection = ({ headerColor, optionColor, selectedColor }: AiModeSectionProps) => {
-  const { aiMode, setAiMode, aiThinkingSoundEnabled, setAiThinkingSoundEnabled } = useAppContext();
-
-  return (
-    <View style={{ marginTop: 10 }}>
-      <ThemedText type="subtitle" style={[styles.header, { color: headerColor }]}>
-        AI Mode
-      </ThemedText>
-      {AiModeValues.map((option) => {
-        const isSelected = aiMode === option;
-        return (
-          <TouchableOpacity
-            key={option}
-            style={[
-              styles.optionButton,
-              { borderColor: isSelected ? selectedColor : 'transparent' },
-            ]}
-            onPress={async () => await setAiMode(option)}
-          >
-            <ThemedText style={{ color: isSelected ? selectedColor : optionColor }}>
-              {option.charAt(0).toUpperCase() + option.slice(1)}
-            </ThemedText>
-          </TouchableOpacity>
-        );
-      })}
-      <View style={styles.soundToggleContainer}>
-        <ThemedText style={styles.soundToggleLabel}>Enable Thinking Sound</ThemedText>
-        <Switch
-          value={aiThinkingSoundEnabled}
-          onValueChange={async (value) => await setAiThinkingSoundEnabled(value)}
-        />
-      </View>
-    </View>
-  );
-};
+// ============================================================================
+// 🎨 STYLES
+// ============================================================================
 
 const styles = StyleSheet.create({
   container: {
