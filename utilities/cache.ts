@@ -2,13 +2,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import Storage from 'expo-sqlite/kv-store';
 
-export const CACHE_VERSION = 'v1'; // Increment this whenever you change cache structure
+import { CacheItem } from '@/types';
 
-interface CacheItem<T> {
-  value: T;
-  expiresAt: number; // timestamp in ms
-  version: string; // current cache version
-}
+export const CACHE_VERSION = 'v1'; // Increment this whenever you change cache structure
 
 export const TTL = {
   HOUR: 3600,
