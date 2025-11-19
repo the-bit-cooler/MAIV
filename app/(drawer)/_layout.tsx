@@ -91,8 +91,6 @@ function CustomDrawerContent(props: DrawerContentComponentProps) {
   // 🪝 HOOKS (Derived Values)
   // ============================================================================
 
-  const { setReadingLocation } = useAppContext();
-
   const activeTintColor = useThemeColor({}, 'tint');
   const inactiveTintColor = useThemeColor({}, 'text');
 
@@ -148,7 +146,6 @@ function CustomDrawerContent(props: DrawerContentComponentProps) {
             activeTintColor={activeTintColor} // Customize active/inactive colors
             inactiveTintColor={inactiveTintColor}
             onPress={async () => {
-              await setReadingLocation({ drawerSelection: version });
               props.navigation.navigate(version, { timestamp: Date.now() });
             }}
           />

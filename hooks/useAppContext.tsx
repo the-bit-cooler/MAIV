@@ -1,5 +1,5 @@
 import { ThemeProvider as NavThemeProvider } from '@react-navigation/native';
-import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { Alert, Appearance, AppState } from 'react-native';
 
 import { ActionSheetProvider } from '@expo/react-native-action-sheet';
@@ -8,11 +8,11 @@ import * as SplashScreen from 'expo-splash-screen';
 
 import {
   AppDefaults,
+  CacheKeys,
   DarkNavTheme,
   LightNavTheme,
   SepiaNavTheme,
   ThemeName,
-  CacheKeys,
 } from '@/constants';
 import type { ReadingLocation } from '@/types';
 import { getCache, setCache } from '@/utilities';
@@ -86,7 +86,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const [theme, setThemeState] = useState<AppTheme>(AppDefaults.theme);
   const [systemColorScheme, setSystemColorScheme] = useState(Appearance.getColorScheme());
   const [isAppReady, setIsAppReady] = useState(false);
-  const isInitialMount = useRef(true);
 
   // === Construct API URL (memoized) ===
   const constructAPIUrl = useCallback(
@@ -215,32 +214,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
     hideSplashScreen();
   }, [isAppReady]);
-
-  // === Save user's reading location ===
-  useEffect(() => {
-    const saveReadingLocation = async () => {
-      if (readingLocation && !isInitialMount.current) {
-        try {
-          await setCache(CacheKeys.reading_location, readingLocation);
-        } catch (error) {
-          console.error('AppProvider.useEffect() => saveReadingLocation()', error);
-        }
-      }
-    };
-
-    const subscription = AppState.addEventListener('change', async (state) => {
-      if (state === 'background') await saveReadingLocation(); // Save when app is placed in background
-    });
-
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-    }
-
-    return () => {
-      subscription.remove();
-      saveReadingLocation(); // Save on unmount
-    };
-  }, [readingLocation]);
 
   // === Setters that persist ===
   const setReadingLocation = async (partial: Partial<ReadingLocationUpdate>) => {

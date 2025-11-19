@@ -43,12 +43,14 @@ import RNCViewPager, {
   OnPageSelectedEventData,
 } from '@/components/pager-view';
 import { ThemedText } from '@/components/themed-text';
+import { CacheKeys } from '@/constants';
 import { useAppContext, useThemeColor, useVerseContextMenu } from '@/hooks';
-import type { BibleChapterPage, PageState, Verse } from '@/types';
+import type { BibleChapterPage, PageState, ReadingLocation, Verse } from '@/types';
 import {
   getBibleBookChapterCount,
   getBibleBookList,
   getLargeCache,
+  setCache,
   setLargeCache,
 } from '@/utilities';
 
@@ -67,7 +69,6 @@ export function BibleBookReader({ version, timestamp }: BibleBookReaderProps) {
   // ============================================================================
   const {
     readingLocation: savedReadingLocation,
-    setReadingLocation,
     constructStorageKey,
     constructAPIUrl,
   } = useAppContext();
@@ -423,13 +424,15 @@ export function BibleBookReader({ version, timestamp }: BibleBookReaderProps) {
     const saveReadingLocation = async () => {
       if (book && chapter && page && !isFirstMount.current) {
         try {
-          await setReadingLocation({
+          const readingLocation: ReadingLocation = {
+            drawerSelection: version,
             bible: {
               book,
               chapter,
-              page: page.at,
+              page: page.at > 0 ? page.at : 1,
             },
-          });
+          };
+          await setCache(CacheKeys.reading_location, readingLocation);
         } catch (error) {
           console.error('BibleBookReader.useEffect() => saveReadingLocation()', error);
         }
@@ -444,7 +447,7 @@ export function BibleBookReader({ version, timestamp }: BibleBookReaderProps) {
       subscription.remove();
       saveReadingLocation(); // Save on unmount
     };
-  }, [book, chapter, page, setReadingLocation]);
+  }, [version, book, chapter, page]);
 
   useEffect(() => {
     function triggerPageJump() {
