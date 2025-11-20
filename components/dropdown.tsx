@@ -1,13 +1,26 @@
+// ============================================================================
+// ⚛️ React packages
+// ============================================================================
+
 import { useEffect, useRef } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+
+// ============================================================================
+// 🏠 Internal assets
+// ============================================================================
 
 import { IconSymbol } from '@/components/icon-symbol';
 import { ThemedText } from '@/components/themed-text';
 import { useThemeColor } from '@/hooks';
 
 type Item = { label: string; value: any };
+const ITEM_HEIGHT = 44;
 
-type DropdownProps = {
+// ============================================================================
+// ⚙️ Function Component & Props
+// ============================================================================
+
+type Props = {
   id: string;
   label?: string;
   items: Item[];
@@ -18,8 +31,6 @@ type DropdownProps = {
   placeholder?: string;
 };
 
-const ITEM_HEIGHT = 44;
-
 export function Dropdown({
   id,
   label,
@@ -29,19 +40,37 @@ export function Dropdown({
   setActiveDropdown,
   onSelect,
   placeholder = 'Select...',
-}: DropdownProps) {
-  const scrollRef = useRef<ScrollView>(null);
+}: Props) {
+  // ============================================================================
+  // 🪝 HOOKS (Derived Values)
+  // ============================================================================
+
   const bg = useThemeColor({}, 'background');
   const cardBG = useThemeColor({}, 'cardBackground');
   const border = useThemeColor({}, 'tint') + '40';
   const text = useThemeColor({}, 'text');
   const tint = useThemeColor({}, 'tint');
   const highlight = useThemeColor({}, 'tint');
+
+  // ============================================================================
+  // 🔗 REF
+  // ============================================================================
+
+  const scrollRef = useRef<ScrollView>(null);
+
+  // ============================================================================
+  // 📐 CONSTANTS
+  // ============================================================================
+
   const highlightBg = highlight + '22';
   const highlightText = highlight;
 
   const isOpen = activeDropdown === id;
   const selectedLabel = items.find((i) => i.value === selectedValue)?.label ?? placeholder;
+
+  // ============================================================================
+  // ⚡️ EFFECTS
+  // ============================================================================
 
   useEffect(() => {
     if (isOpen && scrollRef.current) {
@@ -57,6 +86,10 @@ export function Dropdown({
       }
     }
   }, [isOpen, items, selectedValue]);
+
+  // ============================================================================
+  // 👁️ RENDER
+  // ============================================================================
 
   return (
     <View style={{ width: '100%', marginBottom: 0 }}>
@@ -117,6 +150,10 @@ export function Dropdown({
     </View>
   );
 }
+
+// ============================================================================
+// 🎨 STYLES
+// ============================================================================
 
 const styles = StyleSheet.create({
   label: {
