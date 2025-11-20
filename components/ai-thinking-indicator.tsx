@@ -16,6 +16,7 @@ import { AudioPlayer, createAudioPlayer } from 'expo-audio';
 // ============================================================================
 
 import { ThemedText } from '@/components/themed-text';
+import { AI_THINKING_INDICATOR_COLORS, AI_THINKING_INDICATOR_SYMBOLS } from '@/constants';
 import { useAppContext } from '@/hooks';
 
 // ============================================================================
@@ -45,35 +46,6 @@ export function AiThinkingIndicator() {
   const soundRef = useRef<AudioPlayer | null>(null);
 
   // ============================================================================
-  // 📐 CONSTANTS
-  // ============================================================================
-
-  const SYMBOLS = [
-    'α',
-    'β',
-    'λ',
-    'ϕ',
-    '∑',
-    'Ω',
-    '∞',
-    'Ψ',
-    'π',
-    'Δ',
-    '∂',
-    'µ',
-    'ξ',
-    'χ',
-    'Θ',
-    'γ',
-    'ζ',
-    'ρ',
-    'η',
-    'σ',
-  ];
-
-  const COLORS = ['#1E3A5F', '#2E5A7F', '#3B6B99', '#1A4566', '#2C5C80'];
-
-  // ============================================================================
   // ⚡️ EFFECTS
   // ============================================================================
 
@@ -83,7 +55,11 @@ export function AiThinkingIndicator() {
       setChars((prev) => {
         const next = [...prev];
         if (next.length > 15) next.shift();
-        next.push(SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)]);
+        next.push(
+          AI_THINKING_INDICATOR_SYMBOLS[
+            Math.floor(Math.random() * AI_THINKING_INDICATOR_SYMBOLS.length)
+          ],
+        );
         return next;
       });
     }, 200);
@@ -131,7 +107,7 @@ export function AiThinkingIndicator() {
   // 🌈 Cycle colors
   useEffect(() => {
     const colorCycle = setInterval(() => {
-      setColorIndex((prev) => (prev + 1) % COLORS.length);
+      setColorIndex((prev) => (prev + 1) % AI_THINKING_INDICATOR_COLORS.length);
     }, 1000);
     return () => clearInterval(colorCycle);
   }, []);
@@ -206,8 +182,14 @@ export function AiThinkingIndicator() {
               marginHorizontal: 2,
               opacity: fadeAnim,
               transform: [{ scale: scaleAnim }],
-              color: COLORS[(colorIndex + i) % COLORS.length],
-              textShadowColor: COLORS[(colorIndex + i) % COLORS.length],
+              color:
+                AI_THINKING_INDICATOR_COLORS[
+                  (colorIndex + i) % AI_THINKING_INDICATOR_COLORS.length
+                ],
+              textShadowColor:
+                AI_THINKING_INDICATOR_COLORS[
+                  (colorIndex + i) % AI_THINKING_INDICATOR_COLORS.length
+                ],
               textShadowRadius: 10,
             }}
           >

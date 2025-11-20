@@ -1,4 +1,4 @@
-import { AiModes } from '@/constants/ai-modes';
+import { AiModes } from '@/constants/ai-constants';
 import { ThemeName } from '@/constants/theme';
 
 export const AppDefaults = {
