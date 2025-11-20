@@ -78,6 +78,13 @@ export default function DrawerLayout() {
           }}
         />
       ))}
+      <Drawer.Screen
+        name="about"
+        options={{
+          drawerLabel: 'About',
+          title: 'About',
+        }}
+      />
     </Drawer>
   );
 }
@@ -151,6 +158,24 @@ function CustomDrawerContent(props: DrawerContentComponentProps) {
           />
         );
       })}
+
+      {/* ─────────────────────── */}
+      {/* App Information Section */}
+      {/* ─────────────────────── */}
+      <View style={{ paddingHorizontal: 16, paddingVertical: 8, marginTop: 10 }}>
+        <ThemedText type="subtitle" style={{ color: inactiveTintColor }}>
+          App
+        </ThemedText>
+      </View>
+
+      <DrawerItem
+        label="About"
+        focused={props.state.routes[props.state.index].name === 'about'}
+        activeTintColor={activeTintColor}
+        inactiveTintColor={inactiveTintColor}
+        onPress={() => props.navigation.navigate('about')}
+        icon={({ color, size }) => <IconSymbol name="info.circle.fill" size={size} color={color} />}
+      />
     </DrawerContentScrollView>
   );
 }

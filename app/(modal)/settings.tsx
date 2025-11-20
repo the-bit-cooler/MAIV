@@ -13,12 +13,6 @@ import {
 } from 'react-native';
 
 // ============================================================================
-// 🧩 Expo packages
-// ============================================================================
-
-import * as Application from 'expo-application';
-
-// ============================================================================
 // 🏠 Internal assets
 // ============================================================================
 
@@ -76,13 +70,6 @@ export default function SettingsModal() {
           },
         },
       ],
-    );
-  };
-
-  const showAbout = () => {
-    Alert.alert(
-      `${Application.applicationName}: Modern AI Version`,
-      `App Version ${Application.nativeApplicationVersion}\nBuild Number ${Application.nativeBuildVersion}\n© 2025 ScripturAI\n\nIn ❤️❤️ memory of Charlie Kirk`,
     );
   };
 
@@ -148,9 +135,6 @@ export default function SettingsModal() {
         <HorizontalThemedSeparator />
         <View style={{ marginTop: 10, alignSelf: 'center', width: 200 }}>
           <Button title="Clear App Data" color={Colors.error.text} onPress={clearStorage} />
-        </View>
-        <View style={{ marginTop: 20, marginBottom: 30, alignSelf: 'center', width: 200 }}>
-          <Button title="About" onPress={showAbout} />
         </View>
       </ScrollView>
     </ThemedView>
