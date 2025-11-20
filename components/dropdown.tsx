@@ -11,10 +11,9 @@ import { Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 
 
 import { IconSymbol } from '@/components/icon-symbol';
 import { ThemedText } from '@/components/themed-text';
+import { DROPDOWN_ITEM_HEIGHT } from '@/constants';
 import { useThemeColor } from '@/hooks';
-
-type Item = { label: string; value: any };
-const ITEM_HEIGHT = 44;
+import { DropdownItem } from '@/types';
 
 // ============================================================================
 // ⚙️ Function Component & Props
@@ -23,7 +22,7 @@ const ITEM_HEIGHT = 44;
 type Props = {
   id: string;
   label?: string;
-  items: Item[];
+  items: DropdownItem[];
   selectedValue: any;
   activeDropdown: string | null;
   setActiveDropdown: (id: string | null) => void;
@@ -79,7 +78,7 @@ export function Dropdown({
         // Delay to ensure layout is ready
         requestAnimationFrame(() => {
           scrollRef.current?.scrollTo({
-            y: selectedIndex * (ITEM_HEIGHT * 1.04), // 44 = item height
+            y: selectedIndex * (DROPDOWN_ITEM_HEIGHT * 1.04), // 44 = item height
             animated: false,
           });
         });
@@ -183,7 +182,7 @@ const styles = StyleSheet.create({
   },
   item: {
     // width: '100%',
-    minHeight: ITEM_HEIGHT,
+    minHeight: DROPDOWN_ITEM_HEIGHT,
     paddingVertical: 12,
     paddingHorizontal: 16,
   },

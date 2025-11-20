@@ -10,3 +10,5 @@ export { DarkNavTheme, LightNavTheme, SepiaNavTheme } from '@/constants//navigat
 export { Colors, Fonts, ThemeName } from '@/constants//theme';
 export { CacheKeys } from '@/constants/cache-keys';
 export { TTL } from '@/constants/cache-ttl';
+
+export const DROPDOWN_ITEM_HEIGHT = 44;
