@@ -1,20 +1,44 @@
+// ============================================================================
+// ⚛️ React packages
+// ============================================================================
+
 import { StyleSheet, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
+
+// ============================================================================
+// 🏠 Internal assets
+// ============================================================================
 
 import { ThemedText } from '@/components/themed-text';
 import { useThemeColor } from '@/hooks';
 import { getBibleVersionMeta } from '@/utilities';
+
+// ============================================================================
+// ⚙️ Function Component & Props
+// ============================================================================
 
 interface Props {
   version: string;
 }
 
 export function BibleCopyrightPage({ version }: Props) {
+  // ============================================================================
+  // 🪝 HOOKS (Derived Values)
+  // ============================================================================
+
   const bg = useThemeColor({}, 'background');
   const text = useThemeColor({}, 'text');
   const secondary = useThemeColor({}, 'secondaryText');
 
+  // ============================================================================
+  // 📐 CONSTANTS
+  // ============================================================================
+
   const meta = getBibleVersionMeta(version);
+
+  // ============================================================================
+  // 👁️ RENDER
+  // ============================================================================
 
   return (
     <Animated.View
@@ -51,6 +75,10 @@ export function BibleCopyrightPage({ version }: Props) {
     </Animated.View>
   );
 }
+
+// ============================================================================
+// 🎨 STYLES
+// ============================================================================
 
 const styles = StyleSheet.create({
   container: {

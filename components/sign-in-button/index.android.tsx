@@ -1,3 +1,7 @@
+// ============================================================================
+// ⚛️ React packages
+// ============================================================================
+
 import {
   GoogleSignin,
   isErrorWithCode,
@@ -7,22 +11,47 @@ import {
 import { useEffect, useState } from 'react';
 import { Alert, Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
+// ============================================================================
+// 🏠 Internal assets
+// ============================================================================
+
 import ContinueWithGoogleButton from '@/assets/images/google-sign-in-button';
-import { useAppContext, useThemeColor, useSignIn } from '@/hooks';
+import { useAppContext, useSignIn, useThemeColor } from '@/hooks';
+
+// ============================================================================
+// ⚙️ Function Component & Props
+// ============================================================================
 
 export function SignInButton() {
-  const [disabled, setDisabled] = useState(false);
+  // ============================================================================
+  // 🪝 HOOKS (Derived Values)
+  // ============================================================================
+
   const { sessionToken, setSessionToken, theme } = useAppContext();
   const { signIn } = useSignIn();
 
   const backgroundColor = useThemeColor({}, 'background');
   const textColor = useThemeColor({}, 'text');
 
+  // ============================================================================
+  // 🔄 STATE
+  // ============================================================================
+
+  const [disabled, setDisabled] = useState(false);
+
+  // ============================================================================
+  // ⚡️ EFFECTS
+  // ============================================================================
+
   useEffect(() => {
     GoogleSignin.configure({
       webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
     });
   }, []);
+
+  // ============================================================================
+  // 🎛 HANDLERS
+  // ============================================================================
 
   async function handleSignOut() {
     try {
@@ -95,6 +124,10 @@ export function SignInButton() {
     }
   }
 
+  // ============================================================================
+  // 👁️ RENDER
+  // ============================================================================
+
   return (
     <View key={sessionToken ? 'signed-in' : 'signed-out'}>
       {sessionToken ? (
@@ -137,6 +170,10 @@ export function SignInButton() {
     </View>
   );
 }
+
+// ============================================================================
+// 🎨 STYLES
+// ============================================================================
 
 const styles = StyleSheet.create({
   button: {

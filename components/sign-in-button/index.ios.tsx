@@ -1,17 +1,46 @@
+// ============================================================================
+// ⚛️ React packages
+// ============================================================================
+
 import { useState } from 'react';
 import { Alert, Pressable, Text } from 'react-native';
 
+// ============================================================================
+// 🧩 Expo packages
+// ============================================================================
+
 import * as AppleAuthentication from 'expo-apple-authentication';
 
-import { useAppContext, useThemeColor, useSignIn } from '@/hooks';
+// ============================================================================
+// 🏠 Internal assets
+// ============================================================================
+
+import { useAppContext, useSignIn, useThemeColor } from '@/hooks';
+
+// ============================================================================
+// ⚙️ Function Component & Props
+// ============================================================================
 
 export function SignInButton() {
-  const [disabled, setDisabled] = useState(false);
+  // ============================================================================
+  // 🪝 HOOKS (Derived Values)
+  // ============================================================================
+
   const { sessionToken, setSessionToken, theme } = useAppContext();
   const { signIn } = useSignIn();
 
   const backgroundColor = useThemeColor({}, 'background');
   const textColor = useThemeColor({}, 'text');
+
+  // ============================================================================
+  // 🔄 STATE
+  // ============================================================================
+
+  const [disabled, setDisabled] = useState(false);
+
+  // ============================================================================
+  // 🎛 HANDLERS
+  // ============================================================================
 
   async function handleSignOut() {
     try {
@@ -44,6 +73,10 @@ export function SignInButton() {
       setDisabled(false);
     }
   }
+
+  // ============================================================================
+  // 👁️ RENDER
+  // ============================================================================
 
   return sessionToken ? (
     <Pressable
